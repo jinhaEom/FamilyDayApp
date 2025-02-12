@@ -26,7 +26,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     enableFreeze(false);
-    console.log('HomeScreen 렌더링됨');
+    console.log('dev Test');
 
     console.log('Current Room:', currentRoom);
     console.log('User:', user);
