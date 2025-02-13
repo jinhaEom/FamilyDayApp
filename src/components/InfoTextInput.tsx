@@ -8,14 +8,15 @@ import {
 } from 'react-native';
 import {Colors} from '../constants/Colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import {StyleProp, ViewStyle} from 'react-native';
 interface InfoTextInputProps extends TextInputProps {
   value: string;
   onChangeText: (text: string) => void;
   placeholder: string;
   placeholderTextColor?: string;
   secureTextEntry?: boolean;
-  onBlur?: () => void;  
+  onBlur?: () => void;
+  style?: StyleProp<ViewStyle>;
 }
 
 const InfoTextInput: React.FC<InfoTextInputProps> = ({
@@ -36,7 +37,6 @@ const InfoTextInput: React.FC<InfoTextInputProps> = ({
 
   return (
     <View
-      // eslint-disable-next-line react-native/no-inline-styles
       style={{
         height: 40,
         borderColor: isFocused ? Colors.BLACK : Colors.LIGHT_GRAY,
@@ -46,6 +46,7 @@ const InfoTextInput: React.FC<InfoTextInputProps> = ({
         paddingHorizontal: 10,
         justifyContent: 'center',
         borderRadius: 12,
+        ...(props.style as ViewStyle),
       }}>
       <TextInput
         style={{color: Colors.BLACK}}
@@ -62,6 +63,7 @@ const InfoTextInput: React.FC<InfoTextInputProps> = ({
           setIsFocused(false);
           onBlur?.();
         }}
+        multiline={true}
       />
       {deleteIconVisible && (
         <TouchableOpacity style={styles.iconTouchStyle}>

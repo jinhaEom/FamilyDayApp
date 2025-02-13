@@ -25,6 +25,7 @@ export type Room = {
 export enum Collection {
   USERS = 'users',
   ROOMS = 'rooms',
+  SCHEDULE = 'schedule',
 }
 
 export type Day = {
@@ -32,4 +33,14 @@ export type Day = {
   day: number;
   month: number;
   year: number;
+};
+
+export type Schedule = {
+  scheduleId: string;
+  scheduleTitle: string;
+  scheduleContent: string;
+  scheduleDate: string;
+  scheduleEndDate: string;
+  createdAt: any;
+  createdBy: string;
 };

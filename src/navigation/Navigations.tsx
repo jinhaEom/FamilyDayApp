@@ -10,7 +10,8 @@ import BottomTabNavigator from './BottomTabNavigator';
 import ExistChoiceRoom from '../screens/setup/ExistChoiceRoom';
 import { AuthContext } from '../auth/AuthContext';
 import LoadingScreen from '../Loading/LoadingScreen';
-import { NavigationContainer } from '@react-navigation/native';
+import AddScheduleScreen from '../home/AddScheduleScreen';
+import { NavigationContainer, useRoute, RouteProp } from '@react-navigation/native';
 export type RootStackParamList = {
   Loading: undefined;
   Login: undefined;
@@ -25,11 +26,11 @@ export type RootStackParamList = {
     nickname: string;
     inviteCode: string;
   };
+  AddSchedule: undefined;
   Settings: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
 
 
 const Navigation: React.FC = () => {
@@ -73,9 +74,14 @@ const Navigation: React.FC = () => {
         <Stack.Screen name="WritingCode" component={WritingCode} />
         <Stack.Screen name="ExistChoiceRoom" component={ExistChoiceRoom} />
         <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
+        <Stack.Screen name="AddSchedule" component={AddScheduleScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
 
 export default Navigation;
+
+export const useRootRoute = <RouteName extends keyof RootStackParamList>() => {
+  return useRoute<RouteProp<RootStackParamList, RouteName>>();
+};

@@ -1,4 +1,4 @@
-import type {User, Room} from '../types/type';
+import type {User, Room, Schedule} from '../types/type';
 import {createContext} from 'react';
 export interface AuthContextType {
   initialized: boolean;
@@ -12,6 +12,8 @@ export interface AuthContextType {
   signOut: () => void;
   justLoggedIn: boolean;
   setJustLoggedIn: (justLoggedIn: boolean) => void;
+  schedules: Schedule[];
+  setSchedules: (schedules: Schedule[]) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -26,4 +28,6 @@ export const AuthContext = createContext<AuthContextType>({
   setCurrentRoom: () => {},
   justLoggedIn: false,
   setJustLoggedIn: () => {},
+  schedules: [],
+  setSchedules: () => {},
 });
