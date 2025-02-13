@@ -6,6 +6,7 @@ import {
   useWindowDimensions,
   TouchableOpacity,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import {Colors} from '../../constants/Colors';
 import firestore from '@react-native-firebase/firestore';
@@ -15,6 +16,7 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../navigation/Navigations';
 import AppBasicButton from '../../components/AppBasicButton';
+
 const ExistChoiceRoom = () => {
   const {width} = useWindowDimensions();
   const {user, setCurrentRoom} = useContext(AuthContext);
@@ -87,19 +89,21 @@ const ExistChoiceRoom = () => {
           <Text style={styles.noRoomText}>참여한 방이 없습니다.</Text>
         ) : (
           <>
-            <View style={styles.container}>
-              {rooms.map(room => (
-                <TouchableOpacity
-                  key={room.roomId}
-                  style={[styles.roomListCard, {width: width / 2.4}]}
-                  onPress={() => handleRoomPress(room)}>
-                  <Text style={styles.roomNameText}>{room.roomName}</Text>
-                  <Text style={styles.memberCountText}>
-                    멤버 {Object.keys(room.members).length}명
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <ScrollView>
+              <View style={styles.container}>
+                {rooms.map(room => (
+                  <TouchableOpacity
+                    key={room.roomId}
+                    style={[styles.roomListCard, {width: width / 2.4}]}
+                    onPress={() => handleRoomPress(room)}>
+                    <Text style={styles.roomNameText}>{room.roomName}</Text>
+                    <Text style={styles.memberCountText}>
+                      멤버 {Object.keys(room.members).length}명
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
           </>
         )}
       </View>
@@ -141,6 +145,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.BLACK,
     padding: 20,
     margin: 5,
+    height: 100,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',

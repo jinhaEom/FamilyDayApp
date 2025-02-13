@@ -11,7 +11,7 @@ import {
   updateProfile,
 } from '@react-native-firebase/auth';
 import {AuthContext} from './AuthContext';
-
+import {Schedule} from '../types/type';
 // Firebase Web SDK 타입에서 FirebaseApp과 FirebaseUser를 가져옵니다.
 import type {User as FirebaseUser} from '@firebase/auth';
 
@@ -22,72 +22,98 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [processingSignIn, setProcessingSignIn] = useState(false);
   const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
   const [justLoggedIn, setJustLoggedIn] = useState(false);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+
   const auth = getAuth();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       auth,
       async (fbUser: FirebaseUser | null) => {
-        if (fbUser) {
-          console.log('현재 로그인한 사용자 UID:', fbUser.uid);
-          const userId = fbUser.uid;
-
-          try {
-            // 사용자 문서 확인
-            const userDoc = await firestore()
-              .collection('users')
-              .doc(userId)
-              .get();
-
-            const userData = userDoc.data();
-            const basicUserInfo: User = {
-              userId,
-              email: fbUser.email || '',
-              name: fbUser.displayName || '',
-              justLoggedIn,
-            };
-
-            if (userData?.currentRoomId) {
-              const roomDoc = await firestore()
-                .collection('rooms')
-                .doc(userData.currentRoomId)
-                .get();
-
-              if (roomDoc.exists) {
-                const roomData = roomDoc.data();
-                if (roomData == null) {
-                  return;
-                }
-                setUser({
-                  ...basicUserInfo,
-                  currentRoomId: roomDoc.id,
-                  currentRoomName: roomData.roomName,
-                });
-
-                setCurrentRoom({
-                  roomId: roomDoc.id,
-                  roomName: roomData.roomName,
-                  inviteCode: roomData.inviteCode,
-                  createdAt: roomData.createdAt,
-                  members: roomData.members || {},
-                });
-              } else {
-                setUser(basicUserInfo);
-                setCurrentRoom(null);
-              }
-            } else {
-              setUser(basicUserInfo);
-              setCurrentRoom(null);
-            }
-          } catch (error) {
-            setUser(null);
-            setCurrentRoom(null);
-          }
-        } else {
+        if (!fbUser) {
           setUser(null);
           setCurrentRoom(null);
+          setInitialized(true);
+          return;
         }
-        setInitialized(true);
+
+        console.log('현재 로그인한 사용자 UID:', fbUser.uid);
+        const userId = fbUser.uid;
+        const basicUserInfo: User = {
+          userId,
+          email: fbUser.email || '',
+          name: fbUser.displayName || '',
+          justLoggedIn,
+        };
+
+        try {
+          const userDoc = await firestore()
+            .collection('users')
+            .doc(userId)
+            .get();
+          const userData = userDoc.data();
+
+          // 현재 참여 중인 방 정보 저장 (없으면 null)
+          let roomInfo = null;
+          if (userData?.currentRoomId) {
+            const roomDoc = await firestore()
+              .collection('rooms')
+              .doc(userData.currentRoomId)
+              .get();
+            if (roomDoc.exists) {
+              const roomData = roomDoc.data();
+              roomInfo = roomData
+                ? {
+                    roomId: roomDoc.id,
+                    roomName: roomData.roomName,
+                    inviteCode: roomData.inviteCode,
+                    createdAt: roomData.createdAt,
+                    members: roomData.members || {},
+                  }
+                : null;
+            }
+          }
+
+          const fetchSchedules = async (
+            currentUser: User,
+            currentRoomInfo: any,
+          ) => {
+            if (!currentUser || !currentRoomInfo) {
+              return;
+            }
+            try {
+              const roomRef = firestore()
+                .collection('rooms')
+                .doc(currentRoomInfo.roomId);
+              const roomDoc = await roomRef.get();
+              const roomData = roomDoc.data();
+
+              // 현재 사용자의 스케줄 가져오기
+              const userSchedules =
+                roomData?.members?.[currentUser.userId]?.schedules || [];
+              setSchedules(userSchedules);
+            } catch (error) {
+              console.error('스케줄 가져오기 오류:', error);
+            }
+          };
+
+          const updatedUser = roomInfo
+            ? {
+                ...basicUserInfo,
+                currentRoomId: roomInfo.roomId,
+                currentRoomName: roomInfo.roomName,
+              }
+            : basicUserInfo;
+
+          setUser(updatedUser);
+          setCurrentRoom(roomInfo);
+          fetchSchedules(updatedUser, roomInfo);
+        } catch (error) {
+          setUser(null);
+          setCurrentRoom(null);
+        } finally {
+          setInitialized(true);
+        }
       },
     );
 
@@ -172,6 +198,8 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       signOut,
       justLoggedIn,
       setJustLoggedIn,
+      schedules,
+      setSchedules,
     };
   }, [
     initialized,
@@ -185,6 +213,8 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     signOut,
     justLoggedIn,
     setJustLoggedIn,
+    schedules,
+    setSchedules,
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

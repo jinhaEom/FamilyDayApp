@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		5472CC772D548EB8003F09FA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5472CC762D548EB8003F09FA /* GoogleService-Info.plist */; };
+		54D9128F2D5D88F900AA1C6E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 54D912152D5D859800AA1C6E /* GoogleService-Info.plist */; };
 		5CB5DD144CDCBF78B975AB7E /* Pods_FamilyDay.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FE02FC0A74C5F2B1F3161D2 /* Pods_FamilyDay.framework */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -765,6 +765,13 @@
 			remoteGlobalIDString = B0B92A60DF01BBCBC60811E296916E9A;
 			remoteInfo = RNFBDatabase;
 		};
+		54BB55C32D5DD6D500A0D7EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 72DE4BF3FB9CE0858E90F96FEF8A53AE;
+			remoteInfo = RNDateTimePicker;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -774,7 +781,7 @@
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = FamilyDay/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-FamilyDay.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FamilyDay.debug.xcconfig"; path = "Target Support Files/Pods-FamilyDay/Pods-FamilyDay.debug.xcconfig"; sourceTree = "<group>"; };
 		5472CB2F2D548D40003F09FA /* Pods.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Pods.xcodeproj; path = Pods/Pods.xcodeproj; sourceTree = "<group>"; };
-		5472CC762D548EB8003F09FA /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		54D912152D5D859800AA1C6E /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "FamilyDay/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-FamilyDay.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FamilyDay.release.xcconfig"; path = "Target Support Files/Pods-FamilyDay/Pods-FamilyDay.release.xcconfig"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = FamilyDay/AppDelegate.swift; sourceTree = "<group>"; };
 		7FE02FC0A74C5F2B1F3161D2 /* Pods_FamilyDay.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FamilyDay.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -803,7 +810,7 @@
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
 				5472CB2F2D548D40003F09FA /* Pods.xcodeproj */,
-				5472CC762D548EB8003F09FA /* GoogleService-Info.plist */,
+				54D912152D5D859800AA1C6E /* GoogleService-Info.plist */,
 			);
 			name = FamilyDay;
 			sourceTree = "<group>";
@@ -917,6 +924,7 @@
 				5472CC4F2D548DDF003F09FA /* RecaptchaInterop.framework */,
 				549566D62D5B0C200023D1A6 /* RNCAsyncStorage.framework */,
 				549566D82D5B0C200023D1A6 /* RNCAsyncStorage_resources.bundle */,
+				54BB55C42D5DD6D500A0D7EC /* RNDateTimePicker.framework */,
 				5472CBDF2D548DDF003F09FA /* RNFBApp.framework */,
 				5472CBE12D548DDF003F09FA /* RNFBAuth.framework */,
 				549566DA2D5B0C200023D1A6 /* RNFBDatabase.framework */,
@@ -1781,6 +1789,13 @@
 			remoteRef = 549566D92D5B0C200023D1A6 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		54BB55C42D5DD6D500A0D7EC /* RNDateTimePicker.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = RNDateTimePicker.framework;
+			remoteRef = 54BB55C32D5DD6D500A0D7EC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -1788,8 +1803,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				54D9128F2D5D88F900AA1C6E /* GoogleService-Info.plist in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
-				5472CC772D548EB8003F09FA /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				D9D6393793808D3CEB92B13D /* PrivacyInfo.xcprivacy in Resources */,
 			);

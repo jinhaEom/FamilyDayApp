@@ -16,25 +16,25 @@ import {Colors} from '../constants/Colors';
 import {Calendar} from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Day} from '../types/type';
-import {enableFreeze} from 'react-native-screens';
 const HomeScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const {signOut, user, currentRoom, setCurrentRoom} = useContext(AuthContext);
+  const {user, currentRoom, schedules} = useContext(AuthContext);
+  const [selectedDate, setSelectedDate] = useState<string>('');
   const [dateDetail, setDateDetail] = useState(false);
   const slideAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    enableFreeze(false);
-    console.log('HomeScreen 렌더링됨');
-
     console.log('Current Room:', currentRoom);
     console.log('User:', user);
+    if (user != null) {
+      console.log('schedules:', schedules);
+    }
 
     if (!currentRoom) {
       navigation.replace('ChoiceRoom');
     }
-  }, [currentRoom, navigation, user]);
+  }, [currentRoom, navigation, user, schedules]);
 
   useEffect(() => {
     Animated.spring(slideAnim, {
@@ -44,17 +44,8 @@ const HomeScreen = () => {
       tension: 40,
     }).start();
   }, [dateDetail, slideAnim]);
-
-  const logOutHandler = async () => {
-    try {
-      await signOut();
-      navigation.reset({
-        index: 0,
-        routes: [{name: 'Login'}],
-      });
-    } catch (error) {
-      console.error('로그아웃 중 에러 발생:', error);
-    }
+  const addScheduleHandler = () => {
+    navigation.navigate('AddSchedule');
   };
 
   if (!currentRoom) {
@@ -75,10 +66,15 @@ const HomeScreen = () => {
           </Text>
         ))}
       </ScrollView>
+      <TouchableOpacity style={styles.addButton} onPress={addScheduleHandler}>
+        <Text>일정 등록하기</Text>
+        <Ionicons name="add-circle-outline" size={24} color="black" />
+      </TouchableOpacity>
       <Calendar
         style={styles.calendar}
         onDayPress={(day: Day) => {
           setDateDetail(true);
+          setSelectedDate(day.dateString);
         }}
       />
       <Animated.View
@@ -98,7 +94,7 @@ const HomeScreen = () => {
         ]}>
         <View>
           <View style={styles.detailHeader}>
-            <Text>[25-02-10]</Text>
+            <Text>{selectedDate}</Text>
             <TouchableOpacity onPress={() => setDateDetail(false)}>
               <Ionicons name="caret-up-outline" size={24} color="black" />
             </TouchableOpacity>
@@ -170,6 +166,13 @@ const styles = StyleSheet.create({
   detailContent: {
     flexDirection: 'row',
     marginTop: 10,
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    marginRight: 10,
+    marginBottom: 10,
   },
 });
 
