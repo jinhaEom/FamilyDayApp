@@ -128,7 +128,6 @@ const AddScheduleScreen = () => {
         </View>
       </View>
 
-      {/* 버튼 컨테이너를 flex 1의 부모 컨테이너 안에서 하단에 배치 */}
       <View style={styles.buttonContainer}>
         <AppBasicButton
           style={styles.button}
