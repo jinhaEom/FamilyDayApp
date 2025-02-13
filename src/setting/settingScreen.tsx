@@ -11,10 +11,21 @@ const SettingScreen = () => {
   const {signOut} = useContext(AuthContext);
   const navigation = useNavigation();
 
+  const inVitedHandler = useCallback(() => {
+    console.log('초대하기');
+  }, []);
+
+  const changeNicknameHandler = useCallback(() => {
+    console.log('닉네임 변경');
+  }, []);
+
+  const choiceRoomHandler = useCallback(() => {
+    console.log('방 선택하기');
+  }, []);
+
   const logOutHandler = useCallback(async () => {
     try {
       await signOut();
-      // 로그아웃 후 앱 전체 네비게이션 상태를 초기화
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
@@ -29,15 +40,17 @@ const SettingScreen = () => {
   return (
     <View style={styles.topContainer}>
       <View style={styles.line} />
-      <TouchableOpacity style={styles.container}>
+      <TouchableOpacity style={styles.container} onPress={inVitedHandler}>
         <Ionicons name="person-add-outline" size={24} color={Colors.BLACK} />
         <Text style={styles.textStyle}>초대하기</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.container}>
+      <TouchableOpacity
+        style={styles.container}
+        onPress={changeNicknameHandler}>
         <Ionicons name="pencil-outline" size={24} color={Colors.BLACK} />
         <Text style={styles.textStyle}>닉네임 변경</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.container}>
+      <TouchableOpacity style={styles.container} onPress={choiceRoomHandler}>
         <Ionicons name="grid-outline" size={24} color={Colors.BLACK} />
         <Text style={styles.textStyle}>방 선택하기</Text>
       </TouchableOpacity>
