@@ -185,6 +185,31 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     }
   }, [auth]);
 
+  //스케쥴 추가시 homescreen에 바로 반영
+  const refreshSchedules = useCallback(async () => {
+    if (!user || !currentRoom) {
+      return;
+    }
+
+    try {
+      const roomRef = firestore().collection('rooms').doc(currentRoom.roomId);
+      const roomDoc = await roomRef.get();
+      const roomData = roomDoc.data();
+
+      if (roomData) {
+        setCurrentRoom(prevRoom => {
+          if (!prevRoom) {return null;}
+          return {
+            ...prevRoom,
+            members: roomData.members || {},
+          };
+        });
+      }
+    } catch (error) {
+      console.error('스케줄 새로고침 중 오류:', error);
+    }
+  }, [user, currentRoom]);
+
   const value = useMemo(() => {
     return {
       initialized,
@@ -200,6 +225,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       setJustLoggedIn,
       schedules,
       setSchedules,
+      refreshSchedules,
     };
   }, [
     initialized,
@@ -215,6 +241,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     setJustLoggedIn,
     schedules,
     setSchedules,
+    refreshSchedules,
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

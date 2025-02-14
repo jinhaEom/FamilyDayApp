@@ -1,5 +1,12 @@
 // HomeScreen.tsx
-import React, {useEffect, useRef, useContext, useState} from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 import {
   View,
   Text,
@@ -15,26 +22,142 @@ import {RootStackParamList} from '../navigation/Navigations';
 import {Colors} from '../constants/Colors';
 import {Calendar} from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Day} from '../types/type';
+import {Day, Schedule} from '../types/type';
+import {scheduleColors} from '../constants/Colors';
+import firestore from '@react-native-firebase/firestore';
+type MarkedDates = {
+  [date: string]: {
+    dots?: {color: string}[];
+  };
+};
+
 const HomeScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const {user, currentRoom, schedules} = useContext(AuthContext);
+  const {user, currentRoom, setCurrentRoom} = useContext(AuthContext);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [dateDetail, setDateDetail] = useState(false);
+  const [markedDates, setMarkedDates] = useState<MarkedDates>({});
+  const [selectedDateSchedules, setSelectedDateSchedules] = useState<
+    Schedule[]
+  >([]);
   const slideAnim = useRef(new Animated.Value(0)).current;
 
+  const formatDate = useCallback((timestamp: any): string | null => {
+    if (!timestamp) {
+      return null;
+    }
+
+    try {
+      if (timestamp.seconds) {
+        const date = new Date(timestamp.seconds * 1000);
+        return date.toISOString().split('T')[0];
+      }
+
+      // 문자열인 경우
+      if (typeof timestamp === 'string') {
+        const date = new Date(timestamp);
+        return date.toISOString().split('T')[0];
+      }
+
+      return null;
+    } catch (error) {
+      console.error('날짜 변환 중 오류:', error);
+      return null;
+    }
+  }, []);
+
+  // 두 날짜 사이의 날짜 배열을 반환하는 함수
+  const getDatesInRange = useMemo(() => {
+    return (startDate: string, endDate: string): string[] => {
+      const dates: string[] = [];
+      const currentDate = new Date(startDate);
+      const lastDate = new Date(endDate);
+
+      while (currentDate <= lastDate) {
+        dates.push(currentDate.toISOString().split('T')[0]);
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      return dates;
+    };
+  }, []);
+
   useEffect(() => {
-    console.log('Current Room:', currentRoom);
-    console.log('User:', user);
     if (user != null) {
-      console.log('schedules:', schedules);
+      console.log('schedules:', currentRoom?.members);
     }
 
     if (!currentRoom) {
       navigation.replace('ChoiceRoom');
     }
-  }, [currentRoom, navigation, user, schedules]);
+  }, [currentRoom, navigation, user]);
+
+  useEffect(() => {
+    if (!currentRoom?.members) {
+      return;
+    }
+
+    const newMarkedDates: MarkedDates = {};
+
+    Object.values(currentRoom.members).forEach(member => {
+      if (member.schedules && Array.isArray(member.schedules)) {
+        member.schedules.forEach((schedule: Schedule) => {
+          const formattedStartDate = formatDate(schedule.scheduleDate);
+          const formattedEndDate = formatDate(schedule.scheduleEndDate);
+
+          if (formattedStartDate && formattedEndDate) {
+            const dateRange = getDatesInRange(
+              formattedStartDate,
+              formattedEndDate,
+            );
+            dateRange.forEach(date => {
+              if (!newMarkedDates[date]) {
+                newMarkedDates[date] = {
+                  dots: [{color: Colors.BLUE}],
+                };
+              } else {
+                newMarkedDates[date].dots?.push({
+                  color:
+                    scheduleColors[
+                      Math.floor(Math.random() * scheduleColors.length)
+                    ],
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+
+    console.log('Marked Dates:', newMarkedDates);
+    setMarkedDates(newMarkedDates);
+  }, [currentRoom, formatDate, getDatesInRange]);
+
+  useEffect(() => {
+    if (!currentRoom?.members || !selectedDate) {
+      return;
+    }
+
+    const schedules: Schedule[] = [];
+    Object.values(currentRoom.members).forEach(member => {
+      if (member.schedules) {
+        member.schedules.forEach((schedule: Schedule) => {
+          const startDateStr = formatDate(schedule.scheduleDate);
+          const endDateStr = formatDate(schedule.scheduleEndDate);
+
+          if (startDateStr && endDateStr) {
+            const dateRange = getDatesInRange(startDateStr, endDateStr);
+            if (dateRange.includes(selectedDate)) {
+              // schedule 객체에 작성자 정보 추가 (userName)
+              schedules.push({...schedule, userName: member.nickname});
+            }
+          }
+        });
+      }
+    });
+
+    setSelectedDateSchedules(schedules);
+  }, [selectedDate, currentRoom, formatDate, getDatesInRange]);
 
   useEffect(() => {
     Animated.spring(slideAnim, {
@@ -44,9 +167,55 @@ const HomeScreen = () => {
       tension: 40,
     }).start();
   }, [dateDetail, slideAnim]);
+
+  useEffect(() => {
+    if (!currentRoom?.roomId) {return;}
+
+    // Firestore 실시간 리스너 설정
+    const unsubscribe = firestore()
+      .collection('rooms')
+      .doc(currentRoom.roomId)
+      .onSnapshot(
+        snapshot => {
+          if (snapshot.exists) {
+            const roomData = snapshot.data();
+            if (roomData) {
+              // currentRoom 상태 업데이트
+              setCurrentRoom({
+                roomId: currentRoom.roomId,
+                roomName: roomData.roomName,
+                inviteCode: roomData.inviteCode,
+                createdAt: roomData.createdAt,
+                members: roomData.members || {},
+              });
+            }
+          }
+        },
+        error => {
+          console.error('실시간 업데이트 에러:', error);
+        },
+      );
+
+    // 컴포넌트 언마운트 시 리스너 해제
+    return () => unsubscribe();
+  }, [currentRoom?.roomId, setCurrentRoom]);
+
   const addScheduleHandler = () => {
     navigation.navigate('AddSchedule');
   };
+
+  // 작성자별로 일정 그룹화
+  const groupedSchedules = useMemo(() => {
+    const groups: {[userName: string]: Schedule[]} = {};
+    selectedDateSchedules.forEach(schedule => {
+      const owner = schedule.userName || 'Unknown';
+      if (!groups[owner]) {
+        groups[owner] = [];
+      }
+      groups[owner].push(schedule);
+    });
+    return groups;
+  }, [selectedDateSchedules]);
 
   if (!currentRoom) {
     return null;
@@ -72,9 +241,14 @@ const HomeScreen = () => {
       </TouchableOpacity>
       <Calendar
         style={styles.calendar}
+        markedDates={markedDates}
+        markingType={'multi-dot'}
         onDayPress={(day: Day) => {
           setDateDetail(true);
           setSelectedDate(day.dateString);
+          if (dateDetail === true) {
+            setDateDetail(false);
+          }
         }}
       />
       <Animated.View
@@ -100,8 +274,22 @@ const HomeScreen = () => {
             </TouchableOpacity>
           </View>
           <View style={styles.detailContent}>
-            <Text>하이 :</Text>
-            <Text>오늘은 저녁회식있음</Text>
+            {/* 그룹별로 작성자 이름과 일정들을 표시 */}
+            {Object.entries(groupedSchedules).map(([userName, schedules]) => (
+              <View key={userName} style={styles.userScheduleGroup}>
+                <Text style={styles.userScheduleHeader}>{userName}</Text>
+                {schedules.map(schedule => (
+                  <View key={schedule.scheduleId} style={styles.scheduleItem}>
+                    <Text style={styles.scheduleTitle}>
+                      {schedule.scheduleTitle}
+                    </Text>
+                    <Text style={styles.scheduleContent}>
+                      {schedule.scheduleContent}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            ))}
           </View>
         </View>
       </Animated.View>
@@ -164,7 +352,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   detailContent: {
-    flexDirection: 'row',
     marginTop: 10,
   },
   addButton: {
@@ -173,6 +360,30 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginRight: 10,
     marginBottom: 10,
+  },
+  userScheduleGroup: {
+    marginBottom: 15,
+  },
+  userScheduleHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: Colors.BLACK,
+  },
+  scheduleItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.LIGHT_GRAY,
+  },
+  scheduleTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.BLACK,
+  },
+  scheduleContent: {
+    fontSize: 14,
+    color: Colors.DARK_GRAY,
+    marginTop: 4,
   },
 });
 

@@ -14,6 +14,7 @@ export interface AuthContextType {
   setJustLoggedIn: (justLoggedIn: boolean) => void;
   schedules: Schedule[];
   setSchedules: (schedules: Schedule[]) => void;
+  refreshSchedules: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -30,4 +31,5 @@ export const AuthContext = createContext<AuthContextType>({
   setJustLoggedIn: () => {},
   schedules: [],
   setSchedules: () => {},
+  refreshSchedules: async () => {},
 });
