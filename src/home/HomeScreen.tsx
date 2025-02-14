@@ -230,9 +230,24 @@ const HomeScreen = () => {
         style={styles.userContainer}
         contentContainerStyle={styles.userContentContainer}>
         {Object.keys(currentRoom.members || {}).map(userId => (
-          <Text key={userId} style={styles.userText}>
-            {currentRoom.members[userId]?.nickname.slice(0, 2) || user?.name[0]}
-          </Text>
+          <TouchableOpacity
+            key={userId}
+            onPress={() =>
+              navigation.navigate('UserScDetail', {
+                userId,
+                roomId: currentRoom.roomId,
+                userName: currentRoom.members[userId]?.nickname,
+                schedules: currentRoom.members[userId]?.schedules || [],
+                roomName: currentRoom.roomName,
+                startDate: currentRoom.members[userId]?.schedules?.[0]?.scheduleDate || '',
+                endDate: currentRoom.members[userId]?.schedules?.[0]?.scheduleEndDate || '',
+              })
+            }>
+            <Text key={userId} style={styles.userText}>
+              {currentRoom.members[userId]?.nickname.slice(0, 2) ||
+                user?.name[0]}
+            </Text>
+          </TouchableOpacity>
         ))}
       </ScrollView>
       <TouchableOpacity style={styles.addButton} onPress={addScheduleHandler}>
@@ -274,7 +289,6 @@ const HomeScreen = () => {
             </TouchableOpacity>
           </View>
           <View style={styles.detailContent}>
-            {/* 그룹별로 작성자 이름과 일정들을 표시 */}
             {Object.entries(groupedSchedules).map(([userName, schedules]) => (
               <View key={userName} style={styles.userScheduleGroup}>
                 <Text style={styles.userScheduleHeader}>{userName}</Text>

@@ -12,6 +12,8 @@ import { AuthContext } from '../auth/AuthContext';
 import LoadingScreen from '../Loading/LoadingScreen';
 import AddScheduleScreen from '../home/AddScheduleScreen';
 import { NavigationContainer, useRoute, RouteProp } from '@react-navigation/native';
+import UserScDetailScreen from '../home/UserScDetailScreen';
+import { Schedule } from '../types/type';
 export type RootStackParamList = {
   Loading: undefined;
   Login: undefined;
@@ -27,6 +29,7 @@ export type RootStackParamList = {
     inviteCode: string;
   };
   AddSchedule: undefined;
+  UserScDetail: {userId: string, roomId: string, userName: string, schedules: Schedule[], roomName: string, startDate: string, endDate: string};
   Settings: undefined;
 };
 
@@ -75,6 +78,7 @@ const Navigation: React.FC = () => {
         <Stack.Screen name="ExistChoiceRoom" component={ExistChoiceRoom} />
         <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
         <Stack.Screen name="AddSchedule" component={AddScheduleScreen} />
+        <Stack.Screen name="UserScDetail" component={UserScDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

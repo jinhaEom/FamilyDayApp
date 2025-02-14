@@ -4,8 +4,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 
 interface HeaderProps {
-  title: string;
-  showRightIcon: boolean;
+  title?: string;
+  showRightIcon?: boolean;
 }
 
 const styles = StyleSheet.create({

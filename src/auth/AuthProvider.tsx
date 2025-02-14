@@ -12,7 +12,6 @@ import {
 } from '@react-native-firebase/auth';
 import {AuthContext} from './AuthContext';
 import {Schedule} from '../types/type';
-// Firebase Web SDK 타입에서 FirebaseApp과 FirebaseUser를 가져옵니다.
 import type {User as FirebaseUser} from '@firebase/auth';
 
 export const AuthProvider = ({children}: {children: React.ReactNode}) => {
