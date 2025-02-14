@@ -24,7 +24,7 @@ const AddScheduleScreen = () => {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [dateType, setDateType] = useState<'start' | 'end'>('start');
-  const {user, currentRoom} = useContext(AuthContext);
+  const {user, currentRoom, refreshSchedules} = useContext(AuthContext);
 
   const handleConfirm = (date: Date) => {
     setDatePickerVisibility(false);
@@ -43,13 +43,13 @@ const AddScheduleScreen = () => {
       Alert.alert('알림', '일정 이름과 내용을 입력해주세요.');
       return;
     }
-
     try {
       const scheduleData: Schedule = {
         scheduleId: new Date().getTime().toString(),
         scheduleTitle: scheduleName,
         scheduleContent: scheduleContent,
         scheduleDate: startDate.toISOString(),
+        userName: user?.name || '',
         scheduleEndDate: endDate.toISOString(),
         createdAt: firestore.Timestamp.now(),
         createdBy: userId,
@@ -66,6 +66,9 @@ const AddScheduleScreen = () => {
       await roomRef.update({
         [`members.${userId}.schedules`]: [...currentSchedules, scheduleData],
       });
+
+      // 스케줄 추가 후 데이터 새로고침
+      await refreshSchedules();
 
       Alert.alert('성공', '일정이 등록되었습니다.');
       navigation.goBack();

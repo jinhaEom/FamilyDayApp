@@ -9,16 +9,19 @@ export type User = {
   justLoggedIn?: boolean;
 };
 
+type RoomMember = {
+  nickname: string;
+  role: 'owner' | 'member';
+  schedules?: Schedule[];
+};
+
 export type Room = {
   roomId: string;
   roomName: string;
   inviteCode: string;
   createdAt: any;
   members: {
-    [key: string]: {
-      nickname: string;
-      role: 'owner' | 'member';
-    };
+    [userId: string]: RoomMember;
   };
 };
 
@@ -43,4 +46,5 @@ export type Schedule = {
   scheduleEndDate: string;
   createdAt: any;
   createdBy: string;
+  userName: string;
 };
