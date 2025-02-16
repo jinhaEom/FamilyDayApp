@@ -2,17 +2,17 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../navigation/Navigations';
-import {Colors} from '../constants/Colors';
-import InfoTextInput from '../components/InfoTextInput';
-import AppBasicButton from '../components/AppBasicButton';
+import {RootStackParamList} from '../../navigation/Navigations';
+import {Colors} from '../../constants/Colors';
+import InfoTextInput from '../../components/InfoTextInput';
+import AppBasicButton from '../../components/AppBasicButton';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {TouchableOpacity} from 'react-native';
 import {useContext} from 'react';
-import {AuthContext} from '../auth/AuthContext';
+import {AuthContext} from '../../auth/AuthContext';
 import firestore from '@react-native-firebase/firestore';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Schedule} from '../types/type';
+import {Schedule} from '../../types/type';
 
 const AddScheduleScreen = () => {
   const navigation =

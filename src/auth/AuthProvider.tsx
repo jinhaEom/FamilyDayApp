@@ -13,6 +13,7 @@ import {
 import {AuthContext} from './AuthContext';
 import {Schedule} from '../types/type';
 import type {User as FirebaseUser} from '@firebase/auth';
+import storage from '@react-native-firebase/storage';
 
 export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [user, setUser] = useState<User | null>(null);
@@ -22,9 +23,10 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
   const [justLoggedIn, setJustLoggedIn] = useState(false);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
-
+  const [userProfileImage, setUserProfileImage] = useState<string | null>(null);
   const auth = getAuth();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       auth,
@@ -86,7 +88,6 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
                 .doc(currentRoomInfo.roomId);
               const roomDoc = await roomRef.get();
               const roomData = roomDoc.data();
-
               // 현재 사용자의 스케줄 가져오기
               const userSchedules =
                 roomData?.members?.[currentUser.userId]?.schedules || [];
@@ -117,19 +118,42 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     );
 
     return () => unsubscribe();
-  }, [auth, justLoggedIn]);
+  }, [auth]);
 
   const signUp = useCallback(
-    async (email: string, password: string, name: string) => {
+    async (
+      email: string,
+      password: string,
+      name: string,
+      imageUrl: string | null,
+    ) => {
       setProcessingSignUp(true);
       try {
+        // 1. Firebase Auth로 사용자 생성
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           email,
           password,
         );
-        // 회원가입 후 displayName 업데이트
-        await updateProfile(userCredential.user, {displayName: name});
+
+        // 2. 프로필 이미지가 있다면 Storage에 업로드
+        let profileImageUrl = '';
+        if (imageUrl) {
+          const fileName = `profile_${
+            userCredential.user.uid
+          }_${new Date().getTime()}.jpg`;
+          const reference = storage().ref(`profiles/${fileName}`);
+          await reference.putFile(imageUrl);
+          profileImageUrl = await reference.getDownloadURL();
+        }
+
+        // 3. displayName 업데이트
+        await updateProfile(userCredential.user, {
+          displayName: name,
+          photoURL: profileImageUrl,
+        });
+
+        // 4. Firestore에 사용자 정보 저장
         await firestore()
           .collection(Collection.USERS)
           .doc(userCredential.user.uid)
@@ -137,9 +161,11 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
             userId: userCredential.user.uid,
             email: userCredential.user.email,
             name: name,
+            profileImage: profileImageUrl,
           });
       } catch (error) {
         console.error('회원가입 에러:', error);
+        throw error;
       } finally {
         setProcessingSignUp(false);
       }
@@ -184,20 +210,20 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     }
   }, [auth]);
 
-  //스케쥴 추가시 homescreen에 바로 반영
+  // 스케쥴 추가 시 HomeScreen에 바로 반영
   const refreshSchedules = useCallback(async () => {
     if (!user || !currentRoom) {
       return;
     }
-
     try {
       const roomRef = firestore().collection('rooms').doc(currentRoom.roomId);
       const roomDoc = await roomRef.get();
       const roomData = roomDoc.data();
-
       if (roomData) {
         setCurrentRoom(prevRoom => {
-          if (!prevRoom) {return null;}
+          if (!prevRoom) {
+            return null;
+          }
           return {
             ...prevRoom,
             members: roomData.members || {},
@@ -209,12 +235,14 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     }
   }, [user, currentRoom]);
 
-  const value = useMemo(() => {
-    return {
+  // AuthContext에 전달할 값 (상태 setters는 안정적이므로 dependency에서 제외)
+  const value = useMemo(
+    () => ({
       initialized,
       user,
       signUp,
       processingSignUp,
+      setProcessingSignUp,
       signIn,
       processingSignIn,
       currentRoom,
@@ -223,25 +251,28 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       justLoggedIn,
       setJustLoggedIn,
       schedules,
-      setSchedules,
       refreshSchedules,
-    };
-  }, [
-    initialized,
-    user,
-    signUp,
-    processingSignUp,
-    signIn,
-    processingSignIn,
-    currentRoom,
-    setCurrentRoom,
-    signOut,
-    justLoggedIn,
-    setJustLoggedIn,
-    schedules,
-    setSchedules,
-    refreshSchedules,
-  ]);
+      userProfileImage,
+      setUserProfileImage,
+    }),
+    [
+      initialized,
+      user,
+      signUp,
+      processingSignUp,
+      setProcessingSignUp,
+      signIn,
+      processingSignIn,
+      currentRoom,
+      setCurrentRoom,
+      justLoggedIn,
+      schedules,
+      refreshSchedules,
+      userProfileImage,
+      setUserProfileImage,
+      signOut,
+    ],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

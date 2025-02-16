@@ -1,11 +1,11 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {useRoute, RouteProp} from '@react-navigation/native';
-import {RootStackParamList} from '../navigation/navigations';
-import {Schedule} from '../types/type';
-import Header from '../components/header/header';
-import {Colors} from '../constants/Colors';
-import {formatDate} from '../components/DateFormat';
+import {RootStackParamList} from '../../navigation/navigations';
+import {Schedule} from '../../types/type';
+import Header from '../../components/header/header';
+import {Colors} from '../../constants/Colors';
+import {formatDate} from '../../components/DateFormat';
 
 const UserScDetailScreen = () => {
   const {params} = useRoute<RouteProp<RootStackParamList, 'UserScDetail'>>();

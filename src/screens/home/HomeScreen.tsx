@@ -14,17 +14,19 @@ import {
   ScrollView,
   Animated,
   StyleSheet,
+  Image,
 } from 'react-native';
-import {AuthContext} from '../auth/AuthContext';
+import {AuthContext} from '../../auth/AuthContext';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../navigation/Navigations';
-import {Colors} from '../constants/Colors';
+import {RootStackParamList} from '../../navigation/Navigations';
+import {Colors} from '../../constants/Colors';
 import {Calendar} from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Day, Schedule} from '../types/type';
-import {scheduleColors} from '../constants/Colors';
+import {Day, Schedule} from '../../types/type';
+import {scheduleColors} from '../../constants/Colors';
 import firestore from '@react-native-firebase/firestore';
+
 type MarkedDates = {
   [date: string]: {
     dots?: {color: string}[];
@@ -34,12 +36,17 @@ type MarkedDates = {
 const HomeScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const {user, currentRoom, setCurrentRoom} = useContext(AuthContext);
+  const {
+    user,
+    currentRoom,
+    setCurrentRoom,
+    setUserProfileImage,
+    userProfileImage,
+  } = useContext(AuthContext);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [dateDetail, setDateDetail] = useState(false);
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
-  const [selectedDateSchedules, setSelectedDateSchedules] = useState<
-    Schedule[]
+  const [selectedDateSchedules, setSelectedDateSchedules] = useState<Schedule[]
   >([]);
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -47,19 +54,16 @@ const HomeScreen = () => {
     if (!timestamp) {
       return null;
     }
-
     try {
       if (timestamp.seconds) {
         const date = new Date(timestamp.seconds * 1000);
         return date.toISOString().split('T')[0];
       }
-
       // 문자열인 경우
       if (typeof timestamp === 'string') {
         const date = new Date(timestamp);
         return date.toISOString().split('T')[0];
       }
-
       return null;
     } catch (error) {
       console.error('날짜 변환 중 오류:', error);
@@ -73,7 +77,6 @@ const HomeScreen = () => {
       const dates: string[] = [];
       const currentDate = new Date(startDate);
       const lastDate = new Date(endDate);
-
       while (currentDate <= lastDate) {
         dates.push(currentDate.toISOString().split('T')[0]);
         currentDate.setDate(currentDate.getDate() + 1);
@@ -83,28 +86,21 @@ const HomeScreen = () => {
   }, []);
 
   useEffect(() => {
-    if (user != null) {
-      console.log('schedules:', currentRoom?.members);
-    }
-
     if (!currentRoom) {
       navigation.replace('ChoiceRoom');
     }
-  }, [currentRoom, navigation, user]);
+  }, []);
 
   useEffect(() => {
     if (!currentRoom?.members) {
       return;
     }
-
     const newMarkedDates: MarkedDates = {};
-
     Object.values(currentRoom.members).forEach(member => {
       if (member.schedules && Array.isArray(member.schedules)) {
         member.schedules.forEach((schedule: Schedule) => {
           const formattedStartDate = formatDate(schedule.scheduleDate);
           const formattedEndDate = formatDate(schedule.scheduleEndDate);
-
           if (formattedStartDate && formattedEndDate) {
             const dateRange = getDatesInRange(
               formattedStartDate,
@@ -128,8 +124,6 @@ const HomeScreen = () => {
         });
       }
     });
-
-    console.log('Marked Dates:', newMarkedDates);
     setMarkedDates(newMarkedDates);
   }, [currentRoom, formatDate, getDatesInRange]);
 
@@ -137,14 +131,12 @@ const HomeScreen = () => {
     if (!currentRoom?.members || !selectedDate) {
       return;
     }
-
     const schedules: Schedule[] = [];
     Object.values(currentRoom.members).forEach(member => {
       if (member.schedules) {
         member.schedules.forEach((schedule: Schedule) => {
           const startDateStr = formatDate(schedule.scheduleDate);
           const endDateStr = formatDate(schedule.scheduleEndDate);
-
           if (startDateStr && endDateStr) {
             const dateRange = getDatesInRange(startDateStr, endDateStr);
             if (dateRange.includes(selectedDate)) {
@@ -155,7 +147,6 @@ const HomeScreen = () => {
         });
       }
     });
-
     setSelectedDateSchedules(schedules);
   }, [selectedDate, currentRoom, formatDate, getDatesInRange]);
 
@@ -168,10 +159,38 @@ const HomeScreen = () => {
     }).start();
   }, [dateDetail, slideAnim]);
 
+  // userProfileImage 업데이트 useEffect 수정
   useEffect(() => {
-    if (!currentRoom?.roomId) {return;}
+    const fetchUserProfile = async () => {
+      if (!user?.userId) {return;}
 
-    // Firestore 실시간 리스너 설정
+      try {
+        const userDoc = await firestore()
+          .collection('users')
+          .doc(user.userId)
+          .get();
+
+        const userData = userDoc.data();
+        if (
+          userData?.profileImage &&
+          userData.profileImage !== userProfileImage
+        ) {
+          setUserProfileImage(userData.profileImage);
+        }
+      } catch (error) {
+        console.error('프로필 이미지 로딩 오류:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user?.userId]); // userProfileImage 의존성 제거
+
+  // currentRoom 업데이트 useEffect (updater 함수 없이 직접 새 값을 계산)
+  useEffect(() => {
+    if (!currentRoom?.roomId) {
+      return;
+    }
+
     const unsubscribe = firestore()
       .collection('rooms')
       .doc(currentRoom.roomId)
@@ -180,7 +199,17 @@ const HomeScreen = () => {
           if (snapshot.exists) {
             const roomData = snapshot.data();
             if (roomData) {
-              // currentRoom 상태 업데이트
+              // 실제 변경사항이 있는 경우에만 업데이트
+              if (
+                currentRoom.roomName === roomData.roomName &&
+                currentRoom.inviteCode === roomData.inviteCode &&
+                JSON.stringify(currentRoom.members) ===
+                  JSON.stringify(roomData.members)
+              ) {
+                // 변경사항이 없으므로 업데이트하지 않음.
+                return;
+              }
+              // 변경사항이 있을 경우 새 객체를 만들어 업데이트
               setCurrentRoom({
                 roomId: currentRoom.roomId,
                 roomName: roomData.roomName,
@@ -196,9 +225,38 @@ const HomeScreen = () => {
         },
       );
 
-    // 컴포넌트 언마운트 시 리스너 해제
     return () => unsubscribe();
-  }, [currentRoom?.roomId, setCurrentRoom]);
+  }, [currentRoom?.roomId, currentRoom]);
+
+  // 프로필 이미지 업데이트 useEffect 수정
+  useEffect(() => {
+    if (
+      !user?.userId ||
+      !userProfileImage ||
+      !currentRoom?.members?.[user.userId] ||
+      currentRoom.members[user.userId].profileImage === userProfileImage
+    ) {
+      return;
+    }
+
+    const updatedMembers = {
+      ...currentRoom.members,
+      [user.userId]: {
+        ...currentRoom.members[user.userId],
+        profileImage: userProfileImage,
+      },
+    };
+
+    firestore()
+      .collection('rooms')
+      .doc(currentRoom.roomId)
+      .update({
+        members: updatedMembers,
+      })
+      .catch(error => {
+        console.error('프로필 이미지 업데이트 오류:', error);
+      });
+  }, [user?.userId, userProfileImage, currentRoom?.roomId]);
 
   const addScheduleHandler = () => {
     navigation.navigate('AddSchedule');
@@ -239,14 +297,22 @@ const HomeScreen = () => {
                 userName: currentRoom.members[userId]?.nickname,
                 schedules: currentRoom.members[userId]?.schedules || [],
                 roomName: currentRoom.roomName,
-                startDate: currentRoom.members[userId]?.schedules?.[0]?.scheduleDate || '',
-                endDate: currentRoom.members[userId]?.schedules?.[0]?.scheduleEndDate || '',
+                startDate:
+                  currentRoom.members[userId]?.schedules?.[0]?.scheduleDate ??
+                  '',
+                endDate:
+                  currentRoom.members[userId]?.schedules?.[0]
+                    ?.scheduleEndDate ?? '',
               })
             }>
-            <Text key={userId} style={styles.userText}>
-              {currentRoom.members[userId]?.nickname.slice(0, 2) ||
-                user?.name[0]}
-            </Text>
+            <Image
+              source={
+                currentRoom.members[userId]?.profileImage
+                  ? {uri: currentRoom.members[userId]?.profileImage}
+                  : require('../../assets/person.png')
+              }
+              style={styles.userImage}
+            />
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -259,11 +325,8 @@ const HomeScreen = () => {
         markedDates={markedDates}
         markingType={'multi-dot'}
         onDayPress={(day: Day) => {
-          setDateDetail(true);
           setSelectedDate(day.dateString);
-          if (dateDetail === true) {
-            setDateDetail(false);
-          }
+          setDateDetail(true);
         }}
       />
       <Animated.View
@@ -312,6 +375,11 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  userImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
   roomText: {
     fontSize: 24,
     fontWeight: 'bold',

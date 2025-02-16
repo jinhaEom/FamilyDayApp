@@ -10,9 +10,9 @@ import BottomTabNavigator from './BottomTabNavigator';
 import ExistChoiceRoom from '../screens/setup/ExistChoiceRoom';
 import { AuthContext } from '../auth/AuthContext';
 import LoadingScreen from '../Loading/LoadingScreen';
-import AddScheduleScreen from '../home/AddScheduleScreen';
+import AddScheduleScreen from '../screens/home/AddScheduleScreen';
 import { NavigationContainer, useRoute, RouteProp } from '@react-navigation/native';
-import UserScDetailScreen from '../home/UserScDetailScreen';
+import UserScDetailScreen from '../screens/home/UserScDetailScreen';
 import { Schedule } from '../types/type';
 export type RootStackParamList = {
   Loading: undefined;
