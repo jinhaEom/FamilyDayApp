@@ -14,17 +14,18 @@ import {
   ScrollView,
   Animated,
   StyleSheet,
+  BackHandler,
 } from 'react-native';
-import {AuthContext} from '../auth/AuthContext';
+import {AuthContext} from '../../auth/AuthContext';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../navigation/Navigations';
-import {Colors} from '../constants/Colors';
+import {RootStackParamList} from '../../navigation/Navigations';
+import {Colors, scheduleColors} from '../../constants/Colors';
 import {Calendar} from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Day, Schedule} from '../types/type';
-import {scheduleColors} from '../constants/Colors';
+import {Day, Schedule} from '../../types/type';
 import firestore from '@react-native-firebase/firestore';
+import FastImage from 'react-native-fast-image';
 type MarkedDates = {
   [date: string]: {
     dots?: {color: string}[];
@@ -34,7 +35,13 @@ type MarkedDates = {
 const HomeScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const {user, currentRoom, setCurrentRoom} = useContext(AuthContext);
+  const {
+    user,
+    currentRoom,
+    setCurrentRoom,
+    setUserProfileImage,
+    userProfileImage,
+  } = useContext(AuthContext);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [dateDetail, setDateDetail] = useState(false);
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
@@ -43,23 +50,30 @@ const HomeScreen = () => {
   >([]);
   const slideAnim = useRef(new Animated.Value(0)).current;
 
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        return true;
+      },
+    );
+    return () => backHandler.remove();
+  }, []);
+
   const formatDate = useCallback((timestamp: any): string | null => {
     if (!timestamp) {
       return null;
     }
-
     try {
       if (timestamp.seconds) {
         const date = new Date(timestamp.seconds * 1000);
         return date.toISOString().split('T')[0];
       }
-
       // 문자열인 경우
       if (typeof timestamp === 'string') {
         const date = new Date(timestamp);
         return date.toISOString().split('T')[0];
       }
-
       return null;
     } catch (error) {
       console.error('날짜 변환 중 오류:', error);
@@ -67,13 +81,11 @@ const HomeScreen = () => {
     }
   }, []);
 
-  // 두 날짜 사이의 날짜 배열을 반환하는 함수
   const getDatesInRange = useMemo(() => {
     return (startDate: string, endDate: string): string[] => {
       const dates: string[] = [];
       const currentDate = new Date(startDate);
       const lastDate = new Date(endDate);
-
       while (currentDate <= lastDate) {
         dates.push(currentDate.toISOString().split('T')[0]);
         currentDate.setDate(currentDate.getDate() + 1);
@@ -83,28 +95,21 @@ const HomeScreen = () => {
   }, []);
 
   useEffect(() => {
-    if (user != null) {
-      console.log('schedules:', currentRoom?.members);
-    }
-
     if (!currentRoom) {
       navigation.replace('ChoiceRoom');
     }
-  }, [currentRoom, navigation, user]);
+  }, [currentRoom, navigation]);
 
   useEffect(() => {
     if (!currentRoom?.members) {
       return;
     }
-
     const newMarkedDates: MarkedDates = {};
-
     Object.values(currentRoom.members).forEach(member => {
       if (member.schedules && Array.isArray(member.schedules)) {
         member.schedules.forEach((schedule: Schedule) => {
           const formattedStartDate = formatDate(schedule.scheduleDate);
           const formattedEndDate = formatDate(schedule.scheduleEndDate);
-
           if (formattedStartDate && formattedEndDate) {
             const dateRange = getDatesInRange(
               formattedStartDate,
@@ -128,8 +133,6 @@ const HomeScreen = () => {
         });
       }
     });
-
-    console.log('Marked Dates:', newMarkedDates);
     setMarkedDates(newMarkedDates);
   }, [currentRoom, formatDate, getDatesInRange]);
 
@@ -137,14 +140,12 @@ const HomeScreen = () => {
     if (!currentRoom?.members || !selectedDate) {
       return;
     }
-
     const schedules: Schedule[] = [];
     Object.values(currentRoom.members).forEach(member => {
       if (member.schedules) {
         member.schedules.forEach((schedule: Schedule) => {
           const startDateStr = formatDate(schedule.scheduleDate);
           const endDateStr = formatDate(schedule.scheduleEndDate);
-
           if (startDateStr && endDateStr) {
             const dateRange = getDatesInRange(startDateStr, endDateStr);
             if (dateRange.includes(selectedDate)) {
@@ -155,7 +156,6 @@ const HomeScreen = () => {
         });
       }
     });
-
     setSelectedDateSchedules(schedules);
   }, [selectedDate, currentRoom, formatDate, getDatesInRange]);
 
@@ -169,9 +169,37 @@ const HomeScreen = () => {
   }, [dateDetail, slideAnim]);
 
   useEffect(() => {
-    if (!currentRoom?.roomId) {return;}
+    const fetchUserProfile = async () => {
+      if (!user?.userId) {
+        return;
+      }
 
-    // Firestore 실시간 리스너 설정
+      try {
+        const userDoc = await firestore()
+          .collection('users')
+          .doc(user.userId)
+          .get();
+
+        const userData = userDoc.data();
+        if (
+          userData?.profileImage &&
+          userData.profileImage !== userProfileImage
+        ) {
+          setUserProfileImage(userData.profileImage);
+        }
+      } catch (error) {
+        console.error('프로필 이미지 로딩 오류:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user?.userId, userProfileImage, setUserProfileImage]);
+
+  useEffect(() => {
+    if (!currentRoom?.roomId) {
+      return;
+    }
+
     const unsubscribe = firestore()
       .collection('rooms')
       .doc(currentRoom.roomId)
@@ -180,7 +208,14 @@ const HomeScreen = () => {
           if (snapshot.exists) {
             const roomData = snapshot.data();
             if (roomData) {
-              // currentRoom 상태 업데이트
+              if (
+                currentRoom.roomName === roomData.roomName &&
+                currentRoom.inviteCode === roomData.inviteCode &&
+                JSON.stringify(currentRoom.members) ===
+                  JSON.stringify(roomData.members)
+              ) {
+                return;
+              }
               setCurrentRoom({
                 roomId: currentRoom.roomId,
                 roomName: roomData.roomName,
@@ -196,15 +231,42 @@ const HomeScreen = () => {
         },
       );
 
-    // 컴포넌트 언마운트 시 리스너 해제
     return () => unsubscribe();
-  }, [currentRoom?.roomId, setCurrentRoom]);
+  }, [currentRoom, setCurrentRoom]);
+
+  useEffect(() => {
+    if (
+      !user?.userId ||
+      !userProfileImage ||
+      !currentRoom?.members?.[user.userId] ||
+      currentRoom.members[user.userId].profileImage === userProfileImage
+    ) {
+      return;
+    }
+
+    const updatedMembers = {
+      ...currentRoom.members,
+      [user.userId]: {
+        ...currentRoom.members[user.userId],
+        profileImage: userProfileImage,
+      },
+    };
+
+    firestore()
+      .collection('rooms')
+      .doc(currentRoom.roomId)
+      .update({
+        members: updatedMembers,
+      })
+      .catch(error => {
+        console.error('프로필 이미지 업데이트 오류:', error);
+      });
+  }, [user?.userId, userProfileImage, currentRoom]);
 
   const addScheduleHandler = () => {
     navigation.navigate('AddSchedule');
   };
 
-  // 작성자별로 일정 그룹화
   const groupedSchedules = useMemo(() => {
     const groups: {[userName: string]: Schedule[]} = {};
     selectedDateSchedules.forEach(schedule => {
@@ -225,7 +287,7 @@ const HomeScreen = () => {
     <ScrollView style={{flex: 1}}>
       <Text style={styles.roomText}>{currentRoom.roomName} Room</Text>
       <ScrollView
-        horizontal={true}
+        horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.userContainer}
         contentContainerStyle={styles.userContentContainer}>
@@ -239,14 +301,23 @@ const HomeScreen = () => {
                 userName: currentRoom.members[userId]?.nickname,
                 schedules: currentRoom.members[userId]?.schedules || [],
                 roomName: currentRoom.roomName,
-                startDate: currentRoom.members[userId]?.schedules?.[0]?.scheduleDate || '',
-                endDate: currentRoom.members[userId]?.schedules?.[0]?.scheduleEndDate || '',
+                startDate:
+                  currentRoom.members[userId]?.schedules?.[0]?.scheduleDate ??
+                  '',
+                endDate:
+                  currentRoom.members[userId]?.schedules?.[0]
+                    ?.scheduleEndDate ?? '',
               })
             }>
-            <Text key={userId} style={styles.userText}>
-              {currentRoom.members[userId]?.nickname.slice(0, 2) ||
-                user?.name[0]}
-            </Text>
+            <FastImage
+              style={styles.userImage}
+              source={{
+                uri: currentRoom.members[userId]?.profileImage || '',
+                priority: FastImage.priority.normal,
+                cache: FastImage.cacheControl.immutable,
+              }}
+              resizeMode={FastImage.resizeMode.cover}
+            />
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -259,10 +330,9 @@ const HomeScreen = () => {
         markedDates={markedDates}
         markingType={'multi-dot'}
         onDayPress={(day: Day) => {
-          setDateDetail(true);
           setSelectedDate(day.dateString);
-          if (dateDetail === true) {
-            setDateDetail(false);
+          setDateDetail(true);
+          if (dateDetail) {
           }
         }}
       />
@@ -291,20 +361,25 @@ const HomeScreen = () => {
           <View style={styles.detailContent}>
             {Object.entries(groupedSchedules).map(([userName, schedules]) => (
               <View key={userName} style={styles.userScheduleGroup}>
-                <Text style={styles.userScheduleHeader}>{userName}</Text>
+                <Text style={styles.userScheduleHeader}>
+                🏷닉네임 : {userName}
+                </Text>
                 {schedules.map(schedule => (
                   <View key={schedule.scheduleId} style={styles.scheduleItem}>
                     <Text style={styles.scheduleTitle}>
-                      {schedule.scheduleTitle}
+                    📅 스케쥴 : {schedule.scheduleTitle}
                     </Text>
                     <Text style={styles.scheduleContent}>
-                      {schedule.scheduleContent}
+                    📝 내용 : {schedule.scheduleContent}
                     </Text>
                   </View>
                 ))}
               </View>
             ))}
           </View>
+          {Object.keys(groupedSchedules).length === 0 && (
+            <Text>일정이 없어요</Text>
+          )}
         </View>
       </Animated.View>
     </ScrollView>
@@ -312,10 +387,15 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  userImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
   roomText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
     padding: 24,
   },
   userContainer: {
@@ -331,7 +411,7 @@ const styles = StyleSheet.create({
   userText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
     borderWidth: 1,
     marginRight: 12,
     borderColor: Colors.LIGHT_GRAY,
@@ -379,25 +459,26 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   userScheduleHeader: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
     marginBottom: 5,
-    color: Colors.BLACK,
   },
   scheduleItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.LIGHT_GRAY,
+    borderBottomColor: Colors.DARK_GRAY,
   },
   scheduleTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: Colors.BLACK,
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.GRAY_TITLE,
+    marginBottom: 3,
   },
   scheduleContent: {
     fontSize: 14,
-    color: Colors.DARK_GRAY,
-    marginTop: 4,
+    color: Colors.GRAY_CONTENT,
+    lineHeight: 20,
   },
 });
 

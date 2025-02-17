@@ -11,6 +11,7 @@ export type User = {
 
 type RoomMember = {
   nickname: string;
+  profileImage?: string | null;
   role: 'owner' | 'member';
   schedules?: Schedule[];
 };

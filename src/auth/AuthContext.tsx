@@ -3,8 +3,9 @@ import {createContext} from 'react';
 export interface AuthContextType {
   initialized: boolean;
   user: User | null;
-  signUp: (email: string, password: string, name: string) => void;
+  signUp: (email: string, password: string, name: string, selectedImage: string | null) => void;
   processingSignUp: boolean;
+  setProcessingSignUp: (processingSignUp: boolean) => void;
   signIn: (email: string, password: string) => void;
   processingSignIn: boolean;
   currentRoom: Room | null;
@@ -15,6 +16,8 @@ export interface AuthContextType {
   schedules: Schedule[];
   setSchedules: (schedules: Schedule[]) => void;
   refreshSchedules: () => Promise<void>;
+  userProfileImage: string | null;
+  setUserProfileImage: (userProfileImage: string | null) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -22,6 +25,7 @@ export const AuthContext = createContext<AuthContextType>({
   user: null,
   signUp: async () => {},
   processingSignUp: false,
+  setProcessingSignUp: () => {},
   signIn: async () => {},
   processingSignIn: false,
   signOut: async () => {},
@@ -32,4 +36,6 @@ export const AuthContext = createContext<AuthContextType>({
   schedules: [],
   setSchedules: () => {},
   refreshSchedules: async () => {},
+  userProfileImage: null,
+  setUserProfileImage: () => {},
 });

@@ -2,17 +2,17 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../navigation/Navigations';
-import {Colors} from '../constants/Colors';
-import InfoTextInput from '../components/InfoTextInput';
-import AppBasicButton from '../components/AppBasicButton';
+import {RootStackParamList} from '../../navigation/Navigations';
+import {Colors} from '../../constants/Colors';
+import InfoTextInput from '../../components/InfoTextInput';
+import AppBasicButton from '../../components/AppBasicButton';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {TouchableOpacity} from 'react-native';
 import {useContext} from 'react';
-import {AuthContext} from '../auth/AuthContext';
+import {AuthContext} from '../../auth/AuthContext';
 import firestore from '@react-native-firebase/firestore';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Schedule} from '../types/type';
+import {Schedule} from '../../types/type';
 
 const AddScheduleScreen = () => {
   const navigation =
@@ -141,7 +141,7 @@ const AddScheduleScreen = () => {
             }
             handleScheduleAdd(currentRoom.roomId, user.userId);
           }}
-          buttonBackgroundColor={Colors.BLACK}
+          buttonBackgroundColor={Colors.PRIMARY}
           buttonTextColor={Colors.WHITE}
           disabled={false}>
           <Text>일정 등록하기</Text>
@@ -150,7 +150,7 @@ const AddScheduleScreen = () => {
           style={styles.button}
           onPress={() => navigation.goBack()}
           buttonBackgroundColor={Colors.LIGHT_GRAY}
-          buttonTextColor={Colors.BLACK}
+          buttonTextColor={Colors.PRIMARY}
           disabled={false}>
           <Text>취소</Text>
         </AppBasicButton>
@@ -170,11 +170,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
   },
   selectDateText: {
     fontSize: 16,
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
     marginRight: 4,
   },
   selectDateTextContainer: {

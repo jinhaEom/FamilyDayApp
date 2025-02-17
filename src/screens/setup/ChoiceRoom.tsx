@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 24,
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
   },
   descriptionText: {
     fontSize: 16,
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     color: Colors.GRAY,
   },
   button: {
-    backgroundColor: Colors.BLACK,
+    backgroundColor: Colors.PRIMARY,
     padding: 12,
     borderRadius: 18,
     marginBottom: 24,
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonText2: {
-    color: Colors.DARK_GRAY,
+    color: Colors.PRIMARY_SUB,
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',

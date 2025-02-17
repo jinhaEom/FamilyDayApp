@@ -41,24 +41,22 @@ const SettingScreen = () => {
     <View style={styles.topContainer}>
       <View style={styles.line} />
       <TouchableOpacity style={styles.container} onPress={inVitedHandler}>
-        <Ionicons name="person-add-outline" size={24} color={Colors.BLACK} />
+        <Ionicons name="person-add-outline" size={24} color={Colors.PRIMARY} />
         <Text style={styles.textStyle}>초대하기</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.container}
         onPress={changeNicknameHandler}>
-        <Ionicons name="pencil-outline" size={24} color={Colors.BLACK} />
+        <Ionicons name="pencil-outline" size={24} color={Colors.PRIMARY} />
         <Text style={styles.textStyle}>닉네임 변경</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.container} onPress={choiceRoomHandler}>
-        <Ionicons name="grid-outline" size={24} color={Colors.BLACK} />
+        <Ionicons name="grid-outline" size={24} color={Colors.PRIMARY} />
         <Text style={styles.textStyle}>방 선택하기</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.container}>
-        <Ionicons name="log-out-outline" size={24} color={Colors.BLACK} />
-        <Text style={styles.textStyle} onPress={logOutHandler}>
-          로그아웃
-        </Text>
+      <TouchableOpacity style={styles.container} onPress={logOutHandler}>
+        <Ionicons name="log-out-outline" size={24} color={Colors.PRIMARY} />
+        <Text style={styles.textStyle}>로그아웃</Text>
       </TouchableOpacity>
     </View>
   );
@@ -85,7 +83,7 @@ const styles = StyleSheet.create({
   textStyle: {
     marginLeft: 10,
     fontSize: 18,
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
   },
 });
 export default SettingScreen;

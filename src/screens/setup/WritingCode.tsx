@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 24,
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
   },
   codeContainer: {
     flexDirection: 'row',
@@ -303,19 +303,19 @@ const styles = StyleSheet.create({
   codeText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
   },
   // 깜빡이는 커서 스타일
   cursor: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
   },
   buttonContainer: {
     marginTop: 20,
   },
   button: {
-    backgroundColor: Colors.BLACK,
+    backgroundColor: Colors.PRIMARY,
     padding: 12,
     borderRadius: 18,
     marginBottom: 12,
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   buttonText2: {
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
     textAlign: 'center',
     fontWeight: 'bold',
   },
@@ -372,11 +372,11 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   dialogButtonPrimary: {
-    backgroundColor: Colors.BLACK,
+    backgroundColor: Colors.PRIMARY,
     borderRadius: 4,
   },
   dialogButtonText: {
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
   },
   dialogButtonTextPrimary: {
     color: Colors.WHITE,

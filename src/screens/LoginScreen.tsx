@@ -71,7 +71,7 @@ const LoginScreen = ({navigation}: Props) => {
       />
       <AppBasicButton
         onPress={handleLogin}
-        buttonBackgroundColor={Colors.BLACK}
+        buttonBackgroundColor={Colors.PRIMARY_SUB}
         buttonTextColor={Colors.WHITE}
         disabled={processingSignIn}>
         {processingSignIn ? (
@@ -83,7 +83,7 @@ const LoginScreen = ({navigation}: Props) => {
       <AppBasicButton
         onPress={handleSignUp}
         buttonBackgroundColor={Colors.LIGHT_GRAY}
-        buttonTextColor={Colors.BLACK}>
+        buttonTextColor={Colors.PRIMARY_SUB}>
         SignUp
       </AppBasicButton>
     </View>
@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 30,
+    color: Colors.PRIMARY,
   },
 });
 

@@ -158,13 +158,13 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingHorizontal: 10,
     borderRadius: 12,
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
   },
   titleText: {
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 24,
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
   },
   descriptionText: {
     fontSize: 16,
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     color: Colors.GRAY,
   },
   button: {
-    backgroundColor: Colors.BLACK,
+    backgroundColor: Colors.PRIMARY,
     padding: 12,
     borderRadius: 18,
     marginBottom: 24,
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   buttonText2: {
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
     textAlign: 'center',
     fontWeight: 'bold',
   },
