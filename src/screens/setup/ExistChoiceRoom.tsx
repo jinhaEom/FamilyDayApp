@@ -22,6 +22,7 @@ const ExistChoiceRoom = () => {
   const {user, setCurrentRoom} = useContext(AuthContext);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isTouchable, setIsTouchable] = useState(true);
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -62,6 +63,7 @@ const ExistChoiceRoom = () => {
       });
 
       setCurrentRoom(room);
+      setIsTouchable(false);
       navigation.navigate('MainTabs', {
         roomId: room.roomId,
         roomName: room.roomName,
@@ -70,13 +72,15 @@ const ExistChoiceRoom = () => {
       });
     } catch (error) {
       console.error('방 선택 중 오류:', error);
+      setIsTouchable(true);
+      1234;
     }
   };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.BLACK} />
+        <ActivityIndicator size="large" color={Colors.PRIMARY} />
       </View>
     );
   }
@@ -95,7 +99,11 @@ const ExistChoiceRoom = () => {
                   <TouchableOpacity
                     key={room.roomId}
                     style={[styles.roomListCard, {width: width / 2.4}]}
-                    onPress={() => handleRoomPress(room)}>
+                    onPress={() => {
+                      if (isTouchable) {
+                        handleRoomPress(room);
+                      }
+                    }}>
                     <Text style={styles.roomNameText}>{room.roomName}</Text>
                     <Text style={styles.memberCountText}>
                       멤버 {Object.keys(room.members).length}명
@@ -111,7 +119,7 @@ const ExistChoiceRoom = () => {
         <AppBasicButton
           onPress={() => navigation.goBack()}
           buttonBackgroundColor={Colors.LIGHT_GRAY}
-          buttonTextColor={Colors.BLACK}>
+          buttonTextColor={Colors.PRIMARY}>
           뒤로가기
         </AppBasicButton>
       </View>
@@ -133,7 +141,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
   },
   container: {
     flex: 1,
@@ -142,7 +150,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   roomListCard: {
-    backgroundColor: Colors.BLACK,
+    backgroundColor: Colors.PRIMARY,
     padding: 20,
     margin: 5,
     height: 100,

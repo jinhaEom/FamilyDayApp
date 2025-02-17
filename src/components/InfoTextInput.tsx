@@ -39,7 +39,7 @@ const InfoTextInput: React.FC<InfoTextInputProps> = ({
     <View
       style={{
         height: 40,
-        borderColor: isFocused ? Colors.BLACK : Colors.LIGHT_GRAY,
+        borderColor: isFocused ? Colors.PRIMARY : Colors.LIGHT_GRAY,
         backgroundColor: Colors.LIGHT_GRAY,
         borderWidth: 1,
         marginBottom: 15,

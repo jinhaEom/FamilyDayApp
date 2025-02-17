@@ -63,12 +63,12 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 24,
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
   },
   subTitleText: {
     fontSize: 24,
     marginBottom: 20,
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
   },
   scheduleContainer: {
     flexDirection: 'row',

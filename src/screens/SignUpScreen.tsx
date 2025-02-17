@@ -13,7 +13,6 @@ import {ActivityIndicator} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/navigations';
 import {launchImageLibrary} from 'react-native-image-picker';
-import storage from '@react-native-firebase/storage';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
@@ -45,7 +44,6 @@ const SignUpScreen = ({navigation}: Props) => {
       navigation.navigate('ChoiceRoom');
     } catch (error) {
       console.error('회원가입 오류:', error);
-      Alert.alert('오류', '회원가입에 실패했습니다.');
     } finally {
       setProcessingSignUp(false);
     }
@@ -72,6 +70,9 @@ const SignUpScreen = ({navigation}: Props) => {
       Alert.alert('오류', '이미지를 선택하는 중 오류가 발생했습니다.');
     }
   };
+  const handleBack = () => {
+    setUserProfileImage(null);
+  };
 
   useEffect(() => {
     console.log(userProfileImage);
@@ -89,7 +90,7 @@ const SignUpScreen = ({navigation}: Props) => {
 
   return (
     <View style={styles.container}>
-      <Header title="계정생성" showRightIcon={false} />
+      <Header title="계정생성" showRightIcon={false} onBack={handleBack} />
       <View style={styles.inputContainer}>
         <TouchableOpacity
           style={styles.imageContainer}
@@ -139,16 +140,16 @@ const SignUpScreen = ({navigation}: Props) => {
           secureTextEntry
         />
         {processingSignUp && buttonDisabled === false && (
-          <ActivityIndicator size="large" color={Colors.BLACK} />
+          <ActivityIndicator size="large" color={Colors.PRIMARY} />
         )}
       </View>
       {processingSignUp && (
-        <ActivityIndicator size="large" color={Colors.BLACK} />
+        <ActivityIndicator size="large" color={Colors.PRIMARY} />
       )}
       <View style={styles.bottomContainer}>
         <AppBasicButton
           onPress={handleSignUp}
-          buttonBackgroundColor={buttonDisabled ? Colors.GRAY : Colors.BLACK}
+          buttonBackgroundColor={buttonDisabled ? Colors.GRAY : Colors.PRIMARY}
           buttonTextColor={Colors.WHITE}
           disabled={buttonDisabled}>
           회원가입하기
@@ -194,7 +195,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   button: {
-    backgroundColor: Colors.BLACK,
+    backgroundColor: Colors.PRIMARY,
     padding: 12,
     margin: 15,
     borderRadius: 12,

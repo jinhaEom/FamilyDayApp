@@ -6,6 +6,7 @@ import {useNavigation} from '@react-navigation/native';
 interface HeaderProps {
   title?: string;
   showRightIcon?: boolean;
+  onBack?: () => void;
 }
 
 const styles = StyleSheet.create({
@@ -32,9 +33,17 @@ const styles = StyleSheet.create({
   },
 });
 
-const Header = ({title, showRightIcon = false}: HeaderProps) => {
+const Header = ({title, showRightIcon = false, onBack}: HeaderProps) => {
   const navigation = useNavigation();
 
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+      navigation.goBack();
+    } else {
+      navigation.goBack();
+    }
+  };
   return (
     <View style={styles.container}>
       <Icon
@@ -42,7 +51,7 @@ const Header = ({title, showRightIcon = false}: HeaderProps) => {
         name="arrow-back"
         size={24}
         color="black"
-        onPress={() => navigation.goBack()}
+        onPress={handleBack}
       />
       <Text style={styles.title}>{title}</Text>
       {showRightIcon && (

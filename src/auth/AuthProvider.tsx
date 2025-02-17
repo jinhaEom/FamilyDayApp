@@ -1,5 +1,5 @@
 // src/auth/AuthProvider.tsx
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Collection, User, Room} from '../types/type';
 import firestore from '@react-native-firebase/firestore';
 import {
@@ -14,7 +14,7 @@ import {AuthContext} from './AuthContext';
 import {Schedule} from '../types/type';
 import type {User as FirebaseUser} from '@firebase/auth';
 import storage from '@react-native-firebase/storage';
-
+import {Alert} from 'react-native';
 export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [user, setUser] = useState<User | null>(null);
   const [initialized, setInitialized] = useState(false);
@@ -24,9 +24,14 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [justLoggedIn, setJustLoggedIn] = useState(false);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [userProfileImage, setUserProfileImage] = useState<string | null>(null);
-  const auth = getAuth();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const auth = useMemo(() => getAuth(), []);
+
+  const justLoggedInRef = useRef(justLoggedIn);
+  useEffect(() => {
+    justLoggedInRef.current = justLoggedIn;
+  }, [justLoggedIn]);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       auth,
@@ -44,7 +49,8 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
           userId,
           email: fbUser.email || '',
           name: fbUser.displayName || '',
-          justLoggedIn,
+          // 최신 justLoggedIn 값은 ref로 사용
+          justLoggedIn: justLoggedInRef.current,
         };
 
         try {
@@ -163,8 +169,13 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
             name: name,
             profileImage: profileImageUrl,
           });
-      } catch (error) {
-        console.error('회원가입 에러:', error);
+      } catch (error: any) {
+        if (error.code === 'auth/email-already-in-use') {
+          Alert.alert('이미 가입된 이메일입니다.');
+        } else {
+          Alert.alert('회원가입 도중 오류가 발생했습니다.');
+          console.error('회원가입 에러:', error);
+        }
         throw error;
       } finally {
         setProcessingSignUp(false);
@@ -180,6 +191,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
         await signInWithEmailAndPassword(auth, email, password);
         setJustLoggedIn(true);
       } catch (error) {
+        Alert.alert('이메일 또는 비밀번호를 다시 확인해주세요.');
         console.error('로그인 에러:', error);
       } finally {
         setProcessingSignIn(false);
@@ -204,6 +216,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       setUser(null);
       setCurrentRoom(null);
       setJustLoggedIn(false);
+      setUserProfileImage(null);
       await firebaseSignOut(auth);
     } catch (error) {
       console.error('로그아웃 에러:', error);
@@ -235,7 +248,6 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     }
   }, [user, currentRoom]);
 
-  // AuthContext에 전달할 값 (상태 setters는 안정적이므로 dependency에서 제외)
   const value = useMemo(
     () => ({
       initialized,
@@ -254,23 +266,26 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       refreshSchedules,
       userProfileImage,
       setUserProfileImage,
+      auth,
+      justLoggedInRef,
+      setSchedules,
     }),
     [
       initialized,
       user,
       signUp,
       processingSignUp,
-      setProcessingSignUp,
       signIn,
       processingSignIn,
       currentRoom,
-      setCurrentRoom,
       justLoggedIn,
       schedules,
       refreshSchedules,
       userProfileImage,
-      setUserProfileImage,
       signOut,
+      auth,
+      justLoggedInRef,
+      setSchedules,
     ],
   );
 

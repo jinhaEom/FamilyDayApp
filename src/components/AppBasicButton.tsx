@@ -1,5 +1,12 @@
 import React from 'react';
-import {TouchableOpacity, Text, StyleSheet, View, StyleProp, ViewStyle} from 'react-native';
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  View,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
 import {Colors} from '../constants/Colors';
 
 interface BasicButtonProps {
@@ -34,7 +41,7 @@ const AppBasicButton = ({
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: Colors.BLACK,
+    backgroundColor: Colors.PRIMARY,
     padding: 12,
     margin: 15,
     borderRadius: 12,

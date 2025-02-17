@@ -5,8 +5,12 @@ export const Colors = {
   WHITE: '#FFFFFF',
   DARK_GRAY: '#404040',
   BLUE: '#0000FF',
+  PRIMARY: '#54597c',
+  PRIMARY_SUB: '#445B64',
+  PRIMARY_TEXT: '#F4F5FB',
+  GRAY_TITLE: '#555',
+  GRAY_CONTENT: '#666',
 };
-
 
 export const scheduleColors = [
   '#FF5733', // Red-Orange
@@ -15,5 +19,5 @@ export const scheduleColors = [
   '#FF8C33', // Orange
   '#8C33FF', // Purple
   '#33FFF3', // Cyan
-  '#FFD700', // Gold
+  '#FFD700', // #ffd700
 ];

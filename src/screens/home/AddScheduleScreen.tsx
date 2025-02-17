@@ -141,7 +141,7 @@ const AddScheduleScreen = () => {
             }
             handleScheduleAdd(currentRoom.roomId, user.userId);
           }}
-          buttonBackgroundColor={Colors.BLACK}
+          buttonBackgroundColor={Colors.PRIMARY}
           buttonTextColor={Colors.WHITE}
           disabled={false}>
           <Text>일정 등록하기</Text>
@@ -150,7 +150,7 @@ const AddScheduleScreen = () => {
           style={styles.button}
           onPress={() => navigation.goBack()}
           buttonBackgroundColor={Colors.LIGHT_GRAY}
-          buttonTextColor={Colors.BLACK}
+          buttonTextColor={Colors.PRIMARY}
           disabled={false}>
           <Text>취소</Text>
         </AppBasicButton>
@@ -170,11 +170,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
   },
   selectDateText: {
     fontSize: 16,
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
     marginRight: 4,
   },
   selectDateTextContainer: {

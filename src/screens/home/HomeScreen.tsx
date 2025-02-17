@@ -14,19 +14,18 @@ import {
   ScrollView,
   Animated,
   StyleSheet,
-  Image,
+  BackHandler,
 } from 'react-native';
 import {AuthContext} from '../../auth/AuthContext';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../navigation/Navigations';
-import {Colors} from '../../constants/Colors';
+import {Colors, scheduleColors} from '../../constants/Colors';
 import {Calendar} from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Day, Schedule} from '../../types/type';
-import {scheduleColors} from '../../constants/Colors';
 import firestore from '@react-native-firebase/firestore';
-
+import FastImage from 'react-native-fast-image';
 type MarkedDates = {
   [date: string]: {
     dots?: {color: string}[];
@@ -46,9 +45,20 @@ const HomeScreen = () => {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [dateDetail, setDateDetail] = useState(false);
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
-  const [selectedDateSchedules, setSelectedDateSchedules] = useState<Schedule[]
+  const [selectedDateSchedules, setSelectedDateSchedules] = useState<
+    Schedule[]
   >([]);
   const slideAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        return true;
+      },
+    );
+    return () => backHandler.remove();
+  }, []);
 
   const formatDate = useCallback((timestamp: any): string | null => {
     if (!timestamp) {
@@ -71,7 +81,6 @@ const HomeScreen = () => {
     }
   }, []);
 
-  // 두 날짜 사이의 날짜 배열을 반환하는 함수
   const getDatesInRange = useMemo(() => {
     return (startDate: string, endDate: string): string[] => {
       const dates: string[] = [];
@@ -89,7 +98,7 @@ const HomeScreen = () => {
     if (!currentRoom) {
       navigation.replace('ChoiceRoom');
     }
-  }, []);
+  }, [currentRoom, navigation]);
 
   useEffect(() => {
     if (!currentRoom?.members) {
@@ -159,10 +168,11 @@ const HomeScreen = () => {
     }).start();
   }, [dateDetail, slideAnim]);
 
-  // userProfileImage 업데이트 useEffect 수정
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (!user?.userId) {return;}
+      if (!user?.userId) {
+        return;
+      }
 
       try {
         const userDoc = await firestore()
@@ -183,9 +193,8 @@ const HomeScreen = () => {
     };
 
     fetchUserProfile();
-  }, [user?.userId]); // userProfileImage 의존성 제거
+  }, [user?.userId, userProfileImage, setUserProfileImage]);
 
-  // currentRoom 업데이트 useEffect (updater 함수 없이 직접 새 값을 계산)
   useEffect(() => {
     if (!currentRoom?.roomId) {
       return;
@@ -199,17 +208,14 @@ const HomeScreen = () => {
           if (snapshot.exists) {
             const roomData = snapshot.data();
             if (roomData) {
-              // 실제 변경사항이 있는 경우에만 업데이트
               if (
                 currentRoom.roomName === roomData.roomName &&
                 currentRoom.inviteCode === roomData.inviteCode &&
                 JSON.stringify(currentRoom.members) ===
                   JSON.stringify(roomData.members)
               ) {
-                // 변경사항이 없으므로 업데이트하지 않음.
                 return;
               }
-              // 변경사항이 있을 경우 새 객체를 만들어 업데이트
               setCurrentRoom({
                 roomId: currentRoom.roomId,
                 roomName: roomData.roomName,
@@ -226,9 +232,8 @@ const HomeScreen = () => {
       );
 
     return () => unsubscribe();
-  }, [currentRoom?.roomId, currentRoom]);
+  }, [currentRoom, setCurrentRoom]);
 
-  // 프로필 이미지 업데이트 useEffect 수정
   useEffect(() => {
     if (
       !user?.userId ||
@@ -256,13 +261,12 @@ const HomeScreen = () => {
       .catch(error => {
         console.error('프로필 이미지 업데이트 오류:', error);
       });
-  }, [user?.userId, userProfileImage, currentRoom?.roomId]);
+  }, [user?.userId, userProfileImage, currentRoom]);
 
   const addScheduleHandler = () => {
     navigation.navigate('AddSchedule');
   };
 
-  // 작성자별로 일정 그룹화
   const groupedSchedules = useMemo(() => {
     const groups: {[userName: string]: Schedule[]} = {};
     selectedDateSchedules.forEach(schedule => {
@@ -283,7 +287,7 @@ const HomeScreen = () => {
     <ScrollView style={{flex: 1}}>
       <Text style={styles.roomText}>{currentRoom.roomName} Room</Text>
       <ScrollView
-        horizontal={true}
+        horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.userContainer}
         contentContainerStyle={styles.userContentContainer}>
@@ -305,13 +309,14 @@ const HomeScreen = () => {
                     ?.scheduleEndDate ?? '',
               })
             }>
-            <Image
-              source={
-                currentRoom.members[userId]?.profileImage
-                  ? {uri: currentRoom.members[userId]?.profileImage}
-                  : require('../../assets/person.png')
-              }
+            <FastImage
               style={styles.userImage}
+              source={{
+                uri: currentRoom.members[userId]?.profileImage || '',
+                priority: FastImage.priority.normal,
+                cache: FastImage.cacheControl.immutable,
+              }}
+              resizeMode={FastImage.resizeMode.cover}
             />
           </TouchableOpacity>
         ))}
@@ -327,6 +332,8 @@ const HomeScreen = () => {
         onDayPress={(day: Day) => {
           setSelectedDate(day.dateString);
           setDateDetail(true);
+          if (dateDetail) {
+          }
         }}
       />
       <Animated.View
@@ -354,20 +361,25 @@ const HomeScreen = () => {
           <View style={styles.detailContent}>
             {Object.entries(groupedSchedules).map(([userName, schedules]) => (
               <View key={userName} style={styles.userScheduleGroup}>
-                <Text style={styles.userScheduleHeader}>{userName}</Text>
+                <Text style={styles.userScheduleHeader}>
+                🏷닉네임 : {userName}
+                </Text>
                 {schedules.map(schedule => (
                   <View key={schedule.scheduleId} style={styles.scheduleItem}>
                     <Text style={styles.scheduleTitle}>
-                      {schedule.scheduleTitle}
+                    📅 스케쥴 : {schedule.scheduleTitle}
                     </Text>
                     <Text style={styles.scheduleContent}>
-                      {schedule.scheduleContent}
+                    📝 내용 : {schedule.scheduleContent}
                     </Text>
                   </View>
                 ))}
               </View>
             ))}
           </View>
+          {Object.keys(groupedSchedules).length === 0 && (
+            <Text>일정이 없어요</Text>
+          )}
         </View>
       </Animated.View>
     </ScrollView>
@@ -383,7 +395,7 @@ const styles = StyleSheet.create({
   roomText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
     padding: 24,
   },
   userContainer: {
@@ -399,7 +411,7 @@ const styles = StyleSheet.create({
   userText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.BLACK,
+    color: Colors.PRIMARY,
     borderWidth: 1,
     marginRight: 12,
     borderColor: Colors.LIGHT_GRAY,
@@ -447,25 +459,26 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   userScheduleHeader: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
     marginBottom: 5,
-    color: Colors.BLACK,
   },
   scheduleItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.LIGHT_GRAY,
+    borderBottomColor: Colors.DARK_GRAY,
   },
   scheduleTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: Colors.BLACK,
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.GRAY_TITLE,
+    marginBottom: 3,
   },
   scheduleContent: {
     fontSize: 14,
-    color: Colors.DARK_GRAY,
-    marginTop: 4,
+    color: Colors.GRAY_CONTENT,
+    lineHeight: 20,
   },
 });
 
