@@ -6,14 +6,16 @@ import {AuthContext} from '../auth/AuthContext';
 import {useContext} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {CommonActions} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../navigation/navigations';
 
 const SettingScreen = () => {
   const {signOut} = useContext(AuthContext);
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const inVitedHandler = useCallback(() => {
-    console.log('초대하기');
-  }, []);
+    navigation.navigate('InviteCode');
+  }, [navigation]);
 
   const changeNicknameHandler = useCallback(() => {
     console.log('닉네임 변경');

@@ -3,17 +3,18 @@ import React, { useContext } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
-import ChoiceRoom from '../screens/setup/ChoiceRoom';
-import MakeRoom from '../screens/setup/MakeRoom';
-import WritingCode from '../screens/setup/WritingCode';
+import ChoiceRoom from '../screens/setup/ChoiceRoomScreen';
+import MakeRoom from '../screens/setup/MakeRoomScreen';
+import WritingCode from '../screens/setup/WritingCodeScreen';
 import BottomTabNavigator from './BottomTabNavigator';
-import ExistChoiceRoom from '../screens/setup/ExistChoiceRoom';
+import ExistChoiceRoom from '../screens/setup/ExistChoiceRoomScreen';
 import { AuthContext } from '../auth/AuthContext';
 import LoadingScreen from '../Loading/LoadingScreen';
 import AddScheduleScreen from '../screens/home/AddScheduleScreen';
 import { NavigationContainer, useRoute, RouteProp } from '@react-navigation/native';
 import UserScDetailScreen from '../screens/home/UserScDetailScreen';
 import { Schedule } from '../types/type';
+import InviteCodeScreen from '../setting/settingMenu/InviteCodeScreen';
 export type RootStackParamList = {
   Loading: undefined;
   Login: undefined;
@@ -31,6 +32,7 @@ export type RootStackParamList = {
   AddSchedule: undefined;
   UserScDetail: {userId: string, roomId: string, userName: string, schedules: Schedule[], roomName: string, startDate: string, endDate: string};
   Settings: undefined;
+  InviteCode: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -79,6 +81,7 @@ const Navigation: React.FC = () => {
         <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
         <Stack.Screen name="AddSchedule" component={AddScheduleScreen} />
         <Stack.Screen name="UserScDetail" component={UserScDetailScreen} />
+        <Stack.Screen name="InviteCode" component={InviteCodeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
