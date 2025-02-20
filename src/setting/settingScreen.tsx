@@ -18,8 +18,8 @@ const SettingScreen = () => {
   }, [navigation]);
 
   const changeNicknameHandler = useCallback(() => {
-    console.log('닉네임 변경');
-  }, []);
+    navigation.navigate('ChangeNickName');
+  }, [navigation]);
 
   const choiceRoomHandler = useCallback(() => {
     console.log('방 선택하기');

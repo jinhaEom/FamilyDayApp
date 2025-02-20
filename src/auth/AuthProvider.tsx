@@ -15,6 +15,7 @@ import {Schedule} from '../types/type';
 import type {User as FirebaseUser} from '@firebase/auth';
 import storage from '@react-native-firebase/storage';
 import {Alert} from 'react-native';
+import {ToastMessage} from '../components/ToastMessage';
 export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [user, setUser] = useState<User | null>(null);
   const [initialized, setInitialized] = useState(false);
@@ -169,6 +170,10 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
             name: name,
             profileImage: profileImageUrl,
           });
+        ToastMessage({
+          message: '회원가입이 완료되었습니다.',
+          type: 'success',
+        });
       } catch (error: any) {
         if (error.code === 'auth/email-already-in-use') {
           Alert.alert('이미 가입된 이메일입니다.');
@@ -204,12 +209,16 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     try {
       const userId = auth.currentUser?.uid;
       if (userId) {
-        // 로그아웃 시 users 컬렉션의 방 정보도 초기화
-        await firestore().collection('users').doc(userId).update({
-          currentRoomId: null,
-          currentRoomName: null,
-          lastSignOutAt: firestore.FieldValue.serverTimestamp(),
-        });
+        const userDoc = await firestore().collection('users').doc(userId).get();
+
+        // 문서가 존재하고 currentRoomId가 있는 경우에만 업데이트
+        if (userDoc.exists && userDoc.data()?.currentRoomId) {
+          await firestore().collection('users').doc(userId).update({
+            currentRoomId: null,
+            currentRoomName: null,
+            lastSignOutAt: firestore.FieldValue.serverTimestamp(),
+          });
+        }
       }
 
       // 로그아웃 시 상태 초기화
@@ -248,6 +257,53 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     }
   }, [user, currentRoom]);
 
+  const changeNickname = useCallback(
+    async (nickname: string) => {
+      if (!user?.userId || !currentRoom?.roomId) {
+        Alert.alert('오류', '사용자 또는 방 정보를 찾을 수 없습니다.');
+        return;
+      }
+
+      try {
+        const roomRef = firestore().collection('rooms').doc(currentRoom.roomId);
+
+        // members 객체 내의 특정 사용자의 nickname 필드만 업데이트
+        await roomRef.update({
+          [`members.${user.userId}.nickname`]: nickname,
+        });
+
+        // currentRoom 상태 업데이트
+        setCurrentRoom(prevRoom => {
+          if (!prevRoom || !user.userId) {
+            return null;
+          }
+          return {
+            ...prevRoom,
+            members: {
+              ...prevRoom.members,
+              [user.userId]: {
+                ...prevRoom.members[user.userId],
+                nickname: nickname,
+              },
+            },
+          };
+        });
+
+        ToastMessage({
+          message: '닉네임이 변경되었습니다.',
+          type: 'success',
+        });
+      } catch (error) {
+        console.error('닉네임 변경 중 오류:', error);
+        ToastMessage({
+          message: '닉네임 변경에 실패했습니다.',
+          type: 'error',
+        });
+      }
+    },
+    [user, currentRoom],
+  );
+
   const value = useMemo(
     () => ({
       initialized,
@@ -269,6 +325,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       auth,
       justLoggedInRef,
       setSchedules,
+      changeNickname,
     }),
     [
       initialized,
@@ -286,6 +343,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       auth,
       justLoggedInRef,
       setSchedules,
+      changeNickname,
     ],
   );
 

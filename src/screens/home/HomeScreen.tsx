@@ -309,15 +309,31 @@ const HomeScreen = () => {
                     ?.scheduleEndDate ?? '',
               })
             }>
-            <FastImage
-              style={styles.userImage}
-              source={{
-                uri: currentRoom.members[userId]?.profileImage || '',
-                priority: FastImage.priority.normal,
-                cache: FastImage.cacheControl.immutable,
-              }}
-              resizeMode={FastImage.resizeMode.cover}
-            />
+            {currentRoom.members[userId]?.profileImage ? (
+              <View >
+                <FastImage
+                  style={styles.userImage}
+                  source={{
+                    uri: currentRoom.members[userId]?.profileImage || '',
+                    priority: FastImage.priority.normal,
+                    cache: FastImage.cacheControl.immutable,
+                  }}
+                  resizeMode={FastImage.resizeMode.cover}
+                />
+                <Text style={{textAlign: 'center', marginTop: 4}}>
+                  {currentRoom.members[userId]?.nickname}
+                </Text>
+              </View>
+            ) : (
+              <>
+                <View style={styles.userImage}>
+                  <Ionicons name="person-outline" size={24} color="black" />
+                </View>
+                <Text style={{textAlign: 'center', marginTop: 4}}>
+                  {currentRoom.members[userId]?.nickname}
+                </Text>
+              </>
+            )}
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -362,15 +378,15 @@ const HomeScreen = () => {
             {Object.entries(groupedSchedules).map(([userName, schedules]) => (
               <View key={userName} style={styles.userScheduleGroup}>
                 <Text style={styles.userScheduleHeader}>
-                🏷닉네임 : {userName}
+                  🏷닉네임 : {userName}
                 </Text>
                 {schedules.map(schedule => (
                   <View key={schedule.scheduleId} style={styles.scheduleItem}>
                     <Text style={styles.scheduleTitle}>
-                    📅 스케쥴 : {schedule.scheduleTitle}
+                      📅 스케쥴 : {schedule.scheduleTitle}
                     </Text>
                     <Text style={styles.scheduleContent}>
-                    📝 내용 : {schedule.scheduleContent}
+                      📝 내용 : {schedule.scheduleContent}
                     </Text>
                   </View>
                 ))}
@@ -391,6 +407,10 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+    backgroundColor: Colors.GRAY,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    alignItems: 'center',
   },
   roomText: {
     fontSize: 24,

@@ -18,6 +18,7 @@ export interface AuthContextType {
   refreshSchedules: () => Promise<void>;
   userProfileImage: string | null;
   setUserProfileImage: (userProfileImage: string | null) => void;
+  changeNickname: (nickname: string) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -38,4 +39,5 @@ export const AuthContext = createContext<AuthContextType>({
   refreshSchedules: async () => {},
   userProfileImage: null,
   setUserProfileImage: () => {},
+  changeNickname: async () => {},
 });

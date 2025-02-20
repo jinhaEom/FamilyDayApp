@@ -15,6 +15,7 @@ import { NavigationContainer, useRoute, RouteProp } from '@react-navigation/nati
 import UserScDetailScreen from '../screens/home/UserScDetailScreen';
 import { Schedule } from '../types/type';
 import InviteCodeScreen from '../setting/settingMenu/InviteCodeScreen';
+import ChangeNickNameScreen from '../setting/settingMenu/ChangeNickNameScreen';
 export type RootStackParamList = {
   Loading: undefined;
   Login: undefined;
@@ -33,6 +34,7 @@ export type RootStackParamList = {
   UserScDetail: {userId: string, roomId: string, userName: string, schedules: Schedule[], roomName: string, startDate: string, endDate: string};
   Settings: undefined;
   InviteCode: undefined;
+  ChangeNickName: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -82,6 +84,7 @@ const Navigation: React.FC = () => {
         <Stack.Screen name="AddSchedule" component={AddScheduleScreen} />
         <Stack.Screen name="UserScDetail" component={UserScDetailScreen} />
         <Stack.Screen name="InviteCode" component={InviteCodeScreen} />
+        <Stack.Screen name="ChangeNickName" component={ChangeNickNameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

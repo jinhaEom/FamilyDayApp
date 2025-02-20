@@ -192,7 +192,6 @@ export default function WritingCode() {
     <View style={styles.container}>
       <Text style={styles.titleText}>방 코드 입력</Text>
       <View style={styles.codeContainer}>
-        {/* 실제 입력을 담당하는 히든 TextInput */}
         <TextInput
           ref={inputRef}
           style={styles.hiddenInput}
