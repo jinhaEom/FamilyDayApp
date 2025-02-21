@@ -10,6 +10,7 @@ export const Colors = {
   PRIMARY_TEXT: '#F4F5FB',
   GRAY_TITLE: '#555',
   GRAY_CONTENT: '#666',
+  ERROR: '#FF0000',
 };
 
 export const scheduleColors = [

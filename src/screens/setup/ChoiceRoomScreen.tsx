@@ -36,7 +36,10 @@ const ChoiceRoom = () => {
   const handleLogout = useCallback(async () => {
     try {
       await signOut();
-      navigation.replace('Login');
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Login'}],
+      });
     } catch (error) {
       console.error('로그아웃 중 에러 발생:', error);
     }

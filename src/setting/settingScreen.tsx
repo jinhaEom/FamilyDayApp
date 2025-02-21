@@ -6,22 +6,21 @@ import {AuthContext} from '../auth/AuthContext';
 import {useContext} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {CommonActions} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../navigation/navigations';
 
 const SettingScreen = () => {
   const {signOut} = useContext(AuthContext);
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const inVitedHandler = useCallback(() => {
-    console.log('초대하기');
-  }, []);
-
-  const changeNicknameHandler = useCallback(() => {
-    console.log('닉네임 변경');
-  }, []);
+    navigation.navigate('InviteCode');
+  }, [navigation]);
 
   const choiceRoomHandler = useCallback(() => {
-    console.log('방 선택하기');
-  }, []);
+    navigation.navigate('ExistChoiceRoom');
+  }, [navigation]);
 
   const logOutHandler = useCallback(async () => {
     try {
@@ -43,12 +42,6 @@ const SettingScreen = () => {
       <TouchableOpacity style={styles.container} onPress={inVitedHandler}>
         <Ionicons name="person-add-outline" size={24} color={Colors.PRIMARY} />
         <Text style={styles.textStyle}>초대하기</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.container}
-        onPress={changeNicknameHandler}>
-        <Ionicons name="pencil-outline" size={24} color={Colors.PRIMARY} />
-        <Text style={styles.textStyle}>닉네임 변경</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.container} onPress={choiceRoomHandler}>
         <Ionicons name="grid-outline" size={24} color={Colors.PRIMARY} />

@@ -15,6 +15,8 @@ import {Schedule} from '../types/type';
 import type {User as FirebaseUser} from '@firebase/auth';
 import storage from '@react-native-firebase/storage';
 import {Alert} from 'react-native';
+import {ToastMessage} from '../components/ToastMessage';
+
 export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [user, setUser] = useState<User | null>(null);
   const [initialized, setInitialized] = useState(false);
@@ -24,7 +26,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [justLoggedIn, setJustLoggedIn] = useState(false);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [userProfileImage, setUserProfileImage] = useState<string | null>(null);
-
+  const [nickName, setNickName] = useState<string>('');
   const auth = useMemo(() => getAuth(), []);
 
   const justLoggedInRef = useRef(justLoggedIn);
@@ -158,7 +160,16 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
           displayName: name,
           photoURL: profileImageUrl,
         });
-
+        await userCredential.user.reload();
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          setUser({
+            userId: currentUser.uid,
+            email: currentUser.email || '',
+            name: currentUser.displayName || name, // displayName이 없으면 입력한 name 사용
+            justLoggedIn: true,
+          });
+        }
         // 4. Firestore에 사용자 정보 저장
         await firestore()
           .collection(Collection.USERS)
@@ -169,12 +180,14 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
             name: name,
             profileImage: profileImageUrl,
           });
+
+        ToastMessage({
+          message: '회원가입이 완료되었습니다.',
+          type: 'success',
+        });
       } catch (error: any) {
         if (error.code === 'auth/email-already-in-use') {
           Alert.alert('이미 가입된 이메일입니다.');
-        } else {
-          Alert.alert('회원가입 도중 오류가 발생했습니다.');
-          console.error('회원가입 에러:', error);
         }
         throw error;
       } finally {
@@ -202,24 +215,14 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
 
   const signOut = useCallback(async () => {
     try {
-      const userId = auth.currentUser?.uid;
-      if (userId) {
-        // 로그아웃 시 users 컬렉션의 방 정보도 초기화
-        await firestore().collection('users').doc(userId).update({
-          currentRoomId: null,
-          currentRoomName: null,
-          lastSignOutAt: firestore.FieldValue.serverTimestamp(),
-        });
-      }
-
-      // 로그아웃 시 상태 초기화
       setUser(null);
       setCurrentRoom(null);
       setJustLoggedIn(false);
       setUserProfileImage(null);
+      setSchedules([]);
       await firebaseSignOut(auth);
     } catch (error) {
-      console.error('로그아웃 에러:', error);
+      return Promise.reject(error);
     }
   }, [auth]);
 
@@ -248,6 +251,115 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     }
   }, [user, currentRoom]);
 
+  const changeNickname = useCallback(
+    async (nickname: string) => {
+      if (!user?.userId || !currentRoom?.roomId) {
+        Alert.alert('오류', '사용자 또는 방 정보를 찾을 수 없습니다.');
+        return;
+      }
+
+      try {
+        const roomRef = firestore().collection('rooms').doc(currentRoom.roomId);
+
+        // members 객체 내의 특정 사용자의 nickname 필드만 업데이트
+        await roomRef.update({
+          [`members.${user.userId}.nickname`]: nickname,
+        });
+
+        // currentRoom 상태 업데이트
+        setCurrentRoom(prevRoom => {
+          if (!prevRoom || !user.userId) {
+            return null;
+          }
+          return {
+            ...prevRoom,
+            members: {
+              ...prevRoom.members,
+              [user.userId]: {
+                ...prevRoom.members[user.userId],
+                nickname: nickname,
+              },
+            },
+          };
+        });
+
+        ToastMessage({
+          message: '닉네임이 변경되었습니다.',
+          type: 'success',
+        });
+      } catch (error) {
+        console.error('닉네임 변경 중 오류:', error);
+        ToastMessage({
+          message: '닉네임 변경에 실패했습니다.',
+          type: 'error',
+        });
+      }
+    },
+    [user, currentRoom],
+  );
+
+  const changeProfileImage = useCallback(
+    async (imageUrl: string) => {
+      if (!user?.userId || !currentRoom?.roomId) {
+        Alert.alert('오류', '사용자 또는 방 정보를 찾을 수 없습니다.');
+        return;
+      }
+
+      try {
+        // 1. 파일 이름 생성
+        const fileName = `profile_${user.userId}_${Date.now()}.jpg`;
+        const reference = storage().ref(`profiles/${fileName}`);
+
+        // 2. 이미지 업로드 및 URL 가져오기
+        await reference.putFile(imageUrl);
+        const downloadURL = await reference.getDownloadURL();
+
+        // 3. Firestore 업데이트를 병렬로 처리
+        await Promise.all([
+          firestore()
+            .collection('rooms')
+            .doc(currentRoom.roomId)
+            .update({
+              [`members.${user.userId}.profileImage`]: downloadURL,
+            }),
+          firestore().collection('users').doc(user.userId).update({
+            profileImage: downloadURL,
+          }),
+        ]);
+
+        // 4. 상태 업데이트
+        setUserProfileImage(downloadURL);
+        setCurrentRoom(prevRoom => {
+          if (!prevRoom || !user.userId) {
+            return prevRoom;
+          }
+          return {
+            ...prevRoom,
+            members: {
+              ...prevRoom.members,
+              [user.userId]: {
+                ...prevRoom.members[user.userId],
+                profileImage: downloadURL,
+              },
+            },
+          };
+        });
+
+        ToastMessage({
+          message: '프로필 이미지가 변경되었습니다.',
+          type: 'success',
+        });
+      } catch (error) {
+        console.error('프로필 이미지 변경 중 오류:', error);
+        ToastMessage({
+          message: '프로필 이미지 변경에 실패했습니다.',
+          type: 'error',
+        });
+      }
+    },
+    [user?.userId, currentRoom?.roomId],
+  );
+
   const value = useMemo(
     () => ({
       initialized,
@@ -269,6 +381,10 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       auth,
       justLoggedInRef,
       setSchedules,
+      changeNickname,
+      changeProfileImage,
+      nickName,
+      setNickName,
     }),
     [
       initialized,
@@ -286,6 +402,10 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       auth,
       justLoggedInRef,
       setSchedules,
+      changeNickname,
+      changeProfileImage,
+      nickName,
+      setNickName,
     ],
   );
 

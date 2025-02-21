@@ -55,6 +55,8 @@ const InfoTextInput: React.FC<InfoTextInputProps> = ({
         placeholder={placeholder}
         placeholderTextColor={placeholderTextColor}
         secureTextEntry={secureTextEntry}
+        multiline={!secureTextEntry}
+
         {...props}
         onFocus={() => {
           setIsFocused(true);
@@ -63,7 +65,6 @@ const InfoTextInput: React.FC<InfoTextInputProps> = ({
           setIsFocused(false);
           onBlur?.();
         }}
-        multiline={true}
       />
       {deleteIconVisible && (
         <TouchableOpacity style={styles.iconTouchStyle}>

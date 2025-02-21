@@ -7,6 +7,7 @@ export type User = {
   currentRoom?: string;
   selectedRoom?: string;
   justLoggedIn?: boolean;
+  nickname?: string;
 };
 
 type RoomMember = {

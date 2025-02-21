@@ -13,7 +13,8 @@ import {ActivityIndicator} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/navigations';
 import {launchImageLibrary} from 'react-native-image-picker';
-
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { ToastMessage } from '../components/ToastMessage';
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 };
@@ -23,6 +24,9 @@ const SignUpScreen = ({navigation}: Props) => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isPasswordConfirmVisible, setIsPasswordConfirmVisible] =
+    useState(false);
   const {
     signUp,
     processingSignUp,
@@ -32,22 +36,24 @@ const SignUpScreen = ({navigation}: Props) => {
   } = useContext(AuthContext);
   const [buttonDisabled, setButtonDisabled] = useState(true);
 
-  const handleSignUp = async () => {
-    if (!name || !email || !password) {
-      Alert.alert('알림', '모든 필드를 입력해주세요.');
-      return;
-    }
+const handleSignUp = async () => {
+  if (!name || !email || !password) {
+    Alert.alert('알림', '모든 필드를 입력해주세요.');
+    return;
+  }
 
-    try {
-      setProcessingSignUp(true);
-      await signUp(email, password, name, userProfileImage);
-      navigation.navigate('ChoiceRoom');
-    } catch (error) {
-      console.error('회원가입 오류:', error);
-    } finally {
-      setProcessingSignUp(false);
-    }
-  };
+  try {
+    setProcessingSignUp(true);
+    await signUp(email, password, name, userProfileImage);
+    navigation.goBack();
+  } catch (error) {
+    ToastMessage({ message: '회원가입 오류가 발생했습니다.', type: 'error' });
+    console.error('회원가입 오류:', error);
+  } finally {
+    setProcessingSignUp(false);
+  }
+};
+
 
   const validateEmail = (_email: string) => {
     const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
@@ -70,8 +76,14 @@ const SignUpScreen = ({navigation}: Props) => {
       Alert.alert('오류', '이미지를 선택하는 중 오류가 발생했습니다.');
     }
   };
+  const handlePasswordVisible = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
   const handleBack = () => {
     setUserProfileImage(null);
+  };
+  const handlePasswordConfirmVisible = () => {
+    setIsPasswordConfirmVisible(!isPasswordConfirmVisible);
   };
 
   useEffect(() => {
@@ -125,20 +137,46 @@ const SignUpScreen = ({navigation}: Props) => {
             }
           }}
         />
-        <InfoTextInput
-          placeholder="Password"
-          placeholderTextColor={Colors.GRAY}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        <InfoTextInput
-          placeholder="Password Confirm"
-          placeholderTextColor={Colors.GRAY}
-          value={passwordConfirm}
-          onChangeText={setPasswordConfirm}
-          secureTextEntry
-        />
+        <View style={{position: 'relative'}}>
+          <InfoTextInput
+            placeholder="Password"
+            placeholderTextColor={Colors.GRAY}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!isPasswordVisible}
+          />
+          {password !== '' && (
+            <Ionicons
+              style={{
+                position: 'absolute',
+                right: 35,
+                top: 10,
+              }}
+              name={isPasswordVisible ? 'eye-off' : 'eye'}
+              size={18}
+              color={Colors.GRAY}
+              onPress={handlePasswordVisible}
+            />
+          )}
+        </View>
+        <View style={{position: 'relative'}}>
+          <InfoTextInput
+            placeholder="Password Confirm"
+            placeholderTextColor={Colors.GRAY}
+            value={passwordConfirm}
+            onChangeText={setPasswordConfirm}
+            secureTextEntry={!isPasswordConfirmVisible}
+          />
+          {passwordConfirm !== '' && (
+            <Ionicons
+              style={{position: 'absolute', right: 35, top: 10}}
+              name={isPasswordConfirmVisible ? 'eye-off' : 'eye'}
+              size={18}
+              color={Colors.GRAY}
+              onPress={handlePasswordConfirmVisible}
+            />
+          )}
+        </View>
         {processingSignUp && buttonDisabled === false && (
           <ActivityIndicator size="large" color={Colors.PRIMARY} />
         )}
@@ -162,10 +200,11 @@ const SignUpScreen = ({navigation}: Props) => {
 const styles = StyleSheet.create({
   imageContainer: {
     backgroundColor: Colors.GRAY,
-    padding: 10,
     borderRadius: 10,
     width: 150,
     height: 150,
+    borderWidth: 0.7,
+    borderColor: Colors.GRAY,
     alignSelf: 'center',
     justifyContent: 'center',
     marginBottom: 20,
