@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {View, StyleSheet, Text, Alert, ActivityIndicator} from 'react-native';
 import {Colors} from '../constants/Colors';
 import {AuthContext} from '../auth/AuthContext';
@@ -15,24 +15,7 @@ type Props = {
 const LoginScreen = ({navigation}: Props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const {signIn, processingSignIn, user, setJustLoggedIn} =
-    useContext(AuthContext);
-
-  useEffect(() => {
-    console.log('LoginScreen 렌더링됨');
-
-    if (user) {
-      // 로그인한 경우
-      setJustLoggedIn(true);
-      navigation.reset({
-        index: 0,
-        routes: [{name: 'ChoiceRoom'}],
-      });
-    } else {
-      // 로그아웃하거나 user가 없는 경우
-      setJustLoggedIn(false);
-    }
-  }, [user, navigation, setJustLoggedIn]);
+  const {signIn, processingSignIn} = useContext(AuthContext);
 
   const handleLogin = async () => {
     if (email === '' || password === '') {
@@ -41,6 +24,10 @@ const LoginScreen = ({navigation}: Props) => {
     }
     try {
       await signIn(email, password);
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'ChoiceRoom'}],
+      });
     } catch (error) {
       console.error('Error signing in:', error);
       Alert.alert('이메일 또는 비밀번호를 다시 확인해주세요.');

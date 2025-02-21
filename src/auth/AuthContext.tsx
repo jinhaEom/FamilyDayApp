@@ -3,14 +3,19 @@ import {createContext} from 'react';
 export interface AuthContextType {
   initialized: boolean;
   user: User | null;
-  signUp: (email: string, password: string, name: string, selectedImage: string | null) => void;
+  signUp: (
+    email: string,
+    password: string,
+    name: string,
+    selectedImage: string | null,
+  ) => void;
   processingSignUp: boolean;
   setProcessingSignUp: (processingSignUp: boolean) => void;
   signIn: (email: string, password: string) => void;
   processingSignIn: boolean;
   currentRoom: Room | null;
   setCurrentRoom: (room: Room | null) => void;
-  signOut: () => void;
+  signOut: () => Promise<void>;
   justLoggedIn: boolean;
   setJustLoggedIn: (justLoggedIn: boolean) => void;
   schedules: Schedule[];
@@ -19,6 +24,9 @@ export interface AuthContextType {
   userProfileImage: string | null;
   setUserProfileImage: (userProfileImage: string | null) => void;
   changeNickname: (nickname: string) => Promise<void>;
+  changeProfileImage: (imageUrl: string) => Promise<void>;
+  nickName : string;
+  setNickName : (nickName: string) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -40,4 +48,7 @@ export const AuthContext = createContext<AuthContextType>({
   userProfileImage: null,
   setUserProfileImage: () => {},
   changeNickname: async () => {},
+  changeProfileImage: async () => {},
+  nickName: '',
+  setNickName: () => {},
 });

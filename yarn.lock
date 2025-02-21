@@ -1869,14 +1869,14 @@
 
 "@react-native-async-storage/async-storage@^2.1.1":
   version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@react-native-async-storage/async-storage/-/async-storage-2.1.1.tgz#7f4642e848e5a257ff4e65d2c93e80f0c372dd7c"
+  resolved "https://registry.npmjs.org/@react-native-async-storage/async-storage/-/async-storage-2.1.1.tgz"
   integrity sha512-UqlnxddwM3rlCHvteFz+HpIXjqhQM7GkBgVQ9sMvMdl8QVOJQDjG7BODCUvabysMDw+9QfMFlLiOI8U6c0VzzQ==
   dependencies:
     merge-options "^3.0.4"
 
 "@react-native-clipboard/clipboard@^1.16.1":
   version "1.16.1"
-  resolved "https://registry.yarnpkg.com/@react-native-clipboard/clipboard/-/clipboard-1.16.1.tgz#d92753bf3f850541f8250ad1705c787c6a246f1b"
+  resolved "https://registry.npmjs.org/@react-native-clipboard/clipboard/-/clipboard-1.16.1.tgz"
   integrity sha512-YdSwSS3P4IiJq5nW0iv3qpntDAzBf/xoew2zRPGJ6SJZr/Lhk4aWyR506EWl6BID+iQy7xQmzHXZYR5H4apM6g==
 
 "@react-native-community/cli-clean@15.0.1":
@@ -2033,7 +2033,7 @@
 
 "@react-native-community/datetimepicker@^8.3.0":
   version "8.3.0"
-  resolved "https://registry.yarnpkg.com/@react-native-community/datetimepicker/-/datetimepicker-8.3.0.tgz#d734a77ae5fdf9585ea2eba0d2b5cf47404c0a09"
+  resolved "https://registry.npmjs.org/@react-native-community/datetimepicker/-/datetimepicker-8.3.0.tgz"
   integrity sha512-K/KgaJbLtjMpx4PaG4efrVIcSe6+DbLufeX1lwPB5YY8i3sq9dOh6WcAcMTLbaRTUpurebQTkl7puHPFm9GalA==
   dependencies:
     invariant "^2.2.4"
@@ -2255,7 +2255,7 @@
 
 "@react-navigation/bottom-tabs@^7.2.0":
   version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@react-navigation/bottom-tabs/-/bottom-tabs-7.2.0.tgz#5b336b823226647a263b4fe743655462796b6aaf"
+  resolved "https://registry.npmjs.org/@react-navigation/bottom-tabs/-/bottom-tabs-7.2.0.tgz"
   integrity sha512-1LxjgnbPyFINyf9Qr5d1YE0pYhuJayg5TCIIFQmbcX4PRhX7FKUXV7cX8OzrKXEdZi/UE/VNXugtozPAR9zgvA==
   dependencies:
     "@react-navigation/elements" "^2.2.5"
@@ -4419,7 +4419,7 @@ hermes-parser@0.25.1:
 
 hoist-non-react-statics@^3.3.1:
   version "3.3.2"
-  resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz#ece0acaf71d62c2969c2ec59feff42a4b1a85b45"
+  resolved "https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz"
   integrity sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==
   dependencies:
     react-is "^16.7.0"
@@ -4688,7 +4688,7 @@ is-path-inside@^3.0.3:
 
 is-plain-obj@^2.1.0:
   version "2.1.0"
-  resolved "https://registry.yarnpkg.com/is-plain-obj/-/is-plain-obj-2.1.0.tgz#45e42e37fccf1f40da8e5f76ee21515840c09287"
+  resolved "https://registry.npmjs.org/is-plain-obj/-/is-plain-obj-2.1.0.tgz"
   integrity sha512-YWnfyRwxL/+SsrWYfOpUtz5b3YD+nyfkHvjbcanzk8zgyO4ASD67uVMRt8k5bM4lLMDnXfriRhOpemw+NfT1eA==
 
 is-plain-object@^2.0.4:
@@ -5579,7 +5579,7 @@ memoize-one@^5.0.0, memoize-one@^5.2.1:
 
 merge-options@^3.0.4:
   version "3.0.4"
-  resolved "https://registry.yarnpkg.com/merge-options/-/merge-options-3.0.4.tgz#84709c2aa2a4b24c1981f66c179fe5565cc6dbb7"
+  resolved "https://registry.npmjs.org/merge-options/-/merge-options-3.0.4.tgz"
   integrity sha512-2Sug1+knBjkaMsMgf1ctR1Ujx+Ayku4EdJN4Z+C2+JzoeF7A3OZ9KM2GY0CpQS51NR61LTurMJrRKPhSs3ZRTQ==
   dependencies:
     is-plain-obj "^2.1.0"
@@ -5847,7 +5847,7 @@ mkdirp@^1.0.4:
 
 moment@^2.29.4:
   version "2.30.1"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.30.1.tgz#f8c91c07b7a786e30c59926df530b4eac96974ae"
+  resolved "https://registry.npmjs.org/moment/-/moment-2.30.1.tgz"
   integrity sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==
 
 ms@2.0.0:
@@ -6387,9 +6387,9 @@ react-is@^18.0.0, react-is@^18.2.0, react-is@^18.3.1:
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
 
 react-native-calendars@^1.1308.1:
-  version "1.1308.1"
-  resolved "https://registry.yarnpkg.com/react-native-calendars/-/react-native-calendars-1.1308.1.tgz#5fe883364db7fd577f31aa198aff84f3a0097c8d"
-  integrity sha512-c6HM7Z0Nwh9u+GAkN1WS0rCc2HtM0VMllAt9ek60ntJuvjnEocyG0pKKHldi0do4QoAsmSwRW0wIqizYVzGlJw==
+  version "1.1309.1"
+  resolved "https://registry.npmjs.org/react-native-calendars/-/react-native-calendars-1.1309.1.tgz"
+  integrity sha512-ZUvdKkagOVAI2B0/bVVKBaCMCCFsbxtgOLdBCKETz5K4FadL6C+69josMFoJv1OIeVFNyhRO9w1BW1qxglzYpw==
   dependencies:
     hoist-non-react-statics "^3.3.1"
     lodash "^4.17.15"
@@ -6400,6 +6400,11 @@ react-native-calendars@^1.1308.1:
     xdate "^0.8.0"
   optionalDependencies:
     moment "^2.29.4"
+
+react-native-compressor@^1.10.4:
+  version "1.10.4"
+  resolved "https://registry.yarnpkg.com/react-native-compressor/-/react-native-compressor-1.10.4.tgz#ba96baf70fbc95ee74eb280cb3ecf85722403827"
+  integrity sha512-58gbmJ+8IvsKP8JKK1E8XW5trfQY3dNuH7S0hYw0tSRQc6l0GZ3k8TYtoUbySOc1xcQSrUo51o0Chwe8x7mUTg==
 
 react-native-css-interop@0.1.22:
   version "0.1.22"
@@ -6415,17 +6420,22 @@ react-native-css-interop@0.1.22:
 
 react-native-fast-image@^8.6.3:
   version "8.6.3"
-  resolved "https://registry.yarnpkg.com/react-native-fast-image/-/react-native-fast-image-8.6.3.tgz#6edc3f9190092a909d636d93eecbcc54a8822255"
+  resolved "https://registry.npmjs.org/react-native-fast-image/-/react-native-fast-image-8.6.3.tgz"
   integrity sha512-Sdw4ESidXCXOmQ9EcYguNY2swyoWmx53kym2zRsvi+VeFCHEdkO+WG1DK+6W81juot40bbfLNhkc63QnWtesNg==
 
 react-native-image-picker@^8.0.0:
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/react-native-image-picker/-/react-native-image-picker-8.0.0.tgz#cf5f0e40bb61f01b6dfb3125a8a745db27623d3a"
-  integrity sha512-yPhUG8p3xld+hgMUqBkOCLpGcxwm7Rp4UbnWJJsBbSi6fTfK6/YQXf0LpEEhNHUrCJh4Frk4il9OeRAJBCzCCg==
+  version "8.1.0"
+  resolved "https://registry.npmjs.org/react-native-image-picker/-/react-native-image-picker-8.1.0.tgz"
+  integrity sha512-qD0pivr2LkzdCNRl5CyawldZA2o0YWsK3f4gh3086WzRiwYFoe+ksa+ggub1QD4opz/oS7YpIRzWwfHSoLFEog==
+
+react-native-image-resizer@^1.4.5:
+  version "1.4.5"
+  resolved "https://registry.npmjs.org/react-native-image-resizer/-/react-native-image-resizer-1.4.5.tgz"
+  integrity sha512-33EgL3C9pyvjKpullAB6fWyD5QhoYEpNNB9rxNvUsrpAnL2mHBW7PTrUCCZudJeB6Weg7nbweKrSw1nnto5aqg==
 
 react-native-modal-datetime-picker@^18.0.0:
   version "18.0.0"
-  resolved "https://registry.yarnpkg.com/react-native-modal-datetime-picker/-/react-native-modal-datetime-picker-18.0.0.tgz#0555b2c9ab34318629a251f250de68a0e3b3980d"
+  resolved "https://registry.npmjs.org/react-native-modal-datetime-picker/-/react-native-modal-datetime-picker-18.0.0.tgz"
   integrity sha512-0jdvhhraZQlRACwr7pM6vmZ2kxgzJ4CpnmV6J3TVA6MrXMXK6Zo/upRBKkRp0+fTOiKuNblzesA2U59rYo6SGA==
   dependencies:
     prop-types "^15.7.2"
@@ -6462,12 +6472,12 @@ react-native-screens@^4.6.0:
 
 react-native-simple-toast@^3.3.2:
   version "3.3.2"
-  resolved "https://registry.yarnpkg.com/react-native-simple-toast/-/react-native-simple-toast-3.3.2.tgz#9f1c3a92bb56424d3e5d3bc7caf3f29dee819d9b"
+  resolved "https://registry.npmjs.org/react-native-simple-toast/-/react-native-simple-toast-3.3.2.tgz"
   integrity sha512-jtZa5VXLDc3Rr+1a2eYyviakxOXP8U9AFYp1VWlslApi0wkiNeyAQ4yLZbIY8nayrbHTUSkERiDzKoCsy9v7Dw==
 
 react-native-swipe-gestures@^1.0.5:
   version "1.0.5"
-  resolved "https://registry.yarnpkg.com/react-native-swipe-gestures/-/react-native-swipe-gestures-1.0.5.tgz#a172cb0f3e7478ccd681fd36b8bfbcdd098bde7c"
+  resolved "https://registry.npmjs.org/react-native-swipe-gestures/-/react-native-swipe-gestures-1.0.5.tgz"
   integrity sha512-Ns7Bn9H/Tyw278+5SQx9oAblDZ7JixyzeOczcBK8dipQk2pD7Djkcfnf1nB/8RErAmMLL9iXgW0QHqiII8AhKw==
 
 react-native-vector-icons@^10.2.0:
@@ -6577,7 +6587,7 @@ recast@^0.23.9:
 
 recyclerlistview@^4.0.0:
   version "4.2.1"
-  resolved "https://registry.yarnpkg.com/recyclerlistview/-/recyclerlistview-4.2.1.tgz#4537a0959400cdce1df1f38d26aab823786e9b13"
+  resolved "https://registry.npmjs.org/recyclerlistview/-/recyclerlistview-4.2.1.tgz"
   integrity sha512-NtVYjofwgUCt1rEsTp6jHQg/47TWjnO92TU2kTVgJ9wsc/ely4HnizHHa+f/dI7qaw4+zcSogElrLjhMltN2/g==
   dependencies:
     lodash.debounce "4.0.8"
@@ -7284,7 +7294,7 @@ ts-api-utils@^1.3.0:
 
 ts-object-utils@0.0.5:
   version "0.0.5"
-  resolved "https://registry.yarnpkg.com/ts-object-utils/-/ts-object-utils-0.0.5.tgz#95361cdecd7e52167cfc5e634c76345e90a26077"
+  resolved "https://registry.npmjs.org/ts-object-utils/-/ts-object-utils-0.0.5.tgz"
   integrity sha512-iV0GvHqOmilbIKJsfyfJY9/dNHCs969z3so90dQWsO1eMMozvTpnB1MEaUbb3FYtZTGjv5sIy/xmslEz0Rg2TA==
 
 tslib@^1.8.1:
@@ -7643,7 +7653,7 @@ ws@^7, ws@^7.5.10:
 
 xdate@^0.8.0:
   version "0.8.3"
-  resolved "https://registry.yarnpkg.com/xdate/-/xdate-0.8.3.tgz#422068681eeac81f68acffa1a38cd287bb179b85"
+  resolved "https://registry.npmjs.org/xdate/-/xdate-0.8.3.tgz"
   integrity sha512-1NhJWPJwN+VjbkACT9XHbQK4o6exeSVtS2CxhMPwUE7xQakoEFTlwra9YcqV/uHQVyeEUYoYC46VGDJ+etnIiw==
 
 xmlbuilder@^15.1.1:

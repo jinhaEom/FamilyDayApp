@@ -83,11 +83,17 @@ export default function MakeRoom() {
       await newRoomRef.set(roomData);
       console.log('새로운 방 데이터 설정 완료.');
 
-      // users 컬렉션에 현재 방 정보 저장
-      await firestore().collection('users').doc(user.userId).update({
-        currentRoomId: newRoomRef.id,
-        currentRoomName: roomName,
-      });
+      // users 컬렉션에 현재 방 정보 저장 - set으로 변경
+      await firestore().collection('users').doc(user.userId).set(
+        {
+          currentRoomId: newRoomRef.id,
+          currentRoomName: roomName,
+          userId: user.userId,
+          email: user.email,
+          name: user.name,
+        },
+        {merge: true},
+      ); // merge 옵션 추가
 
       // currentRoom 상태 업데이트
       setCurrentRoom({

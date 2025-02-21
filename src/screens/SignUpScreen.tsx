@@ -14,7 +14,6 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/navigations';
 import {launchImageLibrary} from 'react-native-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Toast from 'react-native-simple-toast';
 import { ToastMessage } from '../components/ToastMessage';
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
@@ -37,25 +36,24 @@ const SignUpScreen = ({navigation}: Props) => {
   } = useContext(AuthContext);
   const [buttonDisabled, setButtonDisabled] = useState(true);
 
-  const handleSignUp = async () => {
-    if (!name || !email || !password) {
-      Alert.alert('알림', '모든 필드를 입력해주세요.');
-      return;
-    }
+const handleSignUp = async () => {
+  if (!name || !email || !password) {
+    Alert.alert('알림', '모든 필드를 입력해주세요.');
+    return;
+  }
 
-    try {
-      setProcessingSignUp(true);
-      await signUp(email, password, name, userProfileImage);
+  try {
+    setProcessingSignUp(true);
+    await signUp(email, password, name, userProfileImage);
+    navigation.goBack();
+  } catch (error) {
+    ToastMessage({ message: '회원가입 오류가 발생했습니다.', type: 'error' });
+    console.error('회원가입 오류:', error);
+  } finally {
+    setProcessingSignUp(false);
+  }
+};
 
-      navigation.navigate('ChoiceRoom');
-    } catch (error) {
-      ToastMessage({message: '회원가입 오류가 발생했습니다.', type: 'error'});
-
-      console.error('회원가입 오류:', error);
-    } finally {
-      setProcessingSignUp(false);
-    }
-  };
 
   const validateEmail = (_email: string) => {
     const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
