@@ -1146,6 +1146,17 @@
     "@firebase/util" "1.10.3"
     tslib "^2.1.0"
 
+"@firebase/app-compat@0.2.50":
+  version "0.2.50"
+  resolved "https://registry.yarnpkg.com/@firebase/app-compat/-/app-compat-0.2.50.tgz#665b6db432414229b96763e6b1cf5e38463c58d0"
+  integrity sha512-7yD362icKgjoNvFxwth420TNZgqCfuTJ28yQCdpyjC2fXyaZHhAbxVKnHEXGTAaUKSHWxsIy46lBKGi/x/Mflw==
+  dependencies:
+    "@firebase/app" "0.11.1"
+    "@firebase/component" "0.6.12"
+    "@firebase/logger" "0.4.4"
+    "@firebase/util" "1.10.3"
+    tslib "^2.1.0"
+
 "@firebase/app-types@0.9.3":
   version "0.9.3"
   resolved "https://registry.npmjs.org/@firebase/app-types/-/app-types-0.9.3.tgz"
@@ -1155,6 +1166,17 @@
   version "0.10.18"
   resolved "https://registry.npmjs.org/@firebase/app/-/app-0.10.18.tgz"
   integrity sha512-VuqEwD/QRisKd/zsFsqgvSAx34mZ3WEF47i97FD6Vw4GWAhdjepYf0Hmi6K0b4QMSgWcv/x0C30Slm5NjjERXg==
+  dependencies:
+    "@firebase/component" "0.6.12"
+    "@firebase/logger" "0.4.4"
+    "@firebase/util" "1.10.3"
+    idb "7.1.1"
+    tslib "^2.1.0"
+
+"@firebase/app@0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@firebase/app/-/app-0.11.1.tgz#20663522be71307c8e5c74828bb621cdcdd3f5b4"
+  integrity sha512-Vz4DrNLPfDx3RwQf+4klXtu7OUYDO6xz2hlRyFawWskS7YqdtNzkDDxrqH20KDfjCF1lib46/NgchIj1+8h4wQ==
   dependencies:
     "@firebase/component" "0.6.12"
     "@firebase/logger" "0.4.4"
@@ -1173,6 +1195,17 @@
     "@firebase/util" "1.10.3"
     tslib "^2.1.0"
 
+"@firebase/auth-compat@0.5.18":
+  version "0.5.18"
+  resolved "https://registry.yarnpkg.com/@firebase/auth-compat/-/auth-compat-0.5.18.tgz#ba1674287e6df4f95675866d6f960a9fc4a9abfc"
+  integrity sha512-dFBev8AMNb2AgIt9afwf/Ku4/0Wq9R9OFSeBB/xjyJt+RfQ9PnNWqU2oFphews23byLg6jle8twRA7iOYfRGRw==
+  dependencies:
+    "@firebase/auth" "1.9.0"
+    "@firebase/auth-types" "0.13.0"
+    "@firebase/component" "0.6.12"
+    "@firebase/util" "1.10.3"
+    tslib "^2.1.0"
+
 "@firebase/auth-interop-types@0.2.4":
   version "0.2.4"
   resolved "https://registry.npmjs.org/@firebase/auth-interop-types/-/auth-interop-types-0.2.4.tgz"
@@ -1183,10 +1216,25 @@
   resolved "https://registry.npmjs.org/@firebase/auth-types/-/auth-types-0.12.3.tgz"
   integrity sha512-Zq9zI0o5hqXDtKg6yDkSnvMCMuLU6qAVS51PANQx+ZZX5xnzyNLEBO3GZgBUPsV5qIMFhjhqmLDxUqCbnAYy2A==
 
+"@firebase/auth-types@0.13.0":
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/@firebase/auth-types/-/auth-types-0.13.0.tgz#ae6e0015e3bd4bfe18edd0942b48a0a118a098d9"
+  integrity sha512-S/PuIjni0AQRLF+l9ck0YpsMOdE8GO2KU6ubmBB7P+7TJUCQDa3R1dlgYm9UzGbbePMZsp0xzB93f2b/CgxMOg==
+
 "@firebase/auth@1.8.2":
   version "1.8.2"
   resolved "https://registry.npmjs.org/@firebase/auth/-/auth-1.8.2.tgz"
   integrity sha512-q+071y2LWe0bVnjqaX3BscqZwzdP0GKN2YBKapLq4bV88MPfCtWwGKmDhNDEDUmioOjudGXkUY5cvvKqk3mlUg==
+  dependencies:
+    "@firebase/component" "0.6.12"
+    "@firebase/logger" "0.4.4"
+    "@firebase/util" "1.10.3"
+    tslib "^2.1.0"
+
+"@firebase/auth@1.9.0":
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/@firebase/auth/-/auth-1.9.0.tgz#eea1ab78fd3d68db3cdef69a0d7fba3663a940c5"
+  integrity sha512-Xz2mbEYauF689qXG/4HppS2+/yGo9R7B6eNUBh3H2+XpAZTGdx8d8TFsW/BMTAK9Q95NB0pb1Bbvfx0lwofq8Q==
   dependencies:
     "@firebase/component" "0.6.12"
     "@firebase/logger" "0.4.4"
@@ -1212,6 +1260,17 @@
     "@firebase/util" "1.10.3"
     tslib "^2.1.0"
 
+"@firebase/data-connect@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@firebase/data-connect/-/data-connect-0.3.0.tgz#5602986c28e2ac94df2499a7cf68ad622957089e"
+  integrity sha512-inbLq0JyQD/d02Al3Lso0Hc8z1BVpB3dYSMFcQkeKhYyjn5bspLczLdasPbCOEUp8MOkLblLZhJuRs7Q/spFnw==
+  dependencies:
+    "@firebase/auth-interop-types" "0.2.4"
+    "@firebase/component" "0.6.12"
+    "@firebase/logger" "0.4.4"
+    "@firebase/util" "1.10.3"
+    tslib "^2.1.0"
+
 "@firebase/database-compat@2.0.2":
   version "2.0.2"
   resolved "https://registry.npmjs.org/@firebase/database-compat/-/database-compat-2.0.2.tgz"
@@ -1219,6 +1278,18 @@
   dependencies:
     "@firebase/component" "0.6.12"
     "@firebase/database" "1.0.11"
+    "@firebase/database-types" "1.0.8"
+    "@firebase/logger" "0.4.4"
+    "@firebase/util" "1.10.3"
+    tslib "^2.1.0"
+
+"@firebase/database-compat@2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@firebase/database-compat/-/database-compat-2.0.3.tgz#87f18e814c06d62fea4bfb10d3b833f4259345ca"
+  integrity sha512-uHGQrSUeJvsDfA+IyHW5O4vdRPsCksEzv4T4Jins+bmQgYy20ZESU4x01xrQCn/nzqKHuQMEW99CoCO7D+5NiQ==
+  dependencies:
+    "@firebase/component" "0.6.12"
+    "@firebase/database" "1.0.12"
     "@firebase/database-types" "1.0.8"
     "@firebase/logger" "0.4.4"
     "@firebase/util" "1.10.3"
@@ -1245,6 +1316,19 @@
     faye-websocket "0.11.4"
     tslib "^2.1.0"
 
+"@firebase/database@1.0.12":
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/@firebase/database/-/database-1.0.12.tgz#4e1807b82dc734df8596eac44d7766ff96c2de24"
+  integrity sha512-psFl5t6rSFHq3i3fnU1QQlc4BB9Hnhh8TgEqvQlPPm8kDLw8gYxvjqYw3c5CZW0+zKR837nwT6im/wtJUivMKw==
+  dependencies:
+    "@firebase/app-check-interop-types" "0.3.3"
+    "@firebase/auth-interop-types" "0.2.4"
+    "@firebase/component" "0.6.12"
+    "@firebase/logger" "0.4.4"
+    "@firebase/util" "1.10.3"
+    faye-websocket "0.11.4"
+    tslib "^2.1.0"
+
 "@firebase/firestore-compat@0.3.41":
   version "0.3.41"
   resolved "https://registry.npmjs.org/@firebase/firestore-compat/-/firestore-compat-0.3.41.tgz"
@@ -1252,6 +1336,17 @@
   dependencies:
     "@firebase/component" "0.6.12"
     "@firebase/firestore" "4.7.6"
+    "@firebase/firestore-types" "3.0.3"
+    "@firebase/util" "1.10.3"
+    tslib "^2.1.0"
+
+"@firebase/firestore-compat@0.3.43":
+  version "0.3.43"
+  resolved "https://registry.yarnpkg.com/@firebase/firestore-compat/-/firestore-compat-0.3.43.tgz#c62994b9b26d011a96265d6aa524a0d6b45a2c1b"
+  integrity sha512-zxg7YS07XQnTetGs3GADM/eA6HB4vWUp+Av4iugmTbft0fQxuTSnGm7ifctaYuR7VMTPckU9CW+oFC9QUNSYvg==
+  dependencies:
+    "@firebase/component" "0.6.12"
+    "@firebase/firestore" "4.7.8"
     "@firebase/firestore-types" "3.0.3"
     "@firebase/util" "1.10.3"
     tslib "^2.1.0"
@@ -1274,6 +1369,19 @@
     "@grpc/proto-loader" "^0.7.8"
     tslib "^2.1.0"
 
+"@firebase/firestore@4.7.8":
+  version "4.7.8"
+  resolved "https://registry.yarnpkg.com/@firebase/firestore/-/firestore-4.7.8.tgz#38b124a4d50a390934f70d916a84546376abdf4e"
+  integrity sha512-eDvVJ/I5vSmIdGmLHJAK1OcviigIxjjia6i5/AkMFq6vZMt7CBXA0B5Xz9pGRCZ7WewFcsCbK1ZUQoYJ91+Cew==
+  dependencies:
+    "@firebase/component" "0.6.12"
+    "@firebase/logger" "0.4.4"
+    "@firebase/util" "1.10.3"
+    "@firebase/webchannel-wrapper" "1.0.3"
+    "@grpc/grpc-js" "~1.9.0"
+    "@grpc/proto-loader" "^0.7.8"
+    tslib "^2.1.0"
+
 "@firebase/functions-compat@0.3.18":
   version "0.3.18"
   resolved "https://registry.npmjs.org/@firebase/functions-compat/-/functions-compat-0.3.18.tgz"
@@ -1281,6 +1389,17 @@
   dependencies:
     "@firebase/component" "0.6.12"
     "@firebase/functions" "0.12.1"
+    "@firebase/functions-types" "0.6.3"
+    "@firebase/util" "1.10.3"
+    tslib "^2.1.0"
+
+"@firebase/functions-compat@0.3.19":
+  version "0.3.19"
+  resolved "https://registry.yarnpkg.com/@firebase/functions-compat/-/functions-compat-0.3.19.tgz#f1d1ce51674a6ee8d5449b721374d35243dc3002"
+  integrity sha512-uw4tR8NcJCDu86UD63Za8A8SgFgmAVFb1XsGlkuBY7gpLyZWEFavWnwRkZ/8cUwpqUhp/SptXFZ1WFJSnOokLw==
+  dependencies:
+    "@firebase/component" "0.6.12"
+    "@firebase/functions" "0.12.2"
     "@firebase/functions-types" "0.6.3"
     "@firebase/util" "1.10.3"
     tslib "^2.1.0"
@@ -1294,6 +1413,18 @@
   version "0.12.1"
   resolved "https://registry.npmjs.org/@firebase/functions/-/functions-0.12.1.tgz"
   integrity sha512-QucRiFrvMMmIGTRhL7ZK2IeBnAWP7lAmfFREMpEtX47GjVqDqGxdFs+Mg7XBzxSc9UjDO4Rxf+aE9xJHU6bGwg==
+  dependencies:
+    "@firebase/app-check-interop-types" "0.3.3"
+    "@firebase/auth-interop-types" "0.2.4"
+    "@firebase/component" "0.6.12"
+    "@firebase/messaging-interop-types" "0.2.3"
+    "@firebase/util" "1.10.3"
+    tslib "^2.1.0"
+
+"@firebase/functions@0.12.2":
+  version "0.12.2"
+  resolved "https://registry.yarnpkg.com/@firebase/functions/-/functions-0.12.2.tgz#bea33b35437278228be563dfc02520d8623d43f4"
+  integrity sha512-iKpFDoCYk/Qm+Qwv5ynRb9/yq64QOt0A0+t9NuekyAZnSoV56kSNq/PmsVmBauar5SlmEjhHk6QKdMBP9S0gXA==
   dependencies:
     "@firebase/app-check-interop-types" "0.3.3"
     "@firebase/auth-interop-types" "0.2.4"
@@ -1374,6 +1505,18 @@
     "@firebase/util" "1.10.3"
     tslib "^2.1.0"
 
+"@firebase/performance-compat@0.2.13":
+  version "0.2.13"
+  resolved "https://registry.yarnpkg.com/@firebase/performance-compat/-/performance-compat-0.2.13.tgz#29bb94909c10553b40ca97e7f7d0e163bad8a77d"
+  integrity sha512-pB0SMQj2TLQ6roDcX0YQDWvUnVgsVOl0VnUvyT/VBdCUuQYDHobZsPEuQsoEqmPA44KS/Gl0oyKqf+I8UPtRgw==
+  dependencies:
+    "@firebase/component" "0.6.12"
+    "@firebase/logger" "0.4.4"
+    "@firebase/performance" "0.7.0"
+    "@firebase/performance-types" "0.2.3"
+    "@firebase/util" "1.10.3"
+    tslib "^2.1.0"
+
 "@firebase/performance-types@0.2.3":
   version "0.2.3"
   resolved "https://registry.npmjs.org/@firebase/performance-types/-/performance-types-0.2.3.tgz"
@@ -1389,6 +1532,18 @@
     "@firebase/logger" "0.4.4"
     "@firebase/util" "1.10.3"
     tslib "^2.1.0"
+
+"@firebase/performance@0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@firebase/performance/-/performance-0.7.0.tgz#1cd82039f7e06e0f059287dfa21705c68ec9a691"
+  integrity sha512-L91PwYuiJdKXKSRqsWNicvTppAJVzKjye03UlegeD6TkpKjb93T8AmJ9B0Mt0bcWHCNtnnRBCdSCvD2U9GZDjw==
+  dependencies:
+    "@firebase/component" "0.6.12"
+    "@firebase/installations" "0.6.12"
+    "@firebase/logger" "0.4.4"
+    "@firebase/util" "1.10.3"
+    tslib "^2.1.0"
+    web-vitals "^4.2.4"
 
 "@firebase/remote-config-compat@0.2.12":
   version "0.2.12"
@@ -1429,6 +1584,17 @@
     "@firebase/util" "1.10.3"
     tslib "^2.1.0"
 
+"@firebase/storage-compat@0.3.16":
+  version "0.3.16"
+  resolved "https://registry.yarnpkg.com/@firebase/storage-compat/-/storage-compat-0.3.16.tgz#49ab9c572bb172e6335c099d95a48bee0f17cc98"
+  integrity sha512-EeMuok/s0r938lEomia8XILEqSYULm7HcYZ/GTZLDWur0kMf2ktuPVZiTdRiwEV3Iki7FtQO5txrQ/0pLRVLAw==
+  dependencies:
+    "@firebase/component" "0.6.12"
+    "@firebase/storage" "0.13.6"
+    "@firebase/storage-types" "0.8.3"
+    "@firebase/util" "1.10.3"
+    tslib "^2.1.0"
+
 "@firebase/storage-types@0.8.3":
   version "0.8.3"
   resolved "https://registry.npmjs.org/@firebase/storage-types/-/storage-types-0.8.3.tgz"
@@ -1438,6 +1604,15 @@
   version "0.13.5"
   resolved "https://registry.npmjs.org/@firebase/storage/-/storage-0.13.5.tgz"
   integrity sha512-sB/7HNuW0N9tITyD0RxVLNCROuCXkml5i/iPqjwOGKC0xiUfpCOjBE+bb0ABMoN1qYZfqk0y9IuI2TdomjmkNw==
+  dependencies:
+    "@firebase/component" "0.6.12"
+    "@firebase/util" "1.10.3"
+    tslib "^2.1.0"
+
+"@firebase/storage@0.13.6":
+  version "0.13.6"
+  resolved "https://registry.yarnpkg.com/@firebase/storage/-/storage-0.13.6.tgz#322def6cda335df991ce9787aa5ef5650db901bd"
+  integrity sha512-BEJLYQzVgAoglRl5VRIRZ91RRBZgS/O37/PSGQJBYNuoLmFZUrtwrlLTOAwG776NlO9VQR+K2j15/36Lr2EqHA==
   dependencies:
     "@firebase/component" "0.6.12"
     "@firebase/util" "1.10.3"
@@ -1454,6 +1629,17 @@
   version "1.0.3"
   resolved "https://registry.npmjs.org/@firebase/vertexai/-/vertexai-1.0.3.tgz"
   integrity sha512-SQHg/RPb3LwQs/xiLcvAZYz9NXyDSZUIIwvgsKh6e4wdULAfyPCZIu6Y2ZYIhZLfk9Q44cKZ+++7RPTaqQJdYA==
+  dependencies:
+    "@firebase/app-check-interop-types" "0.3.3"
+    "@firebase/component" "0.6.12"
+    "@firebase/logger" "0.4.4"
+    "@firebase/util" "1.10.3"
+    tslib "^2.1.0"
+
+"@firebase/vertexai@1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@firebase/vertexai/-/vertexai-1.0.4.tgz#1966ddfb32492d004f595f639e57162d488c84ba"
+  integrity sha512-Nkf/r4u166b4Id6zrrW0Qtg1KyZpQvvYchtkebamnHtIfY+Qnt51I/sx4Saos/WrmO8SnrSU850LfmJ7pehYXg==
   dependencies:
     "@firebase/app-check-interop-types" "0.3.3"
     "@firebase/component" "0.6.12"
@@ -1869,7 +2055,7 @@
 
 "@react-native-async-storage/async-storage@^2.1.1":
   version "2.1.1"
-  resolved "https://registry.npmjs.org/@react-native-async-storage/async-storage/-/async-storage-2.1.1.tgz"
+  resolved "https://registry.yarnpkg.com/@react-native-async-storage/async-storage/-/async-storage-2.1.1.tgz#7f4642e848e5a257ff4e65d2c93e80f0c372dd7c"
   integrity sha512-UqlnxddwM3rlCHvteFz+HpIXjqhQM7GkBgVQ9sMvMdl8QVOJQDjG7BODCUvabysMDw+9QfMFlLiOI8U6c0VzzQ==
   dependencies:
     merge-options "^3.0.4"
@@ -4148,6 +4334,40 @@ firebase@11.2.0:
     "@firebase/storage-compat" "0.3.15"
     "@firebase/util" "1.10.3"
     "@firebase/vertexai" "1.0.3"
+
+firebase@^11.3.1:
+  version "11.3.1"
+  resolved "https://registry.yarnpkg.com/firebase/-/firebase-11.3.1.tgz#1507b2b1e3af17418fbe009e82d7bc30a6b5117c"
+  integrity sha512-P4YVFM0Bm2d8aO61SCEMF8E1pYgieGLrmr/LFw7vs6sAMebwuwHt+Wug+1qL2fhAHWPwpWbCLsdJH8NQ+4Sw8Q==
+  dependencies:
+    "@firebase/analytics" "0.10.11"
+    "@firebase/analytics-compat" "0.2.17"
+    "@firebase/app" "0.11.1"
+    "@firebase/app-check" "0.8.11"
+    "@firebase/app-check-compat" "0.3.18"
+    "@firebase/app-compat" "0.2.50"
+    "@firebase/app-types" "0.9.3"
+    "@firebase/auth" "1.9.0"
+    "@firebase/auth-compat" "0.5.18"
+    "@firebase/data-connect" "0.3.0"
+    "@firebase/database" "1.0.12"
+    "@firebase/database-compat" "2.0.3"
+    "@firebase/firestore" "4.7.8"
+    "@firebase/firestore-compat" "0.3.43"
+    "@firebase/functions" "0.12.2"
+    "@firebase/functions-compat" "0.3.19"
+    "@firebase/installations" "0.6.12"
+    "@firebase/installations-compat" "0.2.12"
+    "@firebase/messaging" "0.12.16"
+    "@firebase/messaging-compat" "0.2.16"
+    "@firebase/performance" "0.7.0"
+    "@firebase/performance-compat" "0.2.13"
+    "@firebase/remote-config" "0.5.0"
+    "@firebase/remote-config-compat" "0.2.12"
+    "@firebase/storage" "0.13.6"
+    "@firebase/storage-compat" "0.3.16"
+    "@firebase/util" "1.10.3"
+    "@firebase/vertexai" "1.0.4"
 
 flat-cache@^3.0.4:
   version "3.2.0"
@@ -7511,6 +7731,11 @@ wcwidth@^1.0.1:
   integrity sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==
   dependencies:
     defaults "^1.0.3"
+
+web-vitals@^4.2.4:
+  version "4.2.4"
+  resolved "https://registry.yarnpkg.com/web-vitals/-/web-vitals-4.2.4.tgz#1d20bc8590a37769bd0902b289550936069184b7"
+  integrity sha512-r4DIlprAGwJ7YM11VZp4R884m0Vmgr6EAKe3P+kO0PPj3Unqyvv59rczf6UiGcb9Z8QxZVcqKNwv/g0WNdWwsw==
 
 websocket-driver@>=0.5.1:
   version "0.7.4"

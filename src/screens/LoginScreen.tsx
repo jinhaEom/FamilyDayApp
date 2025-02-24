@@ -1,5 +1,12 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, Text, Alert, ActivityIndicator} from 'react-native';
+import React, {useState, useRef, useEffect} from 'react';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Alert,
+  ActivityIndicator,
+  TextInput,
+} from 'react-native';
 import {Colors} from '../constants/Colors';
 import {AuthContext} from '../auth/AuthContext';
 import {useContext} from 'react';
@@ -7,7 +14,6 @@ import InfoTextInput from '../components/InfoTextInput';
 import AppBasicButton from '../components/AppBasicButton';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/navigations';
-
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 };
@@ -15,7 +21,19 @@ type Props = {
 const LoginScreen = ({navigation}: Props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const {signIn, processingSignIn} = useContext(AuthContext);
+  const passwordRef = useRef<TextInput>(null);
+  const {signIn, processingSignIn, currentRoom, user} = useContext(AuthContext);
+
+  useEffect(() => {
+    if (currentRoom && user && !user.justLoggedIn) {
+      navigation.replace('MainTabs', {
+        roomId: currentRoom.roomId,
+        roomName: currentRoom.roomName,
+        nickname: currentRoom.members[user.userId]?.nickname || '',
+        inviteCode: currentRoom.inviteCode,
+      });
+    }
+  }, [currentRoom, user, navigation]);
 
   const handleLogin = async () => {
     if (email === '' || password === '') {
@@ -24,10 +42,8 @@ const LoginScreen = ({navigation}: Props) => {
     }
     try {
       await signIn(email, password);
-      navigation.reset({
-        index: 0,
-        routes: [{name: 'ChoiceRoom'}],
-      });
+      navigation.navigate('ChoiceRoom');
+
     } catch (error) {
       console.error('Error signing in:', error);
       Alert.alert('이메일 또는 비밀번호를 다시 확인해주세요.');
@@ -48,6 +64,8 @@ const LoginScreen = ({navigation}: Props) => {
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
+        returnKeyType="next"
+        onSubmitEditing={() => passwordRef.current?.focus()}
       />
       <InfoTextInput
         placeholder="Password"
@@ -55,6 +73,9 @@ const LoginScreen = ({navigation}: Props) => {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        ref={passwordRef}
+        returnKeyType="done"
+        onSubmitEditing={handleLogin}
       />
       <AppBasicButton
         onPress={handleLogin}

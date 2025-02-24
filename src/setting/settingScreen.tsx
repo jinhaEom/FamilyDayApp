@@ -5,12 +5,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {AuthContext} from '../auth/AuthContext';
 import {useContext} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import {CommonActions} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/navigations';
 
 const SettingScreen = () => {
-  const {signOut} = useContext(AuthContext);
+  const {logOut} = useContext(AuthContext);
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -21,20 +20,13 @@ const SettingScreen = () => {
   const choiceRoomHandler = useCallback(() => {
     navigation.navigate('ExistChoiceRoom');
   }, [navigation]);
-
   const logOutHandler = useCallback(async () => {
     try {
-      await signOut();
-      navigation.dispatch(
-        CommonActions.reset({
-          index: 0,
-          routes: [{name: 'Login'}],
-        }),
-      );
+      await logOut();
     } catch (error) {
-      console.error('로그아웃 중 에러 발생:', error);
+      console.error('로그아웃 중 오류:', error);
     }
-  }, [signOut, navigation]);
+  }, [logOut]);
 
   return (
     <View style={styles.topContainer}>

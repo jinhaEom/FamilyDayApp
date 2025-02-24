@@ -5,11 +5,11 @@ import AuthProvider from './src/auth/AuthProvider';
 
 const App = () => {
   return (
-    <SafeAreaView style={styles.container}>
-      <AuthProvider>
+    <AuthProvider>
+      <SafeAreaView style={styles.container}>
         <Navigation />
-      </AuthProvider>
-    </SafeAreaView>
+      </SafeAreaView>
+    </AuthProvider>
   );
 };
 

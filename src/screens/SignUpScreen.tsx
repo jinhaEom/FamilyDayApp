@@ -15,6 +15,8 @@ import {RootStackParamList} from '../navigation/navigations';
 import {launchImageLibrary} from 'react-native-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ToastMessage } from '../components/ToastMessage';
+import { useRef } from 'react';
+import { TextInput } from 'react-native';
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 };
@@ -27,6 +29,11 @@ const SignUpScreen = ({navigation}: Props) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isPasswordConfirmVisible, setIsPasswordConfirmVisible] =
     useState(false);
+
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+  const passwordConfirmRef = useRef<TextInput>(null);
+
   const {
     signUp,
     processingSignUp,
@@ -122,14 +129,17 @@ const handleSignUp = async () => {
           placeholderTextColor={Colors.GRAY}
           value={name}
           onChangeText={setName}
+          onSubmitEditing={() => emailRef.current?.focus()}
         />
         <InfoTextInput
           placeholder="Email"
+          ref={emailRef}
           placeholderTextColor={Colors.GRAY}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          onSubmitEditing={() => passwordRef.current?.focus()}
           onBlur={() => {
             if (email && !validateEmail(email)) {
               Alert.alert('알림', '올바른 이메일 형식을 입력해주세요.');
@@ -140,10 +150,12 @@ const handleSignUp = async () => {
         <View style={{position: 'relative'}}>
           <InfoTextInput
             placeholder="Password"
+            ref={passwordRef}
             placeholderTextColor={Colors.GRAY}
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!isPasswordVisible}
+            onSubmitEditing={() => passwordConfirmRef.current?.focus()}
           />
           {password !== '' && (
             <Ionicons
@@ -166,6 +178,8 @@ const handleSignUp = async () => {
             value={passwordConfirm}
             onChangeText={setPasswordConfirm}
             secureTextEntry={!isPasswordConfirmVisible}
+            ref={passwordConfirmRef}
+            onSubmitEditing={handleSignUp}
           />
           {passwordConfirm !== '' && (
             <Ionicons

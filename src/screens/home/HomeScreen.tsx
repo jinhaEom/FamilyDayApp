@@ -40,6 +40,7 @@ const HomeScreen = () => {
     currentRoom,
     setCurrentRoom,
     setUserProfileImage,
+    justLoggedIn,
     userProfileImage,
   } = useContext(AuthContext);
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -95,10 +96,12 @@ const HomeScreen = () => {
   }, []);
 
   useEffect(() => {
-    if (!currentRoom) {
+    // 로그인은 되어있지만 방이 선택되지 않은 경우
+    if (!currentRoom && user) {
       navigation.replace('ChoiceRoom');
+      return;
     }
-  }, [currentRoom, navigation]);
+  }, [currentRoom, navigation, user]);
 
   useEffect(() => {
     if (!currentRoom?.members) {
@@ -310,7 +313,7 @@ const HomeScreen = () => {
               })
             }>
             {currentRoom.members[userId]?.profileImage ? (
-              <View >
+              <View>
                 <FastImage
                   style={styles.userImage}
                   source={{

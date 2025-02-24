@@ -8,7 +8,7 @@ import {useContext} from 'react';
 import {AuthContext} from '../../auth/AuthContext';
 
 const ChoiceRoom = () => {
-  const {signOut, currentRoom} = useContext(AuthContext);
+  const {logOut} = useContext(AuthContext);
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const titleOpacity = useRef(new Animated.Value(0)).current;
@@ -18,32 +18,15 @@ const ChoiceRoom = () => {
   ) => {
     navigation.navigate(screen);
   };
-  const {user} = useContext(AuthContext);
-
-  useEffect(() => {
-    // currentRoom이 있고, 로그인한 상태이며,
-    // 방을 선택한 후 처음 들어온 경우만 MainTabs로 이동
-    if (currentRoom && user && !user.justLoggedIn) {
-      navigation.replace('MainTabs', {
-        roomId: currentRoom.roomId,
-        roomName: currentRoom.roomName,
-        nickname: currentRoom.members[user.userId]?.nickname || '',
-        inviteCode: currentRoom.inviteCode,
-      });
-    }
-  }, [currentRoom, user, navigation]);
+  const {user, currentRoom} = useContext(AuthContext);
 
   const handleLogout = useCallback(async () => {
     try {
-      await signOut();
-      navigation.reset({
-        index: 0,
-        routes: [{name: 'Login'}],
-      });
+      await logOut();
     } catch (error) {
       console.error('로그아웃 중 에러 발생:', error);
     }
-  }, [signOut, navigation]);
+  }, [logOut]);
 
   useEffect(() => {
     Animated.sequence([
@@ -58,7 +41,7 @@ const ChoiceRoom = () => {
         useNativeDriver: true,
       }),
     ]).start();
-  }, [titleOpacity, descriptionOpacity]);
+  }, [titleOpacity, descriptionOpacity, currentRoom]);
 
   return (
     <View style={styles.container}>

@@ -15,7 +15,7 @@ export interface AuthContextType {
   processingSignIn: boolean;
   currentRoom: Room | null;
   setCurrentRoom: (room: Room | null) => void;
-  signOut: () => Promise<void>;
+  logOut: () => Promise<void>;
   justLoggedIn: boolean;
   setJustLoggedIn: (justLoggedIn: boolean) => void;
   schedules: Schedule[];
@@ -37,7 +37,7 @@ export const AuthContext = createContext<AuthContextType>({
   setProcessingSignUp: () => {},
   signIn: async () => {},
   processingSignIn: false,
-  signOut: async () => {},
+  logOut: async () => {},
   currentRoom: null,
   setCurrentRoom: () => {},
   justLoggedIn: false,

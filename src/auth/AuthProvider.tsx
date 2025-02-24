@@ -1,19 +1,11 @@
 // src/auth/AuthProvider.tsx
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Collection, User, Room} from '../types/type';
+import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import {
-  getAuth,
-  onAuthStateChanged,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut as firebaseSignOut,
-  updateProfile,
-} from '@react-native-firebase/auth';
+import storage from '@react-native-firebase/storage';
 import {AuthContext} from './AuthContext';
 import {Schedule} from '../types/type';
-import type {User as FirebaseUser} from '@firebase/auth';
-import storage from '@react-native-firebase/storage';
 import {Alert} from 'react-native';
 import {ToastMessage} from '../components/ToastMessage';
 
@@ -27,7 +19,6 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [userProfileImage, setUserProfileImage] = useState<string | null>(null);
   const [nickName, setNickName] = useState<string>('');
-  const auth = useMemo(() => getAuth(), []);
 
   const justLoggedInRef = useRef(justLoggedIn);
   useEffect(() => {
@@ -35,9 +26,8 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   }, [justLoggedIn]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      async (fbUser: FirebaseUser | null) => {
+    const unsubscribe = auth().onAuthStateChanged(
+      async (fbUser: FirebaseAuthTypes.User | null) => {
         if (!fbUser) {
           setUser(null);
           setCurrentRoom(null);
@@ -51,7 +41,6 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
           userId,
           email: fbUser.email || '',
           name: fbUser.displayName || '',
-          // 최신 justLoggedIn 값은 ref로 사용
           justLoggedIn: justLoggedInRef.current,
         };
 
@@ -62,8 +51,8 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
             .get();
           const userData = userDoc.data();
 
-          // 현재 참여 중인 방 정보 저장 (없으면 null)
-          let roomInfo = null;
+          setUser(basicUserInfo);
+
           if (userData?.currentRoomId) {
             const roomDoc = await firestore()
               .collection('rooms')
@@ -71,53 +60,35 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
               .get();
             if (roomDoc.exists) {
               const roomData = roomDoc.data();
-              roomInfo = roomData
-                ? {
-                    roomId: roomDoc.id,
-                    roomName: roomData.roomName,
-                    inviteCode: roomData.inviteCode,
-                    createdAt: roomData.createdAt,
-                    members: roomData.members || {},
-                  }
-                : null;
+              if (roomData) {
+                const roomInfo = {
+                  roomId: roomDoc.id,
+                  roomName: roomData.roomName,
+                  inviteCode: roomData.inviteCode,
+                  createdAt: roomData.createdAt,
+                  members: roomData.members || {},
+                };
+
+                setUser(prev => ({
+                  ...prev!,
+                  currentRoomId: roomInfo.roomId,
+                  currentRoomName: roomInfo.roomName,
+                }));
+                setCurrentRoom(roomInfo);
+
+                if (roomInfo.members[userId]?.nickname) {
+                  setNickName(roomInfo.members[userId].nickname);
+                }
+              }
             }
           }
 
-          const fetchSchedules = async (
-            currentUser: User,
-            currentRoomInfo: any,
-          ) => {
-            if (!currentUser || !currentRoomInfo) {
-              return;
-            }
-            try {
-              const roomRef = firestore()
-                .collection('rooms')
-                .doc(currentRoomInfo.roomId);
-              const roomDoc = await roomRef.get();
-              const roomData = roomDoc.data();
-              // 현재 사용자의 스케줄 가져오기
-              const userSchedules =
-                roomData?.members?.[currentUser.userId]?.schedules || [];
-              setSchedules(userSchedules);
-            } catch (error) {
-              console.error('스케줄 가져오기 오류:', error);
-            }
-          };
-
-          const updatedUser = roomInfo
-            ? {
-                ...basicUserInfo,
-                currentRoomId: roomInfo.roomId,
-                currentRoomName: roomInfo.roomName,
-              }
-            : basicUserInfo;
-
-          setUser(updatedUser);
-          setCurrentRoom(roomInfo);
-          fetchSchedules(updatedUser, roomInfo);
+          if (userData?.profileImage) {
+            setUserProfileImage(userData.profileImage);
+          }
         } catch (error) {
-          setUser(null);
+          console.error('사용자 정보 로드 중 오류:', error);
+          setUser(basicUserInfo);
           setCurrentRoom(null);
         } finally {
           setInitialized(true);
@@ -126,7 +97,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     );
 
     return () => unsubscribe();
-  }, [auth]);
+  }, []);
 
   const signUp = useCallback(
     async (
@@ -137,40 +108,35 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     ) => {
       setProcessingSignUp(true);
       try {
-        // 1. Firebase Auth로 사용자 생성
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
+        const userCredential = await auth().createUserWithEmailAndPassword(
           email,
           password,
         );
 
-        // 2. 프로필 이미지가 있다면 Storage에 업로드
         let profileImageUrl = '';
         if (imageUrl) {
           const fileName = `profile_${
             userCredential.user.uid
-          }_${new Date().getTime()}.jpg`;
+          }_${Date.now()}.jpg`;
           const reference = storage().ref(`profiles/${fileName}`);
           await reference.putFile(imageUrl);
           profileImageUrl = await reference.getDownloadURL();
         }
 
-        // 3. displayName 업데이트
-        await updateProfile(userCredential.user, {
+        await userCredential.user.updateProfile({
           displayName: name,
           photoURL: profileImageUrl,
         });
+
         await userCredential.user.reload();
-        const currentUser = auth.currentUser;
-        if (currentUser) {
-          setUser({
-            userId: currentUser.uid,
-            email: currentUser.email || '',
-            name: currentUser.displayName || name, // displayName이 없으면 입력한 name 사용
-            justLoggedIn: true,
-          });
-        }
-        // 4. Firestore에 사용자 정보 저장
+
+        setUser({
+          userId: userCredential.user.uid,
+          email: userCredential.user.email || '',
+          name: userCredential.user.displayName || name,
+          justLoggedIn: true,
+        });
+
         await firestore()
           .collection(Collection.USERS)
           .doc(userCredential.user.uid)
@@ -181,10 +147,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
             profileImage: profileImageUrl,
           });
 
-        ToastMessage({
-          message: '회원가입이 완료되었습니다.',
-          type: 'success',
-        });
+        ToastMessage({message: '회원가입이 완료되었습니다.', type: 'success'});
       } catch (error: any) {
         if (error.code === 'auth/email-already-in-use') {
           Alert.alert('이미 가입된 이메일입니다.');
@@ -194,39 +157,54 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
         setProcessingSignUp(false);
       }
     },
-    [auth],
+    [],
   );
 
-  const signIn = useCallback(
-    async (email: string, password: string) => {
-      setProcessingSignIn(true);
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        setJustLoggedIn(true);
-      } catch (error) {
-        Alert.alert('이메일 또는 비밀번호를 다시 확인해주세요.');
-        console.error('로그인 에러:', error);
-      } finally {
-        setProcessingSignIn(false);
-      }
-    },
-    [auth],
-  );
-
-  const signOut = useCallback(async () => {
+  const signIn = useCallback(async (email: string, password: string) => {
+    setProcessingSignIn(true);
     try {
-      setUser(null);
+      await auth().signInWithEmailAndPassword(email, password);
+      setJustLoggedIn(true);
+    } catch (error) {
+      Alert.alert('이메일 또는 비밀번호를 다시 확인해주세요.');
+      console.error('로그인 에러:', error);
+    } finally {
+      setProcessingSignIn(false);
+    }
+  }, []);
+
+  const logOut = useCallback(async () => {
+    try {
       setCurrentRoom(null);
+      setUser(null);
       setJustLoggedIn(false);
       setUserProfileImage(null);
       setSchedules([]);
-      await firebaseSignOut(auth);
+      setNickName('');
+      setInitialized(false);
+
+      if (user?.userId) {
+        try {
+          await firestore()
+            .collection(Collection.USERS)
+            .doc(user.userId)
+            .update({
+              currentRoomId: null,
+              currentRoomName: null,
+            });
+        } catch (error) {
+          console.error('Firestore 업데이트 중 오류:', error);
+        }
+      }
+
+      await auth().signOut();
+      return Promise.resolve();
     } catch (error) {
+      console.error('로그아웃 중 오류:', error);
       return Promise.reject(error);
     }
-  }, [auth]);
+  }, [user?.userId]);
 
-  // 스케쥴 추가 시 HomeScreen에 바로 반영
   const refreshSchedules = useCallback(async () => {
     if (!user || !currentRoom) {
       return;
@@ -261,12 +239,10 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       try {
         const roomRef = firestore().collection('rooms').doc(currentRoom.roomId);
 
-        // members 객체 내의 특정 사용자의 nickname 필드만 업데이트
         await roomRef.update({
           [`members.${user.userId}.nickname`]: nickname,
         });
 
-        // currentRoom 상태 업데이트
         setCurrentRoom(prevRoom => {
           if (!prevRoom || !user.userId) {
             return null;
@@ -371,20 +347,18 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       processingSignIn,
       currentRoom,
       setCurrentRoom,
-      signOut,
+      logOut,
       justLoggedIn,
       setJustLoggedIn,
       schedules,
       refreshSchedules,
       userProfileImage,
       setUserProfileImage,
-      auth,
-      justLoggedInRef,
-      setSchedules,
       changeNickname,
       changeProfileImage,
       nickName,
       setNickName,
+      setSchedules,
     }),
     [
       initialized,
@@ -398,14 +372,12 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       schedules,
       refreshSchedules,
       userProfileImage,
-      signOut,
-      auth,
-      justLoggedInRef,
-      setSchedules,
+      logOut,
       changeNickname,
       changeProfileImage,
       nickName,
       setNickName,
+      setSchedules,
     ],
   );
 

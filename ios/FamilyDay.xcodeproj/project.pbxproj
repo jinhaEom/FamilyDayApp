@@ -16,6 +16,90 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		541253072D6C341A007146CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5E4674603A5D5B9215FFA0F8E69F8B71;
+			remoteInfo = libwebp;
+		};
+		541253092D6C341A007146CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 75997852BB5D288EF8516F298FBBB480;
+			remoteInfo = "react-native-compressor";
+		};
+		5412530B2D6C341A007146CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC9CF62342D0D8A46D8176D06AABE411;
+			remoteInfo = "react-native-image-picker";
+		};
+		5412530D2D6C341A007146CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 93321B8A1C6441553EACB77C23BF2E9F;
+			remoteInfo = "react-native-image-picker-RNImagePickerPrivacyInfo";
+		};
+		5412530F2D6C341A007146CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5B6D6355CC37E6059957DFDFEA6E4454;
+			remoteInfo = "react-native-image-resizer";
+		};
+		541253112D6C341A007146CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 52EAF1124A3C62232E15615B7D9A6507;
+			remoteInfo = "react-native-simple-toast";
+		};
+		541253132D6C341A007146CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5721B3524EB5FB40F9F97663CC45E2EC;
+			remoteInfo = RNCClipboard;
+		};
+		541253152D6C341A007146CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E55EA3C6F285F6FA8067C5C8A428FA64;
+			remoteInfo = RNFastImage;
+		};
+		541253172D6C341A007146CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B0B214D775196BA7CA8E17E53048A493;
+			remoteInfo = SDWebImage;
+		};
+		541253192D6C341A007146CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = FCF61D9B2B75054A9A3185DDC609B7FF;
+			remoteInfo = SDWebImageWebPCoder;
+		};
+		5412531B2D6C341A007146CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 55E0AFD333353D71ACC2207149E879D6;
+			remoteInfo = Toast;
+		};
+		5412531D2D6C341A007146CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F6A5F09CA59AF20B5A450FA1B72ECFB5;
+			remoteInfo = "Toast-Toast";
+		};
 		5472CBA82D548DDF003F09FA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5472CB2F2D548D40003F09FA /* Pods.xcodeproj */;
@@ -864,6 +948,7 @@
 				5472CBD12D548DDF003F09FA /* GTMSessionFetcher_Core_Privacy.bundle */,
 				5472CC6B2D548DDF003F09FA /* leveldb.framework */,
 				5472CC6D2D548DDF003F09FA /* leveldb_Privacy.bundle */,
+				541253082D6C341A007146CC /* libwebp.framework */,
 				5472CC6F2D548DDF003F09FA /* nanopb.framework */,
 				5472CC712D548DDF003F09FA /* nanopb_Privacy.bundle */,
 				5472CC752D548DDF003F09FA /* Pods_FamilyDay.framework */,
@@ -895,7 +980,12 @@
 				5472CC372D548DDF003F09FA /* logger.framework */,
 				5472CBFB2D548DDF003F09FA /* React_Mapbuffer.framework */,
 				5472CC392D548DDF003F09FA /* React_microtasksnativemodule.framework */,
+				5412530A2D6C341A007146CC /* react_native_compressor.framework */,
+				5412530C2D6C341A007146CC /* react_native_image_picker.framework */,
+				5412530E2D6C341A007146CC /* RNImagePickerPrivacyInfo.bundle */,
+				541253102D6C341A007146CC /* react_native_image_resizer.framework */,
 				5472CC732D548DDF003F09FA /* react_native_safe_area_context.framework */,
+				541253122D6C341A007146CC /* react_native_simple_toast.framework */,
 				5472CC3B2D548DDF003F09FA /* React_nativeconfig.framework */,
 				5472CBFD2D548DDF003F09FA /* React_NativeModulesApple.framework */,
 				5472CC3D2D548DDF003F09FA /* reactperflogger.framework */,
@@ -924,7 +1014,9 @@
 				5472CC4F2D548DDF003F09FA /* RecaptchaInterop.framework */,
 				549566D62D5B0C200023D1A6 /* RNCAsyncStorage.framework */,
 				549566D82D5B0C200023D1A6 /* RNCAsyncStorage_resources.bundle */,
+				541253142D6C341A007146CC /* RNCClipboard.framework */,
 				54BB55C42D5DD6D500A0D7EC /* RNDateTimePicker.framework */,
+				541253162D6C341A007146CC /* RNFastImage.framework */,
 				5472CBDF2D548DDF003F09FA /* RNFBApp.framework */,
 				5472CBE12D548DDF003F09FA /* RNFBAuth.framework */,
 				549566DA2D5B0C200023D1A6 /* RNFBDatabase.framework */,
@@ -933,7 +1025,11 @@
 				5472CBE72D548DDF003F09FA /* RNReanimated.framework */,
 				5472CBE92D548DDF003F09FA /* RNScreens.framework */,
 				5472CBEB2D548DDF003F09FA /* RNVectorIcons.framework */,
+				541253182D6C341A007146CC /* SDWebImage.framework */,
+				5412531A2D6C341A007146CC /* SDWebImageWebPCoder.framework */,
 				5472CC512D548DDF003F09FA /* SocketRocket.framework */,
+				5412531C2D6C341A007146CC /* Toast.framework */,
+				5412531E2D6C341A007146CC /* Toast.bundle */,
 				5472CC532D548DDF003F09FA /* yoga.framework */,
 			);
 			name = Products;
@@ -1040,6 +1136,90 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		541253082D6C341A007146CC /* libwebp.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = libwebp.framework;
+			remoteRef = 541253072D6C341A007146CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		5412530A2D6C341A007146CC /* react_native_compressor.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = react_native_compressor.framework;
+			remoteRef = 541253092D6C341A007146CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		5412530C2D6C341A007146CC /* react_native_image_picker.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = react_native_image_picker.framework;
+			remoteRef = 5412530B2D6C341A007146CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		5412530E2D6C341A007146CC /* RNImagePickerPrivacyInfo.bundle */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = RNImagePickerPrivacyInfo.bundle;
+			remoteRef = 5412530D2D6C341A007146CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		541253102D6C341A007146CC /* react_native_image_resizer.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = react_native_image_resizer.framework;
+			remoteRef = 5412530F2D6C341A007146CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		541253122D6C341A007146CC /* react_native_simple_toast.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = react_native_simple_toast.framework;
+			remoteRef = 541253112D6C341A007146CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		541253142D6C341A007146CC /* RNCClipboard.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = RNCClipboard.framework;
+			remoteRef = 541253132D6C341A007146CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		541253162D6C341A007146CC /* RNFastImage.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = RNFastImage.framework;
+			remoteRef = 541253152D6C341A007146CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		541253182D6C341A007146CC /* SDWebImage.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SDWebImage.framework;
+			remoteRef = 541253172D6C341A007146CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		5412531A2D6C341A007146CC /* SDWebImageWebPCoder.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SDWebImageWebPCoder.framework;
+			remoteRef = 541253192D6C341A007146CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		5412531C2D6C341A007146CC /* Toast.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Toast.framework;
+			remoteRef = 5412531B2D6C341A007146CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		5412531E2D6C341A007146CC /* Toast.bundle */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = Toast.bundle;
+			remoteRef = 5412531D2D6C341A007146CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		5472CBA92D548DDF003F09FA /* openssl_grpc.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -2048,10 +2228,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -2131,10 +2308,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
