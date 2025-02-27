@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, Alert} from 'react-native';
+import {View, Text, StyleSheet, Alert, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../navigation/Navigations';
@@ -7,7 +7,6 @@ import {Colors} from '../../constants/Colors';
 import InfoTextInput from '../../components/InfoTextInput';
 import AppBasicButton from '../../components/AppBasicButton';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import {TouchableOpacity} from 'react-native';
 import {useContext} from 'react';
 import {AuthContext} from '../../auth/AuthContext';
 import firestore from '@react-native-firebase/firestore';
@@ -25,6 +24,7 @@ const AddScheduleScreen = () => {
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [dateType, setDateType] = useState<'start' | 'end'>('start');
   const {user, currentRoom, refreshSchedules} = useContext(AuthContext);
+  const [isImportant, setIsImportant] = useState<boolean>(false);
 
   const handleConfirm = (date: Date) => {
     setDatePickerVisibility(false);
@@ -53,6 +53,7 @@ const AddScheduleScreen = () => {
         scheduleEndDate: endDate.toISOString(),
         createdAt: firestore.Timestamp.now(),
         createdBy: userId,
+        isImportant: isImportant,
       };
 
       const roomRef = firestore().collection('rooms').doc(roomId);
@@ -67,7 +68,6 @@ const AddScheduleScreen = () => {
         [`members.${userId}.schedules`]: [...currentSchedules, scheduleData],
       });
 
-      // 스케줄 추가 후 데이터 새로고침
       await refreshSchedules();
 
       Alert.alert('성공', '일정이 등록되었습니다.');
@@ -80,6 +80,10 @@ const AddScheduleScreen = () => {
   const handleCancel = () => {
     setDatePickerVisibility(false);
   };
+  const handleToggleImportant = () => {
+    setIsImportant(!isImportant);
+  };
+
   return (
     <View style={{flex: 1, padding: 20}}>
       <Text style={styles.titleText}>일정 등록하기</Text>
@@ -95,6 +99,19 @@ const AddScheduleScreen = () => {
         multiline={true}
         style={styles.scheduleContentInput}
       />
+
+      {/* 중요 일정 체크박스 */}
+      <TouchableOpacity
+        onPress={handleToggleImportant}
+        style={styles.importantCheckboxContainer}>
+        <Ionicons
+          name={isImportant ? 'checkbox' : 'checkbox-outline'}
+          size={24}
+          color={isImportant ? Colors.PRIMARY : Colors.DARK_GRAY}
+        />
+        <Text style={styles.importantCheckboxText}>중요 일정</Text>
+      </TouchableOpacity>
+
       <View>
         <View style={[styles.spaceBetweenBox, {marginBottom: 30}]}>
           <Text>시작 날짜</Text>
@@ -203,6 +220,15 @@ const styles = StyleSheet.create({
     height: 300,
     paddingTop: 10,
     paddingRight: 20,
+  },
+  importantCheckboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  importantCheckboxText: {
+    marginLeft: 10,
+    fontSize: 16,
   },
 });
 

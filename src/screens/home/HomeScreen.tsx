@@ -26,41 +26,22 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Day, Schedule} from '../../types/type';
 import firestore from '@react-native-firebase/firestore';
 import FastImage from 'react-native-fast-image';
+
 type MarkedDates = {
   [date: string]: {
     dots?: {color: string}[];
   };
 };
 
-const HomeScreen = () => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const {
-    user,
-    currentRoom,
-    setCurrentRoom,
-    setUserProfileImage,
-    justLoggedIn,
-    userProfileImage,
-  } = useContext(AuthContext);
-  const [selectedDate, setSelectedDate] = useState<string>('');
-  const [dateDetail, setDateDetail] = useState(false);
-  const [markedDates, setMarkedDates] = useState<MarkedDates>({});
-  const [selectedDateSchedules, setSelectedDateSchedules] = useState<
-    Schedule[]
-  >([]);
-  const slideAnim = useRef(new Animated.Value(0)).current;
+// 확장된 Schedule 타입 정의
+interface ExtendedSchedule extends Schedule {
+  userId?: string;
+}
 
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        return true;
-      },
-    );
-    return () => backHandler.remove();
-  }, []);
-
+/**
+ * 날짜 관련 유틸리티 함수들을 제공하는 커스텀 훅
+ */
+const useDateUtils = () => {
   const formatDate = useCallback((timestamp: any): string | null => {
     if (!timestamp) {
       return null;
@@ -82,8 +63,8 @@ const HomeScreen = () => {
     }
   }, []);
 
-  const getDatesInRange = useMemo(() => {
-    return (startDate: string, endDate: string): string[] => {
+  const getDatesInRange = useCallback(
+    (startDate: string, endDate: string): string[] => {
       const dates: string[] = [];
       const currentDate = new Date(startDate);
       const lastDate = new Date(endDate);
@@ -92,85 +73,72 @@ const HomeScreen = () => {
         currentDate.setDate(currentDate.getDate() + 1);
       }
       return dates;
-    };
-  }, []);
+    },
+    [],
+  );
 
+  return {formatDate, getDatesInRange};
+};
+
+const useRoomDataSync = (currentRoom: any, setCurrentRoom: any) => {
   useEffect(() => {
-    // 로그인은 되어있지만 방이 선택되지 않은 경우
-    if (!currentRoom && user) {
-      navigation.replace('ChoiceRoom');
+    if (!currentRoom?.roomId) {
       return;
     }
-  }, [currentRoom, navigation, user]);
 
-  useEffect(() => {
-    if (!currentRoom?.members) {
-      return;
-    }
-    const newMarkedDates: MarkedDates = {};
-    Object.values(currentRoom.members).forEach(member => {
-      if (member.schedules && Array.isArray(member.schedules)) {
-        member.schedules.forEach((schedule: Schedule) => {
-          const formattedStartDate = formatDate(schedule.scheduleDate);
-          const formattedEndDate = formatDate(schedule.scheduleEndDate);
-          if (formattedStartDate && formattedEndDate) {
-            const dateRange = getDatesInRange(
-              formattedStartDate,
-              formattedEndDate,
-            );
-            dateRange.forEach(date => {
-              if (!newMarkedDates[date]) {
-                newMarkedDates[date] = {
-                  dots: [{color: Colors.BLUE}],
-                };
-              } else {
-                newMarkedDates[date].dots?.push({
-                  color:
-                    scheduleColors[
-                      Math.floor(Math.random() * scheduleColors.length)
-                    ],
-                });
+    const unsubscribe = firestore()
+      .collection('rooms')
+      .doc(currentRoom.roomId)
+      .onSnapshot(
+        snapshot => {
+          if (snapshot.exists) {
+            const roomData = snapshot.data();
+            if (roomData) {
+              // 변경사항이 없으면 업데이트하지 않음
+              if (
+                currentRoom.roomName === roomData.roomName &&
+                currentRoom.inviteCode === roomData.inviteCode &&
+                JSON.stringify(currentRoom.members) ===
+                  JSON.stringify(roomData.members)
+              ) {
+                return;
               }
-            });
-          }
-        });
-      }
-    });
-    setMarkedDates(newMarkedDates);
-  }, [currentRoom, formatDate, getDatesInRange]);
 
-  useEffect(() => {
-    if (!currentRoom?.members || !selectedDate) {
-      return;
-    }
-    const schedules: Schedule[] = [];
-    Object.values(currentRoom.members).forEach(member => {
-      if (member.schedules) {
-        member.schedules.forEach((schedule: Schedule) => {
-          const startDateStr = formatDate(schedule.scheduleDate);
-          const endDateStr = formatDate(schedule.scheduleEndDate);
-          if (startDateStr && endDateStr) {
-            const dateRange = getDatesInRange(startDateStr, endDateStr);
-            if (dateRange.includes(selectedDate)) {
-              // schedule 객체에 작성자 정보 추가 (userName)
-              schedules.push({...schedule, userName: member.nickname});
+              setCurrentRoom({
+                roomId: currentRoom.roomId,
+                roomName: roomData.roomName,
+                inviteCode: roomData.inviteCode,
+                createdAt: roomData.createdAt,
+                members: roomData.members || {},
+              });
             }
           }
-        });
-      }
-    });
-    setSelectedDateSchedules(schedules);
-  }, [selectedDate, currentRoom, formatDate, getDatesInRange]);
+        },
+        error => {
+          console.error('실시간 업데이트 에러:', error);
+        },
+      );
 
-  useEffect(() => {
-    Animated.spring(slideAnim, {
-      toValue: dateDetail ? 1 : 0,
-      useNativeDriver: true,
-      friction: 8,
-      tension: 40,
-    }).start();
-  }, [dateDetail, slideAnim]);
+    return () => unsubscribe();
+  }, [
+    currentRoom?.roomId,
+    currentRoom?.roomName,
+    currentRoom?.inviteCode,
+    currentRoom?.members,
+    setCurrentRoom,
+  ]);
+};
 
+/**
+ * 사용자 프로필 이미지 관리를 위한 커스텀 훅
+ */
+const useProfileImageSync = (
+  user: any,
+  userProfileImage: any,
+  setUserProfileImage: any,
+  currentRoom: any,
+) => {
+  // 사용자 프로필 이미지 로드
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!user?.userId) {
@@ -198,45 +166,7 @@ const HomeScreen = () => {
     fetchUserProfile();
   }, [user?.userId, userProfileImage, setUserProfileImage]);
 
-  useEffect(() => {
-    if (!currentRoom?.roomId) {
-      return;
-    }
-
-    const unsubscribe = firestore()
-      .collection('rooms')
-      .doc(currentRoom.roomId)
-      .onSnapshot(
-        snapshot => {
-          if (snapshot.exists) {
-            const roomData = snapshot.data();
-            if (roomData) {
-              if (
-                currentRoom.roomName === roomData.roomName &&
-                currentRoom.inviteCode === roomData.inviteCode &&
-                JSON.stringify(currentRoom.members) ===
-                  JSON.stringify(roomData.members)
-              ) {
-                return;
-              }
-              setCurrentRoom({
-                roomId: currentRoom.roomId,
-                roomName: roomData.roomName,
-                inviteCode: roomData.inviteCode,
-                createdAt: roomData.createdAt,
-                members: roomData.members || {},
-              });
-            }
-          }
-        },
-        error => {
-          console.error('실시간 업데이트 에러:', error);
-        },
-      );
-
-    return () => unsubscribe();
-  }, [currentRoom, setCurrentRoom]);
-
+  // 프로필 이미지 변경 시 방 정보 업데이트
   useEffect(() => {
     if (
       !user?.userId ||
@@ -265,13 +195,169 @@ const HomeScreen = () => {
         console.error('프로필 이미지 업데이트 오류:', error);
       });
   }, [user?.userId, userProfileImage, currentRoom]);
+};
 
-  const addScheduleHandler = () => {
+const HomeScreen = () => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const {
+    user,
+    currentRoom,
+    setCurrentRoom,
+    setUserProfileImage,
+    userProfileImage,
+  } = useContext(AuthContext);
+
+  // 상태 관리
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [dateDetail, setDateDetail] = useState(false);
+  const [markedDates, setMarkedDates] = useState<MarkedDates>({});
+  const [selectedDateSchedules, setSelectedDateSchedules] = useState<
+    Schedule[]
+  >([]);
+  const [importantSchedules, setImportantSchedules] = useState<
+    ExtendedSchedule[]
+  >([]);
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  const {formatDate, getDatesInRange} = useDateUtils();
+  useRoomDataSync(currentRoom, setCurrentRoom);
+  useProfileImageSync(user, userProfileImage, setUserProfileImage, currentRoom);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        return true; // 뒤로가기 기본 동작 방지
+      },
+    );
+    return () => backHandler.remove();
+  }, []);
+
+  // 방이 선택되지 않은 경우
+  useEffect(() => {
+    if (!currentRoom && user) {
+      navigation.replace('ChoiceRoom');
+    }
+  }, [currentRoom, navigation, user]);
+
+  // 캘린더 마크 
+  useEffect(() => {
+    if (!currentRoom?.members) {
+      return;
+    }
+
+    const newMarkedDates: MarkedDates = {};
+
+    Object.values(currentRoom.members).forEach(member => {
+      if (member.schedules && Array.isArray(member.schedules)) {
+        member.schedules.forEach((schedule: Schedule) => {
+          const formattedStartDate = formatDate(schedule.scheduleDate);
+          const formattedEndDate = formatDate(schedule.scheduleEndDate);
+
+          if (formattedStartDate && formattedEndDate) {
+            const dateRange = getDatesInRange(
+              formattedStartDate,
+              formattedEndDate,
+            );
+
+            dateRange.forEach(date => {
+              if (!newMarkedDates[date]) {
+                newMarkedDates[date] = {
+                  dots: [{color: Colors.BLUE}],
+                };
+              } else {
+                newMarkedDates[date].dots?.push({
+                  color:
+                    scheduleColors[
+                      Math.floor(Math.random() * scheduleColors.length)
+                    ],
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+
+    setMarkedDates(newMarkedDates);
+  }, [currentRoom?.members, formatDate, getDatesInRange]);
+
+  // 선택된 날짜의 일정 필터링
+  useEffect(() => {
+    if (!currentRoom?.members || !selectedDate) {
+      return;
+    }
+
+    const schedules: Schedule[] = [];
+
+    Object.values(currentRoom.members).forEach(member => {
+      if (member.schedules) {
+        member.schedules.forEach((schedule: Schedule) => {
+          const startDateStr = formatDate(schedule.scheduleDate);
+          const endDateStr = formatDate(schedule.scheduleEndDate);
+
+          if (startDateStr && endDateStr) {
+            const dateRange = getDatesInRange(startDateStr, endDateStr);
+
+            if (dateRange.includes(selectedDate)) {
+              schedules.push({...schedule, userName: member.nickname});
+            }
+          }
+        });
+      }
+    });
+
+    setSelectedDateSchedules(schedules);
+  }, [selectedDate, currentRoom?.members, formatDate, getDatesInRange]);
+
+  // 중요 일정 필터링
+  useEffect(() => {
+    if (!currentRoom?.members) {
+      return;
+    }
+
+    const allImportantSchedules: ExtendedSchedule[] = [];
+
+    Object.entries(currentRoom.members).forEach(([userId, member]) => {
+      if (member.schedules && Array.isArray(member.schedules)) {
+        const importantUserSchedules = member.schedules
+          .filter((schedule: Schedule) => schedule.isImportant)
+          .map((schedule: Schedule) => ({
+            ...schedule,
+            userName: member.nickname,
+            userId,
+          }));
+
+        allImportantSchedules.push(...importantUserSchedules);
+      }
+    });
+
+    allImportantSchedules.sort((a, b) => {
+      const dateA = new Date(a.scheduleDate).getTime();
+      const dateB = new Date(b.scheduleDate).getTime();
+      return dateB - dateA;
+    });
+
+    setImportantSchedules(allImportantSchedules);
+  }, [currentRoom?.members]);
+
+  useEffect(() => {
+    Animated.spring(slideAnim, {
+      toValue: dateDetail ? 1 : 0,
+      useNativeDriver: true,
+      friction: 8,
+      tension: 40,
+    }).start();
+  }, [dateDetail, slideAnim]);
+
+  const addScheduleHandler = useCallback(() => {
     navigation.navigate('AddSchedule');
-  };
+  }, [navigation]);
 
   const groupedSchedules = useMemo(() => {
     const groups: {[userName: string]: Schedule[]} = {};
+
     selectedDateSchedules.forEach(schedule => {
       const owner = schedule.userName || 'Unknown';
       if (!groups[owner]) {
@@ -279,6 +365,7 @@ const HomeScreen = () => {
       }
       groups[owner].push(schedule);
     });
+
     return groups;
   }, [selectedDateSchedules]);
 
@@ -340,6 +427,46 @@ const HomeScreen = () => {
           </TouchableOpacity>
         ))}
       </ScrollView>
+
+      {importantSchedules.length > 0 && (
+        <View style={styles.importantSchedulesContainer}>
+          <View style={styles.importantSchedulesHeader}>
+            <Ionicons name="star" size={20} color={Colors.PRIMARY} />
+            <Text style={styles.importantSchedulesTitle}>중요 일정</Text>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.importantSchedulesContent}>
+            {importantSchedules.map(schedule => (
+              <TouchableOpacity
+                key={schedule.scheduleId}
+                style={styles.importantScheduleItem}
+                onPress={() => {
+                  const scheduleDate = formatDate(schedule.scheduleDate);
+                  if (scheduleDate) {
+                    setSelectedDate(scheduleDate);
+                    setDateDetail(true);
+                  }
+                }}>
+                <View style={styles.importantScheduleHeader}>
+                  <Ionicons name="calendar" size={16} color={Colors.PRIMARY} />
+                  <Text style={styles.importantScheduleDate}>
+                    {new Date(schedule.scheduleDate).toLocaleDateString()}
+                  </Text>
+                </View>
+                <Text style={styles.importantScheduleTitle} numberOfLines={2}>
+                  {schedule.scheduleTitle}
+                </Text>
+                <Text style={styles.importantScheduleOwner}>
+                  {schedule.userName}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+
       <TouchableOpacity style={styles.addButton} onPress={addScheduleHandler}>
         <Text>일정 등록하기</Text>
         <Ionicons name="add-circle-outline" size={24} color="black" />
@@ -351,8 +478,6 @@ const HomeScreen = () => {
         onDayPress={(day: Day) => {
           setSelectedDate(day.dateString);
           setDateDetail(true);
-          if (dateDetail) {
-          }
         }}
       />
       <Animated.View
@@ -391,6 +516,9 @@ const HomeScreen = () => {
                     <Text style={styles.scheduleContent}>
                       📝 내용 : {schedule.scheduleContent}
                     </Text>
+                    {schedule.isImportant && (
+                      <Text style={styles.importantTag}>⭐ 중요</Text>
+                    )}
                   </View>
                 ))}
               </View>
@@ -502,6 +630,64 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.GRAY_CONTENT,
     lineHeight: 20,
+  },
+  importantTag: {
+    fontSize: 14,
+    color: Colors.PRIMARY,
+    fontWeight: 'bold',
+    marginTop: 5,
+  },
+  importantSchedulesContainer: {
+    marginTop: 10,
+    marginBottom: 15,
+    paddingHorizontal: 10,
+  },
+  importantSchedulesHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    paddingHorizontal: 10,
+  },
+  importantSchedulesTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.PRIMARY,
+    marginLeft: 5,
+  },
+  importantSchedulesContent: {
+    paddingHorizontal: 5,
+    paddingBottom: 5,
+  },
+  importantScheduleItem: {
+    width: 150,
+    height: 100,
+    backgroundColor: Colors.LIGHT_GRAY,
+    borderRadius: 10,
+    padding: 10,
+    marginRight: 10,
+    borderLeftWidth: 8,
+    borderLeftColor: Colors.PRIMARY,
+    justifyContent: 'space-between',
+  },
+  importantScheduleHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  importantScheduleDate: {
+    fontSize: 12,
+    color: Colors.GRAY_TITLE,
+    marginLeft: 5,
+  },
+  importantScheduleTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: Colors.PRIMARY,
+    marginVertical: 5,
+  },
+  importantScheduleOwner: {
+    fontSize: 12,
+    color: Colors.GRAY_CONTENT,
+    textAlign: 'right',
   },
 });
 

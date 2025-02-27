@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Alert,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import {AuthContext} from '../../auth/AuthContext';
 import {launchImageLibrary} from 'react-native-image-picker';
@@ -13,6 +14,7 @@ import {Colors} from '../../constants/Colors';
 import FastImage from 'react-native-fast-image';
 import {Image as CompressorImage} from 'react-native-compressor';
 import {ToastMessage} from '../../components/ToastMessage';
+
 export default function MyScreen() {
   const {
     user,
@@ -24,6 +26,8 @@ export default function MyScreen() {
   } = useContext(AuthContext);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [localImageUri, setLocalImageUri] = useState<string | null>(null);
 
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [tempNickname, setTempNickname] = useState(nickName);
@@ -32,9 +36,15 @@ export default function MyScreen() {
     setTempNickname(nickName);
   }, [nickName]);
 
+  // 이미지 URI가 없을 경우 서버 이미지 사용
+  useEffect(() => {
+    if (!localImageUri && userProfileImage) {
+      setLocalImageUri(userProfileImage);
+    }
+  }, [userProfileImage]);
+
   const handleImagePress = async () => {
     try {
-      setIsLoading(true);
       const result = await launchImageLibrary({
         mediaType: 'photo',
         selectionLimit: 1,
@@ -42,21 +52,44 @@ export default function MyScreen() {
       });
 
       if (result.assets && result.assets[0]?.uri) {
+        setLocalImageUri(result.assets[0].uri);
+
+        // 로딩 상태 시작
+        setIsLoading(true);
+        setUploadProgress(0);
+
         const compressedUri = await CompressorImage.compress(
           result.assets[0].uri,
           {
             maxWidth: 800,
             maxHeight: 800,
-            quality: 0.8,
+            quality: 0.7,
           },
         );
-        await changeProfileImage(compressedUri);
+
+        setUploadProgress(50);
+
+        // 백그라운드에서 업로드 처리
+        changeProfileImage(compressedUri)
+          .then(() => {
+            setUploadProgress(100);
+            setTimeout(() => {
+              setIsLoading(false);
+              setUploadProgress(0);
+            }, 500);
+          })
+          .catch(error => {
+            console.error('이미지 업로드 오류:', error);
+            Alert.alert('오류', '이미지를 업로드하는 중 오류가 발생했습니다.');
+            setIsLoading(false);
+            setUploadProgress(0);
+          });
       }
     } catch (error) {
       console.error('이미지 선택 오류:', error);
       Alert.alert('오류', '이미지를 선택하는 중 오류가 발생했습니다.');
-    } finally {
       setIsLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -83,12 +116,12 @@ export default function MyScreen() {
         style={styles.imageContainer}
         onPress={handleImagePress}
         disabled={isLoading}>
-        {userProfileImage ? (
+        {localImageUri ? (
           <>
             <FastImage
-              key={userProfileImage}
+              key={localImageUri}
               source={{
-                uri: userProfileImage,
+                uri: localImageUri,
                 priority: FastImage.priority.high,
                 cache: FastImage.cacheControl.immutable,
               }}
@@ -98,7 +131,24 @@ export default function MyScreen() {
 
             {isLoading && (
               <View style={styles.loadingOverlay}>
-                <Text style={styles.loadingText}>이미지 업로드 중...</Text>
+                <View style={styles.progressContainer}>
+                  <ActivityIndicator size="large" color={Colors.WHITE} />
+                  <Text style={styles.loadingText}>
+                    {uploadProgress < 50
+                      ? '이미지 압축 중...'
+                      : uploadProgress < 100
+                      ? '업로드 중...'
+                      : '완료!'}
+                  </Text>
+                  <View style={styles.progressBarContainer}>
+                    <View
+                      style={[
+                        styles.progressBar,
+                        {width: `${uploadProgress}%`},
+                      ]}
+                    />
+                  </View>
+                </View>
               </View>
             )}
           </>
@@ -205,9 +255,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  progressContainer: {
+    width: '80%',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 10,
+    padding: 15,
+  },
   loadingText: {
     color: Colors.WHITE,
     fontSize: 16,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  progressBarContainer: {
+    width: '100%',
+    height: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: Colors.PRIMARY,
   },
   headerContainer: {
     flexDirection: 'row',

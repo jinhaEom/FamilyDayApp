@@ -40,13 +40,14 @@ export type Day = {
   year: number;
 };
 
-export type Schedule = {
+export interface Schedule {
   scheduleId: string;
   scheduleTitle: string;
   scheduleContent: string;
   scheduleDate: string;
+  userName: string;
   scheduleEndDate: string;
   createdAt: any;
   createdBy: string;
-  userName: string;
-};
+  isImportant?: boolean;
+}

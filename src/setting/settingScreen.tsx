@@ -1,5 +1,5 @@
-import React, {useCallback} from 'react';
-import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import React, {useCallback, useState} from 'react';
+import {View, StyleSheet, Text, TouchableOpacity, Switch} from 'react-native';
 import {Colors} from '../constants/Colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {AuthContext} from '../auth/AuthContext';
@@ -12,6 +12,8 @@ const SettingScreen = () => {
   const {logOut} = useContext(AuthContext);
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [isSwitch, setIsSwitch] = useState(false);
+  const toggleSwitch = () => setIsSwitch(previousState => !previousState);
 
   const inVitedHandler = useCallback(() => {
     navigation.navigate('InviteCode');
@@ -39,6 +41,10 @@ const SettingScreen = () => {
         <Ionicons name="grid-outline" size={24} color={Colors.PRIMARY} />
         <Text style={styles.textStyle}>방 선택하기</Text>
       </TouchableOpacity>
+      <View style={styles.container}>
+        <Switch value={isSwitch} onValueChange={toggleSwitch} />
+        <Text style={styles.textStyle}>알림 설정</Text>
+      </View>
       <TouchableOpacity style={styles.container} onPress={logOutHandler}>
         <Ionicons name="log-out-outline" size={24} color={Colors.PRIMARY} />
         <Text style={styles.textStyle}>로그아웃</Text>
