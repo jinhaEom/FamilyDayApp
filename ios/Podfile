@@ -8,6 +8,14 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
+# React Native Permissions 설정 추가
+require_relative '../node_modules/react-native-permissions/scripts/setup'
+
+# 알림 권한만 설정
+setup_permissions([
+  'Notifications',
+])
+
 use_frameworks! :linkage => :static
 Pod::UI.puts "Configuring Pod with staticly linked Frameworks".green
 

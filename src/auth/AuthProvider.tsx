@@ -335,6 +335,19 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     },
     [user?.userId, currentRoom?.roomId],
   );
+  const addFcmToken = useCallback(
+    async (token: string) => {
+      if (user != null) {
+        await firestore()
+          .collection(Collection.USERS)
+          .doc(user?.userId)
+          .update({
+            fcmToken: firestore.FieldValue.arrayUnion(token),
+          });
+      }
+    },
+    [user],
+  );
 
   const value = useMemo(
     () => ({
@@ -359,6 +372,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       nickName,
       setNickName,
       setSchedules,
+      addFcmToken,
     }),
     [
       initialized,
@@ -378,6 +392,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       nickName,
       setNickName,
       setSchedules,
+      addFcmToken,
     ],
   );
 

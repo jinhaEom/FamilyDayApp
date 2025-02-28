@@ -27,6 +27,7 @@ export interface AuthContextType {
   changeProfileImage: (imageUrl: string) => Promise<void>;
   nickName : string;
   setNickName : (nickName: string) => void;
+  addFcmToken : (token : string) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -51,4 +52,5 @@ export const AuthContext = createContext<AuthContextType>({
   changeProfileImage: async () => {},
   nickName: '',
   setNickName: () => {},
+  addFcmToken: () => {},
 });
