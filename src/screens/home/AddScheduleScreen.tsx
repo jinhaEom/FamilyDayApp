@@ -58,14 +58,19 @@ const AddScheduleScreen = () => {
 
       const roomRef = firestore().collection('rooms').doc(roomId);
 
-      // 기존 스케줄 데이터 가져오기
       const roomDoc = await roomRef.get();
-      const currentSchedules =
-        roomDoc.data()?.members?.[userId]?.schedules || [];
+      const roomData = roomDoc.data();
 
-      // 새로운 스케줄 추가
+      if (!roomData || !roomData.members || !roomData.members[userId]) {
+        throw new Error('방 또는 사용자 정보를 찾을 수 없습니다.');
+      }
+
+      const currentSchedules = roomData.members[userId].schedules || {};
+
+      const newIndex = Object.keys(currentSchedules).length;
+
       await roomRef.update({
-        [`members.${userId}.schedules`]: [...currentSchedules, scheduleData],
+        [`members.${userId}.schedules.${newIndex}`]: scheduleData,
       });
 
       await refreshSchedules();
