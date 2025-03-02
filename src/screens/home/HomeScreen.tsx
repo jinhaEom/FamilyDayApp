@@ -1,4 +1,3 @@
-// HomeScreen.tsx
 import React, {
   useEffect,
   useRef,
@@ -33,14 +32,10 @@ type MarkedDates = {
   };
 };
 
-// 확장된 Schedule 타입 정의
 interface ExtendedSchedule extends Schedule {
   userId?: string;
 }
 
-/**
- * 날짜 관련 유틸리티 함수들을 제공하는 커스텀 훅
- */
 const useDateUtils = () => {
   const formatDate = useCallback((timestamp: any): string | null => {
     if (!timestamp) {
@@ -94,7 +89,6 @@ const useRoomDataSync = (currentRoom: any, setCurrentRoom: any) => {
           if (snapshot.exists) {
             const roomData = snapshot.data();
             if (roomData) {
-              // 변경사항이 없으면 업데이트하지 않음
               if (
                 currentRoom.roomName === roomData.roomName &&
                 currentRoom.inviteCode === roomData.inviteCode &&
@@ -129,16 +123,12 @@ const useRoomDataSync = (currentRoom: any, setCurrentRoom: any) => {
   ]);
 };
 
-/**
- * 사용자 프로필 이미지 관리를 위한 커스텀 훅
- */
 const useProfileImageSync = (
   user: any,
   userProfileImage: any,
   setUserProfileImage: any,
   currentRoom: any,
 ) => {
-  // 사용자 프로필 이미지 로드
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!user?.userId) {
@@ -166,7 +156,6 @@ const useProfileImageSync = (
     fetchUserProfile();
   }, [user?.userId, userProfileImage, setUserProfileImage]);
 
-  // 프로필 이미지 변경 시 방 정보 업데이트
   useEffect(() => {
     if (
       !user?.userId ||
@@ -228,20 +217,18 @@ const HomeScreen = () => {
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
-        return true; // 뒤로가기 기본 동작 방지
+        return true;
       },
     );
     return () => backHandler.remove();
   }, []);
 
-  // 방이 선택되지 않은 경우
   useEffect(() => {
     if (!currentRoom && user) {
       navigation.replace('ChoiceRoom');
     }
   }, [currentRoom, navigation, user]);
 
-  // 캘린더 마크 
   useEffect(() => {
     if (!currentRoom?.members) {
       return;
@@ -283,7 +270,6 @@ const HomeScreen = () => {
     setMarkedDates(newMarkedDates);
   }, [currentRoom?.members, formatDate, getDatesInRange]);
 
-  // 선택된 날짜의 일정 필터링
   useEffect(() => {
     if (!currentRoom?.members || !selectedDate) {
       return;
@@ -311,7 +297,6 @@ const HomeScreen = () => {
     setSelectedDateSchedules(schedules);
   }, [selectedDate, currentRoom?.members, formatDate, getDatesInRange]);
 
-  // 중요 일정 필터링
   useEffect(() => {
     if (!currentRoom?.members) {
       return;

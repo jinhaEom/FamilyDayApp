@@ -8,6 +8,7 @@ import {AuthContext} from './AuthContext';
 import {Schedule} from '../types/type';
 import {Alert} from 'react-native';
 import {ToastMessage} from '../components/ToastMessage';
+import messaging from '@react-native-firebase/messaging';
 
 export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [user, setUser] = useState<User | null>(null);
@@ -19,6 +20,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [userProfileImage, setUserProfileImage] = useState<string | null>(null);
   const [nickName, setNickName] = useState<string>('');
+  const [fcmToken, setFcmToken] = useState<string | null>(null);
 
   const justLoggedInRef = useRef(justLoggedIn);
   useEffect(() => {
@@ -163,8 +165,30 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const signIn = useCallback(async (email: string, password: string) => {
     setProcessingSignIn(true);
     try {
-      await auth().signInWithEmailAndPassword(email, password);
+      const userCredential = await auth().signInWithEmailAndPassword(
+        email,
+        password,
+      );
       setJustLoggedIn(true);
+
+      // 로그인 성공 후 FCM 토큰 등록
+      const token = await messaging().getToken();
+      if (token) {
+        // 사용자 문서에 토큰 저장
+        const userRef = firestore()
+          .collection(Collection.USERS)
+          .doc(userCredential.user.uid);
+
+        await userRef.set(
+          {
+            fcmToken: [token],
+            lastTokenUpdated: firestore.FieldValue.serverTimestamp(),
+          },
+          {merge: true},
+        );
+
+        console.log('로그인 후 FCM 토큰 저장 성공');
+      }
     } catch (error) {
       Alert.alert('이메일 또는 비밀번호를 다시 확인해주세요.');
       console.error('로그인 에러:', error);
@@ -337,13 +361,25 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   );
   const addFcmToken = useCallback(
     async (token: string) => {
-      if (user != null) {
-        await firestore()
+      if (!user?.userId) {
+        console.warn('사용자 정보가 없어서 FCM 토큰을 저장할 수 없습니다.');
+        return;
+      }
+      try {
+        const userRef = firestore()
           .collection(Collection.USERS)
-          .doc(user?.userId)
-          .update({
-            fcmToken: firestore.FieldValue.arrayUnion(token),
-          });
+          .doc(user.userId);
+        await userRef.set(
+          {
+            fcmToken: [token],
+            lastTokenUpdated: firestore.FieldValue.serverTimestamp(),
+          },
+          {merge: true},
+        );
+        console.log('FCM 토큰 저장 성공:', token);
+        setFcmToken(token);
+      } catch (error) {
+        console.error('FCM 토큰 저장 중 오류:', error);
       }
     },
     [user],
@@ -372,6 +408,8 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       nickName,
       setNickName,
       setSchedules,
+      fcmToken,
+      setFcmToken,
       addFcmToken,
     }),
     [
@@ -392,6 +430,8 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       nickName,
       setNickName,
       setSchedules,
+      fcmToken,
+      setFcmToken,
       addFcmToken,
     ],
   );
