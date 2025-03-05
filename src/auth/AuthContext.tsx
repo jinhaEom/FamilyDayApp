@@ -1,5 +1,5 @@
 import type {User, Room, Schedule} from '../types/type';
-import {createContext} from 'react';
+import {createContext, Dispatch, SetStateAction} from 'react';
 export interface AuthContextType {
   initialized: boolean;
   user: User | null;
@@ -14,7 +14,7 @@ export interface AuthContextType {
   signIn: (email: string, password: string) => void;
   processingSignIn: boolean;
   currentRoom: Room | null;
-  setCurrentRoom: (room: Room | null) => void;
+  setCurrentRoom: Dispatch<SetStateAction<Room | null>>;
   logOut: () => Promise<void>;
   justLoggedIn: boolean;
   setJustLoggedIn: (justLoggedIn: boolean) => void;
@@ -25,9 +25,9 @@ export interface AuthContextType {
   setUserProfileImage: (userProfileImage: string | null) => void;
   changeNickname: (nickname: string) => Promise<void>;
   changeProfileImage: (imageUrl: string) => Promise<void>;
-  nickName : string;
-  setNickName : (nickName: string) => void;
-  addFcmToken : (token : string) => void;
+  nickName: string;
+  setNickName: (nickName: string) => void;
+  addFcmToken: (token: string) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({

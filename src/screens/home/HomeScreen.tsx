@@ -19,23 +19,15 @@ import {AuthContext} from '../../auth/AuthContext';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../navigation/Navigations';
-import {Colors, scheduleColors} from '../../constants/Colors';
+import {Colors} from '../../constants/Colors';
 import {Calendar} from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Day, Schedule} from '../../types/type';
-import firestore from '@react-native-firebase/firestore';
 import FastImage from 'react-native-fast-image';
+import {useCalendarData} from '../../hooks/useCalendarData';
+import {useRoomSync} from '../../hooks/useRoomSync';
 
-type MarkedDates = {
-  [date: string]: {
-    dots?: {color: string}[];
-  };
-};
-
-interface ExtendedSchedule extends Schedule {
-  userId?: string;
-}
-
+// 날짜 유틸리티 훅
 const useDateUtils = () => {
   const formatDate = useCallback((timestamp: any): string | null => {
     if (!timestamp) {
@@ -75,116 +67,34 @@ const useDateUtils = () => {
   return {formatDate, getDatesInRange};
 };
 
-const useRoomDataSync = (currentRoom: any, setCurrentRoom: any) => {
+// 애니메이션 훅
+const useDetailAnimation = (dateDetail: boolean) => {
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
-    if (!currentRoom?.roomId) {
-      return;
-    }
+    Animated.spring(slideAnim, {
+      toValue: dateDetail ? 1 : 0,
+      useNativeDriver: true,
+      friction: 8,
+      tension: 40,
+    }).start();
+  }, [dateDetail, slideAnim]);
 
-    const unsubscribe = firestore()
-      .collection('rooms')
-      .doc(currentRoom.roomId)
-      .onSnapshot(
-        snapshot => {
-          if (snapshot.exists) {
-            const roomData = snapshot.data();
-            if (roomData) {
-              if (
-                currentRoom.roomName === roomData.roomName &&
-                currentRoom.inviteCode === roomData.inviteCode &&
-                JSON.stringify(currentRoom.members) ===
-                  JSON.stringify(roomData.members)
-              ) {
-                return;
-              }
-
-              setCurrentRoom({
-                roomId: currentRoom.roomId,
-                roomName: roomData.roomName,
-                inviteCode: roomData.inviteCode,
-                createdAt: roomData.createdAt,
-                members: roomData.members || {},
-              });
-            }
-          }
-        },
-        error => {
-          console.error('실시간 업데이트 에러:', error);
-        },
-      );
-
-    return () => unsubscribe();
-  }, [
-    currentRoom?.roomId,
-    currentRoom?.roomName,
-    currentRoom?.inviteCode,
-    currentRoom?.members,
-    setCurrentRoom,
-  ]);
+  return slideAnim;
 };
 
-const useProfileImageSync = (
-  user: any,
-  userProfileImage: any,
-  setUserProfileImage: any,
-  currentRoom: any,
-) => {
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!user?.userId) {
-        return;
-      }
-
-      try {
-        const userDoc = await firestore()
-          .collection('users')
-          .doc(user.userId)
-          .get();
-
-        const userData = userDoc.data();
-        if (
-          userData?.profileImage &&
-          userData.profileImage !== userProfileImage
-        ) {
-          setUserProfileImage(userData.profileImage);
-        }
-      } catch (error) {
-        console.error('프로필 이미지 로딩 오류:', error);
-      }
-    };
-
-    fetchUserProfile();
-  }, [user?.userId, userProfileImage, setUserProfileImage]);
-
-  useEffect(() => {
-    if (
-      !user?.userId ||
-      !userProfileImage ||
-      !currentRoom?.members?.[user.userId] ||
-      currentRoom.members[user.userId].profileImage === userProfileImage
-    ) {
-      return;
-    }
-
-    const updatedMembers = {
-      ...currentRoom.members,
-      [user.userId]: {
-        ...currentRoom.members[user.userId],
-        profileImage: userProfileImage,
-      },
-    };
-
-    firestore()
-      .collection('rooms')
-      .doc(currentRoom.roomId)
-      .update({
-        members: updatedMembers,
-      })
-      .catch(error => {
-        console.error('프로필 이미지 업데이트 오류:', error);
-      });
-  }, [user?.userId, userProfileImage, currentRoom]);
-};
+// 뒤로가기 방지 훅
+// const useBackHandler = () => {
+//   useEffect(() => {
+//     const backHandler = BackHandler.addEventListener(
+//       'hardwareBackPress',
+//       () => {
+//         return true;
+//       },
+//     );
+//     return () => backHandler.remove();
+//   }, []);
+// };
 
 const HomeScreen = () => {
   const navigation =
@@ -200,146 +110,38 @@ const HomeScreen = () => {
   // 상태 관리
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [dateDetail, setDateDetail] = useState(false);
-  const [markedDates, setMarkedDates] = useState<MarkedDates>({});
-  const [selectedDateSchedules, setSelectedDateSchedules] = useState<
-    Schedule[]
-  >([]);
-  const [importantSchedules, setImportantSchedules] = useState<
-    ExtendedSchedule[]
-  >([]);
-  const slideAnim = useRef(new Animated.Value(0)).current;
 
+  // 커스텀 훅 사용
   const {formatDate, getDatesInRange} = useDateUtils();
-  useRoomDataSync(currentRoom, setCurrentRoom);
-  useProfileImageSync(user, userProfileImage, setUserProfileImage, currentRoom);
+  const slideAnim = useDetailAnimation(dateDetail);
+//   useBackHandler();
 
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        return true;
-      },
-    );
-    return () => backHandler.remove();
-  }, []);
+  // 방 데이터 동기화
+  useRoomSync(
+    currentRoom,
+    setCurrentRoom,
+    user,
+    userProfileImage,
+    setUserProfileImage,
+  );
 
+  // 캘린더 데이터 관리
+  const {markedDates, selectedDateSchedules, importantSchedules} =
+    useCalendarData(currentRoom, selectedDate, formatDate, getDatesInRange);
+
+  // 방 선택 화면으로 이동
   useEffect(() => {
     if (!currentRoom && user) {
       navigation.replace('ChoiceRoom');
     }
   }, [currentRoom, navigation, user]);
 
-  useEffect(() => {
-    if (!currentRoom?.members) {
-      return;
-    }
-
-    const newMarkedDates: MarkedDates = {};
-
-    Object.values(currentRoom.members).forEach(member => {
-      if (member.schedules && Array.isArray(member.schedules)) {
-        member.schedules.forEach((schedule: Schedule) => {
-          const formattedStartDate = formatDate(schedule.scheduleDate);
-          const formattedEndDate = formatDate(schedule.scheduleEndDate);
-
-          if (formattedStartDate && formattedEndDate) {
-            const dateRange = getDatesInRange(
-              formattedStartDate,
-              formattedEndDate,
-            );
-
-            dateRange.forEach(date => {
-              if (!newMarkedDates[date]) {
-                newMarkedDates[date] = {
-                  dots: [{color: Colors.BLUE}],
-                };
-              } else {
-                newMarkedDates[date].dots?.push({
-                  color:
-                    scheduleColors[
-                      Math.floor(Math.random() * scheduleColors.length)
-                    ],
-                });
-              }
-            });
-          }
-        });
-      }
-    });
-
-    setMarkedDates(newMarkedDates);
-  }, [currentRoom?.members, formatDate, getDatesInRange]);
-
-  useEffect(() => {
-    if (!currentRoom?.members || !selectedDate) {
-      return;
-    }
-
-    const schedules: Schedule[] = [];
-
-    Object.values(currentRoom.members).forEach(member => {
-      if (member.schedules) {
-        member.schedules.forEach((schedule: Schedule) => {
-          const startDateStr = formatDate(schedule.scheduleDate);
-          const endDateStr = formatDate(schedule.scheduleEndDate);
-
-          if (startDateStr && endDateStr) {
-            const dateRange = getDatesInRange(startDateStr, endDateStr);
-
-            if (dateRange.includes(selectedDate)) {
-              schedules.push({...schedule, userName: member.nickname});
-            }
-          }
-        });
-      }
-    });
-
-    setSelectedDateSchedules(schedules);
-  }, [selectedDate, currentRoom?.members, formatDate, getDatesInRange]);
-
-  useEffect(() => {
-    if (!currentRoom?.members) {
-      return;
-    }
-
-    const allImportantSchedules: ExtendedSchedule[] = [];
-
-    Object.entries(currentRoom.members).forEach(([userId, member]) => {
-      if (member.schedules && Array.isArray(member.schedules)) {
-        const importantUserSchedules = member.schedules
-          .filter((schedule: Schedule) => schedule.isImportant)
-          .map((schedule: Schedule) => ({
-            ...schedule,
-            userName: member.nickname,
-            userId,
-          }));
-
-        allImportantSchedules.push(...importantUserSchedules);
-      }
-    });
-
-    allImportantSchedules.sort((a, b) => {
-      const dateA = new Date(a.scheduleDate).getTime();
-      const dateB = new Date(b.scheduleDate).getTime();
-      return dateB - dateA;
-    });
-
-    setImportantSchedules(allImportantSchedules);
-  }, [currentRoom?.members]);
-
-  useEffect(() => {
-    Animated.spring(slideAnim, {
-      toValue: dateDetail ? 1 : 0,
-      useNativeDriver: true,
-      friction: 8,
-      tension: 40,
-    }).start();
-  }, [dateDetail, slideAnim]);
-
+  // 일정 추가 핸들러
   const addScheduleHandler = useCallback(() => {
     navigation.navigate('AddSchedule');
   }, [navigation]);
 
+  // 일정 그룹화
   const groupedSchedules = useMemo(() => {
     const groups: {[userName: string]: Schedule[]} = {};
 
