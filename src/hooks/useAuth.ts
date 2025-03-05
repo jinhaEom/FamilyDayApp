@@ -203,50 +203,59 @@ export const useAuth = () => {
   );
 
   // 로그인
-  const signIn = useCallback(async (email: string, password: string) => {
-    setProcessingSignIn(true);
-    try {
-      const userCredential = await auth().signInWithEmailAndPassword(
-        email,
-        password,
-      );
-      setJustLoggedIn(true);
 
-      // 로그인 성공 후 FCM 토큰 등록
+  const signIn: (
+    email: string,
+    password: string,
+  ) => Promise<FirebaseAuthTypes.User | null> = useCallback(
+    async (email, password) => {
+      // ✅ 반환 타입 명시적으로 지정
+      setProcessingSignIn(true);
       try {
-        // iOS에서는 토큰을 가져오기 전에 디바이스 등록이 필요
-        if (Platform.OS === 'ios') {
-          await messaging().registerDeviceForRemoteMessages();
+        const userCredential = await auth().signInWithEmailAndPassword(
+          email,
+          password,
+        );
+        setJustLoggedIn(true);
+
+        // ✅ 로그인 성공 후 사용자 객체 반환
+        const user = userCredential.user;
+
+        // ✅ 로그인 성공 후 FCM 토큰 등록
+        try {
+          if (Platform.OS === 'ios') {
+            await messaging().registerDeviceForRemoteMessages();
+          }
+
+          const token = await messaging().getToken();
+          if (token) {
+            const userRef = firestore()
+              .collection(Collection.USERS)
+              .doc(user.uid);
+            await userRef.set(
+              {
+                fcmToken: [token],
+                lastTokenUpdated: firestore.FieldValue.serverTimestamp(),
+              },
+              {merge: true},
+            );
+            console.log('로그인 후 FCM 토큰 저장 성공');
+          }
+        } catch (fcmError) {
+          console.error('FCM 토큰 등록 오류:', fcmError);
         }
 
-        const token = await messaging().getToken();
-        if (token) {
-          // 사용자 문서에 토큰 저장
-          const userRef = firestore()
-            .collection(Collection.USERS)
-            .doc(userCredential.user.uid);
-
-          await userRef.set(
-            {
-              fcmToken: [token],
-              lastTokenUpdated: firestore.FieldValue.serverTimestamp(),
-            },
-            {merge: true},
-          );
-
-          console.log('로그인 후 FCM 토큰 저장 성공');
-        }
-      } catch (fcmError) {
-        console.error('FCM 토큰 등록 오류:', fcmError);
-        // FCM 토큰 오류가 로그인 자체를 실패시키지 않도록 함
+        return user;
+      } catch (error) {
+        Alert.alert('로그인 실패', '이메일 또는 비밀번호를 다시 확인해주세요.');
+        console.error('로그인 에러:', error);
+        return null;
+      } finally {
+        setProcessingSignIn(false);
       }
-    } catch (error) {
-      Alert.alert('이메일 또는 비밀번호를 다시 확인해주세요.');
-      console.error('로그인 에러:', error);
-    } finally {
-      setProcessingSignIn(false);
-    }
-  }, []);
+    },
+    [],
+  );
 
   // 로그아웃
   const logOut = useCallback(async () => {

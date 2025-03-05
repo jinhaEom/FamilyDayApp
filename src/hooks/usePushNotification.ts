@@ -3,16 +3,43 @@ import {Alert, Linking, Platform} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import {AuthContext} from '../auth/AuthContext';
 import {useContext} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const NOTIFICATION_ENABLED_KEY = 'notification_enabled';
 
 const usePushNotification = () => {
   const {user, addFcmToken} = useContext(AuthContext);
   const [fcmToken, setFcmToken] = useState<string | null>(null);
   const [permissionRequested, setPermissionRequested] =
     useState<boolean>(false);
+  const [isNotificationEnabled, setIsNotificationEnabled] =
+    useState<boolean>(true);
+
+  // 알림 설정 상태 로드
+  useEffect(() => {
+    const loadNotificationSettings = async () => {
+      try {
+        const savedSetting = await AsyncStorage.getItem(
+          NOTIFICATION_ENABLED_KEY,
+        );
+        setIsNotificationEnabled(savedSetting !== 'false');
+      } catch (error) {
+        console.error('알림 설정 로드 오류:', error);
+      }
+    };
+
+    loadNotificationSettings();
+  }, []);
 
   useEffect(() => {
     const getFcmToken = async () => {
       try {
+        // 알림이 비활성화된 경우 토큰을 가져오지 않음
+        if (!isNotificationEnabled) {
+          console.log('알림이 비활성화되어 FCM 토큰을 가져오지 않습니다.');
+          return;
+        }
+
         const token = await messaging().getToken();
         console.log('FCM 토큰 (앱 시작):', token);
 
@@ -33,25 +60,62 @@ const usePushNotification = () => {
     };
 
     getFcmToken();
-  }, [user, addFcmToken]);
+  }, [user, addFcmToken, isNotificationEnabled]);
+
+  // 알림 설정 변경 감지
+  useEffect(() => {
+    const checkNotificationSettings = async () => {
+      try {
+        const savedSetting = await AsyncStorage.getItem(
+          NOTIFICATION_ENABLED_KEY,
+        );
+        const newSetting = savedSetting !== 'false';
+
+        if (isNotificationEnabled !== newSetting) {
+          setIsNotificationEnabled(newSetting);
+
+          // 알림이 활성화되면 토큰을 다시 가져옴
+          if (newSetting) {
+            const token = await messaging().getToken();
+            if (token) {
+              setFcmToken(token);
+              if (user) {
+                addFcmToken(token);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('알림 설정 확인 오류:', error);
+      }
+    };
+
+    // 1초마다 설정 확인 (실제 앱에서는 더 긴 간격이나 이벤트 기반으로 변경 권장)
+    const interval = setInterval(checkNotificationSettings, 1000);
+    return () => clearInterval(interval);
+  }, [isNotificationEnabled, user, addFcmToken]);
 
   useEffect(() => {
+    // 알림이 비활성화된 경우 토큰 갱신을 처리하지 않음
+    if (!isNotificationEnabled) return () => {};
+
     const unsubscribe = messaging().onTokenRefresh(token => {
       console.log('FCM 토큰 갱신:', token);
       setFcmToken(token);
     });
     return () => unsubscribe();
-  }, []);
+  }, [isNotificationEnabled]);
 
   useEffect(() => {
-    if (user != null && fcmToken != null) {
+    if (user != null && fcmToken != null && isNotificationEnabled) {
       console.log('FCM 토큰 저장:', fcmToken);
       addFcmToken(fcmToken);
     }
-  }, [fcmToken, user, addFcmToken]);
+  }, [fcmToken, user, addFcmToken, isNotificationEnabled]);
 
   const requestPermission = useCallback(async () => {
-    if (permissionRequested) {
+    // 알림이 비활성화된 경우 권한 요청을 하지 않음
+    if (!isNotificationEnabled || permissionRequested) {
       return;
     }
 
@@ -96,14 +160,16 @@ const usePushNotification = () => {
     } catch (error) {
       console.error('알림 권한 요청 실패:', error);
     }
-  }, [permissionRequested]);
+  }, [permissionRequested, isNotificationEnabled]);
 
-  // 앱 시작시 권한 요청
+  // 앱 시작시 권한 요청 (알림이 활성화된 경우에만)
   useEffect(() => {
-    requestPermission();
-  }, [requestPermission]);
+    if (isNotificationEnabled) {
+      requestPermission();
+    }
+  }, [requestPermission, isNotificationEnabled]);
 
-  return {requestPermission, fcmToken};
+  return {requestPermission, fcmToken, isNotificationEnabled};
 };
 
 export default usePushNotification;
