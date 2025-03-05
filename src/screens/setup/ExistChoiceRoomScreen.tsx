@@ -64,20 +64,15 @@ const ExistChoiceRoom = () => {
 
       setCurrentRoom(room);
       setIsTouchable(false);
-      navigation.reset({
-        index: 0,
-        routes: [{name: 'MainTabs', params: {
-          roomId: room.roomId,
-          roomName: room.roomName,
-          nickname: room.members[user?.userId || '']?.nickname || '',
-          inviteCode: room.inviteCode,
-        }},
-        ],
+      navigation.replace('MainTabs', {
+        roomId: room.roomId,
+        roomName: room.roomName,
+        nickname: room.members[user?.userId || '']?.nickname || '',
+        inviteCode: room.inviteCode,
       });
     } catch (error) {
       console.error('방 선택 중 오류:', error);
       setIsTouchable(true);
-      1234;
     }
   };
 

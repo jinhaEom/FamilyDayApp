@@ -92,15 +92,11 @@ export default function WritingCode() {
           members: roomData.members,
         });
 
-        navigation.reset({
-          index: 0,
-          routes: [{name: 'MainTabs', params: {
-            roomId: roomDoc.id,
-            roomName: roomData.roomName,
-            nickname: roomData.members[userId].nickname,
-            inviteCode: inviteCode.toUpperCase(),
-          }},
-          ],
+        navigation.replace('MainTabs', {
+          roomId: roomDoc.id,
+          roomName: roomData.roomName,
+          nickname: roomData.members[userId].nickname,
+          inviteCode: inviteCode.toUpperCase(),
         });
         return;
       }

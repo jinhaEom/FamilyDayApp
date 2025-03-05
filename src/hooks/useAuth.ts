@@ -125,52 +125,6 @@ export const useAuth = () => {
     initializeFcmToken();
   }, []);
 
-  // 일정 데이터 마이그레이션 (객체 -> 배열)
-  useEffect(() => {
-    const migrateScheduleData = async () => {
-      if (!user?.userId || !currentRoom?.roomId) {
-        return;
-      }
-
-      try {
-        const roomRef = firestore().collection('rooms').doc(currentRoom.roomId);
-        const roomDoc = await roomRef.get();
-        const roomData = roomDoc.data();
-
-        if (!roomData || !roomData.members) {
-          return;
-        }
-
-        let needsUpdate = false;
-        const updatedMembers = {...roomData.members};
-
-        // 각 멤버의 일정 데이터 확인
-        Object.keys(updatedMembers).forEach(memberId => {
-          const member = updatedMembers[memberId];
-
-          // schedules가 존재하고 배열이 아닌 경우
-          if (member.schedules && !Array.isArray(member.schedules)) {
-            console.log(`멤버 ${memberId}의 일정 데이터를 배열로 변환합니다.`);
-            member.schedules = Object.values(member.schedules);
-            needsUpdate = true;
-          }
-        });
-
-        // 변경이 필요한 경우에만 업데이트
-        if (needsUpdate) {
-          await roomRef.update({
-            members: updatedMembers,
-          });
-          console.log('일정 데이터 마이그레이션 완료');
-        }
-      } catch (error) {
-        console.error('일정 데이터 마이그레이션 오류:', error);
-      }
-    };
-
-    migrateScheduleData();
-  }, [user?.userId, currentRoom?.roomId]);
-
   // 회원가입 함수
   const signUp = useCallback(
     async (
