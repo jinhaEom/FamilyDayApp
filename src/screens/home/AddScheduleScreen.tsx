@@ -65,19 +65,15 @@ const AddScheduleScreen = () => {
         throw new Error('방 또는 사용자 정보를 찾을 수 없습니다.');
       }
 
+      // 기존 일정 배열 가져오기 (없으면 빈 배열로 초기화)
       const currentSchedules = roomData.members[userId].schedules || [];
 
-      // 배열이 아닌 경우 배열로 변환
-      const schedulesArray = Array.isArray(currentSchedules)
-        ? currentSchedules
-        : Object.values(currentSchedules);
-
       // 새 일정 추가
-      schedulesArray.push(scheduleData);
+      const updatedSchedules = [...currentSchedules, scheduleData];
 
       // Firestore에 업데이트
       await roomRef.update({
-        [`members.${userId}.schedules`]: schedulesArray,
+        [`members.${userId}.schedules`]: updatedSchedules,
       });
 
       await refreshSchedules();

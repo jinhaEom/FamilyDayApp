@@ -110,15 +110,11 @@ export default function MakeRoom() {
       });
 
       // 4. Home 화면으로 이동
-      navigation.reset({
-        index: 0,
-        routes: [{name: 'MainTabs', params: {
-          roomId: newRoomRef.id,
-          roomName: roomName,
-          nickname: nickname,
-          inviteCode: inviteCode,
-        }},
-        ],
+      navigation.replace('MainTabs', {
+        roomId: newRoomRef.id,
+        roomName: roomName,
+        nickname: nickname,
+        inviteCode: inviteCode,
       });
     } catch (error) {
       console.error('Error creating room:', error);
