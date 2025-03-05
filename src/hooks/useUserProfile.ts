@@ -157,16 +157,24 @@ export const useUserProfile = (
       const roomDoc = await roomRef.get();
       const roomData = roomDoc.data();
       if (roomData) {
-        setCurrentRoom(prevRoom => {
-          if (!prevRoom) {
-            return null;
-          }
-          const updatedRoom: Room = {
-            ...prevRoom,
-            members: roomData.members || {},
-          };
-          return updatedRoom;
-        });
+        // 데이터가 실제로 변경되었는지 확인
+        const isDataChanged =
+          JSON.stringify(currentRoom.members) !==
+          JSON.stringify(roomData.members);
+
+        if (isDataChanged) {
+          setCurrentRoom(prevRoom => {
+            if (!prevRoom) {
+              return null;
+            }
+            const updatedRoom: Room = {
+              ...prevRoom,
+              members: roomData.members || {},
+            };
+            return updatedRoom;
+          });
+        }
+
       }
     } catch (error) {
       console.error('스케줄 새로고침 중 오류:', error);

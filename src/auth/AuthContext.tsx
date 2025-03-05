@@ -1,5 +1,7 @@
 import type {User, Room, Schedule} from '../types/type';
 import {createContext, Dispatch, SetStateAction} from 'react';
+import {FirebaseAuthTypes} from '@react-native-firebase/auth';
+
 export interface AuthContextType {
   initialized: boolean;
   user: User | null;
@@ -11,7 +13,7 @@ export interface AuthContextType {
   ) => void;
   processingSignUp: boolean;
   setProcessingSignUp: (processingSignUp: boolean) => void;
-  signIn: (email: string, password: string) => void;
+  signIn: (email: string, password: string) => Promise<FirebaseAuthTypes.User | null>;
   processingSignIn: boolean;
   currentRoom: Room | null;
   setCurrentRoom: Dispatch<SetStateAction<Room | null>>;
@@ -36,7 +38,7 @@ export const AuthContext = createContext<AuthContextType>({
   signUp: async () => {},
   processingSignUp: false,
   setProcessingSignUp: () => {},
-  signIn: async () => {},
+  signIn: async () => null,
   processingSignIn: false,
   logOut: async () => {},
   currentRoom: null,

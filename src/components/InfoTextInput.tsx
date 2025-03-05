@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef } from 'react';
+import React, {useState, useEffect, forwardRef} from 'react';
 import {
   TextInput,
   TextInputProps,
@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import { Colors } from '../constants/Colors';
+import {Colors} from '../constants/Colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { StyleProp, ViewStyle } from 'react-native';
+import {StyleProp, ViewStyle} from 'react-native';
 
 interface InfoTextInputProps extends TextInputProps {
   value: string;
@@ -31,7 +31,7 @@ const InfoTextInput = forwardRef<TextInput, InfoTextInputProps>(
       onBlur,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [isFocused, setIsFocused] = useState(false);
     const [deleteIconVisible, setDeleteIconVisible] = useState(false);
@@ -55,7 +55,7 @@ const InfoTextInput = forwardRef<TextInput, InfoTextInputProps>(
         }}>
         <TextInput
           ref={ref}
-          style={{ color: Colors.BLACK }}
+          style={{color: Colors.BLACK}}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
@@ -85,7 +85,7 @@ const InfoTextInput = forwardRef<TextInput, InfoTextInputProps>(
         )}
       </View>
     );
-  }
+  },
 );
 
 const styles = StyleSheet.create({

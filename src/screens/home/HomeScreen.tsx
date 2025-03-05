@@ -13,19 +13,66 @@ import {
   ScrollView,
   Animated,
   StyleSheet,
-  BackHandler,
+  Dimensions,
+  StatusBar,
+  Platform,
 } from 'react-native';
 import {AuthContext} from '../../auth/AuthContext';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../navigation/Navigations';
 import {Colors} from '../../constants/Colors';
-import {Calendar} from 'react-native-calendars';
+import {Calendar, LocaleConfig, DateData} from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Day, Schedule} from '../../types/type';
+import {Schedule} from '../../types/type';
 import FastImage from 'react-native-fast-image';
 import {useCalendarData} from '../../hooks/useCalendarData';
 import {useRoomSync} from '../../hooks/useRoomSync';
+
+const {width} = Dimensions.get('window');
+
+// 날짜 관련 설정
+LocaleConfig.locales['ko'] = {
+  monthNames: [
+    '1월',
+    '2월',
+    '3월',
+    '4월',
+    '5월',
+    '6월',
+    '7월',
+    '8월',
+    '9월',
+    '10월',
+    '11월',
+    '12월',
+  ],
+  monthNamesShort: [
+    '1월',
+    '2월',
+    '3월',
+    '4월',
+    '5월',
+    '6월',
+    '7월',
+    '8월',
+    '9월',
+    '10월',
+    '11월',
+    '12월',
+  ],
+  dayNames: [
+    '일요일',
+    '월요일',
+    '화요일',
+    '수요일',
+    '목요일',
+    '금요일',
+    '토요일',
+  ],
+  dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+};
+LocaleConfig.defaultLocale = 'ko';
 
 // 날짜 유틸리티 훅
 const useDateUtils = () => {
@@ -64,7 +111,18 @@ const useDateUtils = () => {
     [],
   );
 
-  return {formatDate, getDatesInRange};
+  const formatDisplayDate = useCallback((dateString: string): string => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    };
+    return date.toLocaleDateString('ko-KR', options);
+  }, []);
+
+  return {formatDate, getDatesInRange, formatDisplayDate};
 };
 
 // 애니메이션 훅
@@ -83,19 +141,134 @@ const useDetailAnimation = (dateDetail: boolean) => {
   return slideAnim;
 };
 
-// 뒤로가기 방지 훅
-// const useBackHandler = () => {
-//   useEffect(() => {
-//     const backHandler = BackHandler.addEventListener(
-//       'hardwareBackPress',
-//       () => {
-//         return true;
-//       },
-//     );
-//     return () => backHandler.remove();
-//   }, []);
-// };
+// 멤버 아바타 컴포넌트
+interface MemberAvatarProps {
+  member: {
+    profileImage?: string | null;
+    nickname: string;
+  };
+  onPress: () => void;
+}
 
+const MemberAvatar = ({member, onPress}: MemberAvatarProps) => {
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.memberAvatarContainer}>
+      {member.profileImage ? (
+        <View style={styles.avatarWrapper}>
+          <FastImage
+            style={styles.userImage}
+            source={{
+              uri: member.profileImage || '',
+              priority: FastImage.priority.normal,
+              cache: FastImage.cacheControl.immutable,
+            }}
+            resizeMode={FastImage.resizeMode.cover}
+          />
+        </View>
+      ) : (
+        <View style={styles.avatarWrapper}>
+          <View style={styles.defaultAvatar}>
+            <Ionicons name="person" size={24} color={Colors.PRIMARY} />
+          </View>
+        </View>
+      )}
+      <Text style={styles.memberName}>{member.nickname}</Text>
+    </TouchableOpacity>
+  );
+};
+
+// 중요 일정 카드 컴포넌트
+interface ImportantScheduleCardProps {
+  schedule: Schedule;
+  onPress: () => void;
+}
+
+const ImportantScheduleCard = ({
+  schedule,
+  onPress,
+}: ImportantScheduleCardProps) => {
+  return (
+    <TouchableOpacity
+      style={styles.importantScheduleCard}
+      onPress={onPress}
+      activeOpacity={0.8}>
+      <View style={styles.importantScheduleGradient}>
+        <View style={styles.importantScheduleHeader}>
+          <Ionicons name="calendar" size={16} color={Colors.WHITE} />
+          <Text style={styles.importantScheduleDate}>
+            {new Date(schedule.scheduleDate).toLocaleDateString()}
+          </Text>
+        </View>
+        <Text style={styles.importantScheduleTitle} numberOfLines={2}>
+          {schedule.scheduleTitle}
+        </Text>
+        <View style={styles.importantScheduleFooter}>
+          <Ionicons name="person-outline" size={14} color={Colors.WHITE} />
+          <Text style={styles.importantScheduleOwner}>{schedule.userName}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+// 일정 항목 컴포넌트
+interface ScheduleItemProps {
+  schedule: Schedule;
+  onPress: () => void;
+}
+
+const ScheduleItem = ({schedule, onPress}: ScheduleItemProps) => {
+  return (
+    <TouchableOpacity
+      style={styles.scheduleItem}
+      onPress={onPress}
+      activeOpacity={0.7}>
+      <View
+        style={[
+          styles.scheduleColorDot,
+          {
+            backgroundColor: schedule.isImportant
+              ? Colors.PRIMARY
+              : Colors.SECONDARY,
+          },
+        ]}
+      />
+      <View style={styles.scheduleContent}>
+        <Text style={styles.scheduleTitle}>{schedule.scheduleTitle}</Text>
+        <Text style={styles.scheduleTime}>
+          {new Date(schedule.scheduleDate).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+          {' - '}
+          {new Date(schedule.scheduleEndDate).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+        </Text>
+      </View>
+      <View style={styles.scheduleOwner}>
+        <Text style={styles.ownerName}>{schedule.userName}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={Colors.DARK_GRAY} />
+    </TouchableOpacity>
+  );
+};
+
+// 헤더 컴포넌트
+interface HeaderProps {
+  roomName: string;
+}
+
+const Header = ({roomName}: HeaderProps) => {
+  return (
+    <View style={styles.header}>
+      <Text style={styles.roomName}>{roomName} Room</Text>
+    </View>
+  );
+};
+
+// 메인 컴포넌트
 const HomeScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -108,13 +281,13 @@ const HomeScreen = () => {
   } = useContext(AuthContext);
 
   // 상태 관리
-  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toISOString().split('T')[0],
+  );
   const [dateDetail, setDateDetail] = useState(false);
 
-  // 커스텀 훅 사용
-  const {formatDate, getDatesInRange} = useDateUtils();
+  const {formatDate, getDatesInRange, formatDisplayDate} = useDateUtils();
   const slideAnim = useDetailAnimation(dateDetail);
-//   useBackHandler();
 
   // 방 데이터 동기화
   useRoomSync(
@@ -156,325 +329,470 @@ const HomeScreen = () => {
     return groups;
   }, [selectedDateSchedules]);
 
+  // 상세 일정 열기/닫기 애니메이션 스타일
+  const detailViewStyle = {
+    transform: [
+      {
+        translateY: slideAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [600, 0],
+        }),
+      },
+    ],
+    opacity: slideAnim,
+  };
+
+  // 날짜 선택 핸들러
+  const handleDateSelect = (day: DateData) => {
+    setSelectedDate(day.dateString);
+    setDateDetail(true);
+  };
+
   if (!currentRoom) {
     return null;
   }
 
   return (
-    <ScrollView style={{flex: 1}}>
-      <Text style={styles.roomText}>{currentRoom.roomName} Room</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.userContainer}
-        contentContainerStyle={styles.userContentContainer}>
-        {Object.keys(currentRoom.members || {}).map(userId => (
-          <TouchableOpacity
-            key={userId}
-            onPress={() =>
-              navigation.navigate('UserScDetail', {
-                userId,
-                roomId: currentRoom.roomId,
-                userName: currentRoom.members[userId]?.nickname,
-                schedules: currentRoom.members[userId]?.schedules || [],
-                roomName: currentRoom.roomName,
-                startDate:
-                  currentRoom.members[userId]?.schedules?.[0]?.scheduleDate ??
-                  '',
-                endDate:
-                  currentRoom.members[userId]?.schedules?.[0]
-                    ?.scheduleEndDate ?? '',
-              })
-            }>
-            {currentRoom.members[userId]?.profileImage ? (
-              <View>
-                <FastImage
-                  style={styles.userImage}
-                  source={{
-                    uri: currentRoom.members[userId]?.profileImage || '',
-                    priority: FastImage.priority.normal,
-                    cache: FastImage.cacheControl.immutable,
-                  }}
-                  resizeMode={FastImage.resizeMode.cover}
-                />
-                <Text style={{textAlign: 'center', marginTop: 4}}>
-                  {currentRoom.members[userId]?.nickname}
-                </Text>
-              </View>
-            ) : (
-              <>
-                <View style={styles.userImage}>
-                  <Ionicons name="person-outline" size={24} color="black" />
-                </View>
-                <Text style={{textAlign: 'center', marginTop: 4}}>
-                  {currentRoom.members[userId]?.nickname}
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+    <View style={styles.container}>
+      <StatusBar backgroundColor={Colors.WHITE} barStyle="dark-content" />
 
-      {importantSchedules.length > 0 && (
-        <View style={styles.importantSchedulesContainer}>
-          <View style={styles.importantSchedulesHeader}>
-            <Ionicons name="star" size={20} color={Colors.PRIMARY} />
-            <Text style={styles.importantSchedulesTitle}>중요 일정</Text>
-          </View>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}>
+        {/* 헤더 */}
+        <Header roomName={currentRoom.roomName} />
+
+        {/* 멤버 아바타 섹션 */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>구성원</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.importantSchedulesContent}>
-            {importantSchedules.map(schedule => (
-              <TouchableOpacity
-                key={schedule.scheduleId}
-                style={styles.importantScheduleItem}
-                onPress={() => {
-                  const scheduleDate = formatDate(schedule.scheduleDate);
-                  if (scheduleDate) {
-                    setSelectedDate(scheduleDate);
-                    setDateDetail(true);
-                  }
-                }}>
-                <View style={styles.importantScheduleHeader}>
-                  <Ionicons name="calendar" size={16} color={Colors.PRIMARY} />
-                  <Text style={styles.importantScheduleDate}>
-                    {new Date(schedule.scheduleDate).toLocaleDateString()}
-                  </Text>
-                </View>
-                <Text style={styles.importantScheduleTitle} numberOfLines={2}>
-                  {schedule.scheduleTitle}
-                </Text>
-                <Text style={styles.importantScheduleOwner}>
-                  {schedule.userName}
-                </Text>
-              </TouchableOpacity>
+            style={styles.membersScrollView}
+            contentContainerStyle={styles.membersContainer}>
+            {Object.keys(currentRoom.members || {}).map(userId => (
+              <MemberAvatar
+                key={userId}
+                member={currentRoom.members[userId]}
+                onPress={() =>
+                  navigation.navigate('UserScDetail', {
+                    userId,
+                    roomId: currentRoom.roomId,
+                    userName: currentRoom.members[userId]?.nickname,
+                    schedules: currentRoom.members[userId]?.schedules || [],
+                    roomName: currentRoom.roomName,
+                    startDate:
+                      currentRoom.members[userId]?.schedules?.[0]
+                        ?.scheduleDate ?? '',
+                    endDate:
+                      currentRoom.members[userId]?.schedules?.[0]
+                        ?.scheduleEndDate ?? '',
+                  })
+                }
+              />
             ))}
           </ScrollView>
         </View>
-      )}
 
-      <TouchableOpacity style={styles.addButton} onPress={addScheduleHandler}>
-        <Text>일정 등록하기</Text>
-        <Ionicons name="add-circle-outline" size={24} color="black" />
-      </TouchableOpacity>
-      <Calendar
-        style={styles.calendar}
-        markedDates={markedDates}
-        markingType={'multi-dot'}
-        onDayPress={(day: Day) => {
-          setSelectedDate(day.dateString);
-          setDateDetail(true);
-        }}
-      />
-      <Animated.View
-        style={[
-          styles.detailContainer,
-          {
-            transform: [
-              {
-                translateY: slideAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-50, 1],
-                }),
+        {/* 캘린더 섹션 */}
+        <View style={styles.calendarContainer}>
+          <Calendar
+            markedDates={markedDates}
+            markingType={'multi-dot'}
+            onDayPress={handleDateSelect}
+            monthFormat={'yyyy년 MM월'}
+            hideExtraDays={true}
+            firstDay={0}
+            enableSwipeMonths={true}
+            theme={{
+              todayTextColor: Colors.PRIMARY,
+              arrowColor: Colors.PRIMARY,
+              selectedDayBackgroundColor: Colors.PRIMARY,
+              textDayFontSize: 14,
+              textMonthFontSize: 16,
+              textDayHeaderFontSize: 13,
+              'stylesheet.calendar.header': {
+                header: {
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  paddingVertical: 10,
+                  paddingHorizontal: 10,
+                },
               },
-            ],
-            opacity: slideAnim,
-          },
-        ]}>
-        <View>
-          <View style={styles.detailHeader}>
-            <Text>{selectedDate}</Text>
-            <TouchableOpacity onPress={() => setDateDetail(false)}>
-              <Ionicons name="caret-up-outline" size={24} color="black" />
+            }}
+          />
+        </View>
+
+        {/* 중요 일정 섹션 */}
+        {importantSchedules.length > 0 && (
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionTitleContainer}>
+              <Ionicons name="star" size={20} color={Colors.PRIMARY} />
+              <Text style={styles.sectionTitle}>중요 일정</Text>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.importantSchedulesContainer}>
+              {importantSchedules.map(schedule => (
+                <ImportantScheduleCard
+                  key={schedule.scheduleId}
+                  schedule={schedule}
+                  onPress={() => {
+                    const scheduleDate = formatDate(schedule.scheduleDate);
+                    if (scheduleDate) {
+                      setSelectedDate(scheduleDate);
+                      setDateDetail(true);
+                    }
+                  }}
+                />
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={addScheduleHandler}
+          activeOpacity={0.8}>
+          <Ionicons name="add" size={24} color={Colors.WHITE} />
+        </TouchableOpacity>
+      </ScrollView>
+
+      {/* 상세 일정 슬라이드 업 패널 */}
+      <Animated.View style={[styles.detailView, detailViewStyle]}>
+        <View style={styles.detailHeader}>
+          <View>
+            <Text style={styles.detailDate}>
+              {formatDisplayDate(selectedDate)}
+            </Text>
+            <Text style={styles.scheduleCount}>
+              {selectedDateSchedules.length}개의 일정
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setDateDetail(false)}>
+            <Ionicons name="close" size={24} color={Colors.DARK_GRAY} />
+          </TouchableOpacity>
+        </View>
+
+        {selectedDateSchedules.length === 0 ? (
+          <View style={styles.emptyScheduleContainer}>
+            <Ionicons
+              name="calendar-outline"
+              size={50}
+              color={Colors.LIGHT_GRAY}
+            />
+            <Text style={styles.emptyScheduleText}>일정이 없습니다</Text>
+            <TouchableOpacity
+              style={styles.addScheduleButton}
+              onPress={addScheduleHandler}>
+              <Text style={styles.addScheduleButtonText}>일정 추가하기</Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.detailContent}>
+        ) : (
+          <ScrollView
+            style={styles.detailScrollView}
+            showsVerticalScrollIndicator={false}>
             {Object.entries(groupedSchedules).map(([userName, schedules]) => (
-              <View key={userName} style={styles.userScheduleGroup}>
-                <Text style={styles.userScheduleHeader}>
-                  🏷닉네임 : {userName}
-                </Text>
+              <View key={userName} style={styles.scheduleGroup}>
+                <View style={styles.groupHeader}>
+                  <Text style={styles.groupHeaderText}>{userName}의 일정</Text>
+                </View>
                 {schedules.map(schedule => (
-                  <View key={schedule.scheduleId} style={styles.scheduleItem}>
-                    <Text style={styles.scheduleTitle}>
-                      📅 스케쥴 : {schedule.scheduleTitle}
-                    </Text>
-                    <Text style={styles.scheduleContent}>
-                      📝 내용 : {schedule.scheduleContent}
-                    </Text>
-                    {schedule.isImportant && (
-                      <Text style={styles.importantTag}>⭐ 중요</Text>
-                    )}
-                  </View>
+                  <ScheduleItem
+                    key={schedule.scheduleId}
+                    schedule={schedule}
+                    onPress={() => {
+                      navigation.navigate('UserScDetail', {
+                        userId: schedule.createdBy,
+                        roomId: currentRoom.roomId,
+                        userName: schedule.userName,
+                        schedules: [schedule],
+                        roomName: currentRoom.roomName,
+                        startDate: schedule.scheduleDate,
+                        endDate: schedule.scheduleEndDate,
+                      });
+                    }}
+                  />
                 ))}
               </View>
             ))}
-          </View>
-          {Object.keys(groupedSchedules).length === 0 && (
-            <Text>일정이 없어요</Text>
-          )}
-        </View>
+          </ScrollView>
+        )}
       </Animated.View>
-    </ScrollView>
+    </View>
   );
 };
 
+// 스타일
 const styles = StyleSheet.create({
-  userImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: Colors.GRAY,
-    justifyContent: 'center',
-    alignSelf: 'center',
-    alignItems: 'center',
+  container: {
+    flex: 1,
+    backgroundColor: Colors.WHITE,
   },
-  roomText: {
+  scrollView: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: 30,
+  },
+  header: {
+    padding: 20,
+    paddingTop: Platform.OS === 'ios' ? 50 : 20,
+    backgroundColor: Colors.WHITE,
+  },
+  roomName: {
     fontSize: 24,
     fontWeight: 'bold',
     color: Colors.PRIMARY,
-    padding: 24,
   },
-  userContainer: {
-    flexGrow: 0,
-    marginTop: 12,
-    padding: 20,
+  sectionContainer: {
+    marginTop: 15,
+    paddingHorizontal: 20,
   },
-  userContentContainer: {
+  sectionTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-  },
-  userText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: Colors.PRIMARY,
-    borderWidth: 1,
-    marginRight: 12,
-    borderColor: Colors.LIGHT_GRAY,
-    backgroundColor: Colors.GRAY,
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    includeFontPadding: false,
-    lineHeight: 80,
-  },
-  calendar: {
-    borderWidth: 1,
-    borderColor: Colors.LIGHT_GRAY,
-    borderRadius: 10,
-    padding: 10,
-    marginLeft: 10,
-    marginRight: 10,
-  },
-  detailContainer: {
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.LIGHT_GRAY,
-    padding: 10,
-    backgroundColor: Colors.LIGHT_GRAY,
-    margin: 10,
-  },
-  detailHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  detailContent: {
-    marginTop: 10,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-end',
-    marginRight: 10,
     marginBottom: 10,
   },
-  userScheduleGroup: {
-    marginBottom: 15,
-  },
-  userScheduleHeader: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  scheduleItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.DARK_GRAY,
-  },
-  scheduleTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.GRAY_TITLE,
-    marginBottom: 3,
-  },
-  scheduleContent: {
-    fontSize: 14,
-    color: Colors.GRAY_CONTENT,
-    lineHeight: 20,
-  },
-  importantTag: {
-    fontSize: 14,
-    color: Colors.PRIMARY,
-    fontWeight: 'bold',
-    marginTop: 5,
-  },
-  importantSchedulesContainer: {
-    marginTop: 10,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-  },
-  importantSchedulesHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-    paddingHorizontal: 10,
-  },
-  importantSchedulesTitle: {
-    fontSize: 16,
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
     color: Colors.PRIMARY,
     marginLeft: 5,
   },
-  importantSchedulesContent: {
-    paddingHorizontal: 5,
-    paddingBottom: 5,
+  membersScrollView: {
+    marginTop: 10,
   },
-  importantScheduleItem: {
-    width: 150,
-    height: 100,
+  membersContainer: {
+    paddingBottom: 10,
+  },
+  memberAvatarContainer: {
+    alignItems: 'center',
+    marginRight: 20,
+  },
+  avatarWrapper: {
+    padding: 3,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: Colors.PRIMARY_LIGHT,
+  },
+  userImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+  },
+  defaultAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: Colors.LIGHT_GRAY,
-    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  memberName: {
+    marginTop: 5,
+    fontSize: 12,
+    color: Colors.DARK_GRAY,
+  },
+  calendarContainer: {
+    marginTop: 20,
+    marginBottom: 15,
+    backgroundColor: Colors.WHITE,
+    borderRadius: 15,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    marginHorizontal: 20,
     padding: 10,
-    marginRight: 10,
-    borderLeftWidth: 8,
-    borderLeftColor: Colors.PRIMARY,
+  },
+  importantSchedulesContainer: {
+    paddingRight: 20,
+    paddingBottom: 10,
+  },
+  importantScheduleCard: {
+    width: width * 0.6,
+    marginRight: 15,
+    borderRadius: 15,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  importantScheduleGradient: {
+    padding: 15,
+    height: 120,
     justifyContent: 'space-between',
+    backgroundColor: Colors.PRIMARY,
+    borderRadius: 15,
   },
   importantScheduleHeader: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   importantScheduleDate: {
-    fontSize: 12,
-    color: Colors.GRAY_TITLE,
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.WHITE,
     marginLeft: 5,
   },
   importantScheduleTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.PRIMARY,
-    marginVertical: 5,
+    color: Colors.WHITE,
+    marginVertical: 10,
+  },
+  importantScheduleFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   importantScheduleOwner: {
     fontSize: 12,
-    color: Colors.GRAY_CONTENT,
-    textAlign: 'right',
+    color: Colors.WHITE,
+    marginLeft: 5,
+  },
+  addButton: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.PRIMARY,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  detailView: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '70%',
+    backgroundColor: Colors.WHITE,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: Platform.OS === 'ios' ? 30 : 10,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: -3},
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+  },
+  detailHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  detailDate: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.PRIMARY,
+  },
+  scheduleCount: {
+    fontSize: 14,
+    color: Colors.DARK_GRAY,
+    marginTop: 2,
+  },
+  closeButton: {
+    padding: 5,
+  },
+  detailScrollView: {
+    flex: 1,
+  },
+  scheduleGroup: {
+    marginBottom: 20,
+  },
+  groupHeader: {
+    marginBottom: 10,
+    paddingVertical: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.LIGHT_GRAY,
+  },
+  groupHeaderText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.PRIMARY,
+  },
+  scheduleItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: Colors.WHITE,
+    borderRadius: 10,
+    marginBottom: 10,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  scheduleColorDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 10,
+  },
+  scheduleContent: {
+    flex: 1,
+  },
+  scheduleTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: Colors.DARK_GRAY,
+    marginBottom: 5,
+  },
+  scheduleTime: {
+    fontSize: 12,
+    color: Colors.GRAY,
+  },
+  scheduleOwner: {
+    backgroundColor: Colors.LIGHT_GRAY,
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    marginRight: 10,
+  },
+  ownerName: {
+    fontSize: 10,
+    color: Colors.DARK_GRAY,
+  },
+  emptyScheduleContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 50,
+  },
+  emptyScheduleText: {
+    fontSize: 16,
+    color: Colors.GRAY,
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  addScheduleButton: {
+    backgroundColor: Colors.PRIMARY,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  addScheduleButtonText: {
+    color: Colors.WHITE,
+    fontWeight: '500',
   },
 });
 
