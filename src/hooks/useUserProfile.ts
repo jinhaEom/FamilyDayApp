@@ -174,6 +174,7 @@ export const useUserProfile = (
             return updatedRoom;
           });
         }
+
       }
     } catch (error) {
       console.error('스케줄 새로고침 중 오류:', error);

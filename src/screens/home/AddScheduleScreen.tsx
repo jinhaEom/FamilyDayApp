@@ -131,9 +131,10 @@ const AddScheduleScreen = () => {
       }
 
       const currentSchedules = roomData.members[userId].schedules || [];
-
       const updatedSchedules = [...currentSchedules, scheduleData];
 
+
+      // Firestore에 업데이트
       await roomRef.update({
         [`members.${userId}.schedules`]: updatedSchedules,
       });
