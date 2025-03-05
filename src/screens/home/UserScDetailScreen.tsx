@@ -9,6 +9,7 @@ import {formatDate} from '../../components/DateFormat';
 
 const UserScDetailScreen = () => {
   const {params} = useRoute<RouteProp<RootStackParamList, 'UserScDetail'>>();
+  const schedules = Array.isArray(params.schedules) ? params.schedules : [];
 
   return (
     <>
@@ -18,10 +19,10 @@ const UserScDetailScreen = () => {
         <Text style={styles.titleText}>{params.userName}님의 일정</Text>
 
         <Text style={styles.subTitleText}>일정 상세</Text>
-        {params.schedules.length === 0 ? (
+        {schedules.length === 0 ? (
           <Text style={styles.scheduleText}>일정이 없습니다.</Text>
         ) : (
-          params.schedules.map((schedule: Schedule, index: number) => (
+          schedules.map((schedule: Schedule, index: number) => (
             <View style={styles.scheduleContainer} key={index}>
               <View style={styles.countContainer}>
                 <Text style={styles.countText}>{index + 1}</Text>

@@ -92,11 +92,15 @@ export default function WritingCode() {
           members: roomData.members,
         });
 
-        navigation.navigate('MainTabs', {
-          roomId: roomDoc.id,
-          roomName: roomData.roomName,
-          nickname: roomData.members[userId].nickname,
-          inviteCode: inviteCode.toUpperCase(),
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'MainTabs', params: {
+            roomId: roomDoc.id,
+            roomName: roomData.roomName,
+            nickname: roomData.members[userId].nickname,
+            inviteCode: inviteCode.toUpperCase(),
+          }},
+          ],
         });
         return;
       }
@@ -164,11 +168,15 @@ export default function WritingCode() {
       });
 
       setShowNicknameDialog(false);
-      navigation.navigate('MainTabs', {
-        roomId: roomDoc.docs[0].id,
-        roomName: roomData.roomName,
-        nickname: nickname,
-        inviteCode: inviteCode.toUpperCase(),
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'MainTabs', params: {
+          roomId: roomDoc.docs[0].id,
+          roomName: roomData.roomName,
+          nickname: nickname,
+          inviteCode: inviteCode.toUpperCase(),
+        }},
+        ],
       });
     } catch (error) {
       console.error('Error updating room members:', error);
