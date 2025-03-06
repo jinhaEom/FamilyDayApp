@@ -16,7 +16,6 @@ import FastImage from 'react-native-fast-image';
 import {Image as CompressorImage} from 'react-native-compressor';
 import {ToastMessage} from '../../components/ToastMessage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {SafeAreaView} from 'react-native-safe-area-context';
 
 export default function MyScreen() {
   const {
@@ -118,7 +117,6 @@ export default function MyScreen() {
   }, [changeNickname, tempNickname]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}>
@@ -282,7 +280,6 @@ export default function MyScreen() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
   );
 }
 
@@ -303,10 +300,6 @@ const InfoItem = ({label, value, icon}: {label: string; value: string; icon: str
 );
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#F7F9FC',
-  },
   container: {
     flex: 1,
   },

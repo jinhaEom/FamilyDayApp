@@ -184,10 +184,6 @@ const LoginScreen = ({navigation}: Props) => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.WHITE,
-  },
   container: {
     flex: 1,
     justifyContent: 'space-between',
