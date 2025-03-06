@@ -8,8 +8,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
-  StatusBar,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -163,8 +161,7 @@ const AddScheduleScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor={Colors.WHITE} barStyle="dark-content" />
+    <>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}>
@@ -266,15 +263,12 @@ const AddScheduleScreen = () => {
         confirmTextIOS="확인"
         cancelTextIOS="취소"
       />
-    </SafeAreaView>
+      </>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.WHITE,
-  },
+ 
   container: {
     flex: 1,
   },

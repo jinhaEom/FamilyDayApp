@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-} from 'react-native';
+import {View, Text, StyleSheet, ScrollView, StatusBar} from 'react-native';
 import {useRoute, RouteProp} from '@react-navigation/native';
 import {RootStackParamList} from '../../navigation/navigations';
 import {Schedule} from '../../types/type';
@@ -97,8 +90,7 @@ const UserScDetailScreen = () => {
   const schedules = Array.isArray(params.schedules) ? params.schedules : [];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor={Colors.WHITE} barStyle="dark-content" />
+    <>
       <Header title={`${params.userName}님의 일정`} />
 
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -136,15 +128,11 @@ const UserScDetailScreen = () => {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.WHITE,
-  },
   container: {
     flex: 1,
     padding: 16,
