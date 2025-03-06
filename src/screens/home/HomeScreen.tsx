@@ -453,14 +453,14 @@ const HomeScreen = () => {
           </View>
         )}
 
-        <TouchableOpacity
+       
+      </ScrollView>
+      <TouchableOpacity
           style={styles.addButton}
           onPress={addScheduleHandler}
           activeOpacity={0.8}>
           <Ionicons name="add" size={24} color={Colors.WHITE} />
         </TouchableOpacity>
-      </ScrollView>
-
       {/* 상세 일정 슬라이드 업 패널 */}
       <Animated.View style={[styles.detailView, detailViewStyle]}>
         <View style={styles.detailHeader}>
@@ -604,11 +604,8 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     backgroundColor: Colors.WHITE,
     borderRadius: 15,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
+    borderWidth: 0.8,
+    borderColor: Colors.LIGHT_GRAY,
     marginHorizontal: 20,
     padding: 10,
   },
@@ -621,11 +618,6 @@ const styles = StyleSheet.create({
     marginRight: 15,
     borderRadius: 15,
     overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   importantScheduleGradient: {
     padding: 15,
@@ -669,11 +661,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.PRIMARY,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
   },
   detailView: {
     position: 'absolute',
@@ -686,12 +673,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: Platform.OS === 'ios' ? 30 : 10,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: -3},
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
   },
   detailHeader: {
     flexDirection: 'row',
@@ -736,11 +717,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.WHITE,
     borderRadius: 10,
     marginBottom: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
   },
   scheduleColorDot: {
     width: 12,

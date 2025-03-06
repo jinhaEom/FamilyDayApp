@@ -14,9 +14,9 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/navigations';
 import {launchImageLibrary} from 'react-native-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { ToastMessage } from '../components/ToastMessage';
-import { useRef } from 'react';
-import { TextInput } from 'react-native';
+import {ToastMessage} from '../components/ToastMessage';
+import {useRef} from 'react';
+import {TextInput} from 'react-native';
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 };
@@ -43,24 +43,23 @@ const SignUpScreen = ({navigation}: Props) => {
   } = useContext(AuthContext);
   const [buttonDisabled, setButtonDisabled] = useState(true);
 
-const handleSignUp = async () => {
-  if (!name || !email || !password) {
-    Alert.alert('알림', '모든 필드를 입력해주세요.');
-    return;
-  }
+  const handleSignUp = async () => {
+    if (!name || !email || !password) {
+      Alert.alert('알림', '모든 필드를 입력해주세요.');
+      return;
+    }
 
-  try {
-    setProcessingSignUp(true);
-    await signUp(email, password, name, userProfileImage);
-    navigation.goBack();
-  } catch (error) {
-    ToastMessage({ message: '회원가입 오류가 발생했습니다.', type: 'error' });
-    console.error('회원가입 오류:', error);
-  } finally {
-    setProcessingSignUp(false);
-  }
-};
-
+    try {
+      setProcessingSignUp(true);
+      await signUp(email, password, name, userProfileImage);
+      navigation.goBack();
+    } catch (error) {
+      ToastMessage({message: '회원가입 오류가 발생했습니다.', type: 'error'});
+      console.error('회원가입 오류:', error);
+    } finally {
+      setProcessingSignUp(false);
+    }
+  };
 
   const validateEmail = (_email: string) => {
     const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
@@ -111,19 +110,28 @@ const handleSignUp = async () => {
     <View style={styles.container}>
       <Header title="계정생성" showRightIcon={false} onBack={handleBack} />
       <View style={styles.inputContainer}>
-        <TouchableOpacity
-          style={styles.imageContainer}
-          onPress={handleImagePress}>
-          {userProfileImage ? (
-            <Image
-              source={{uri: userProfileImage}}
-              style={styles.selectedImage}
-              resizeMode="cover"
-            />
-          ) : (
-            <Text style={styles.imageText}>프로필 이미지를 선택하세요!</Text>
-          )}
-        </TouchableOpacity>
+      <TouchableOpacity
+              style={styles.imageContainer}
+              onPress={handleImagePress}>
+              {userProfileImage ? (
+                <>
+                  <Image
+                    source={{uri: userProfileImage}}
+                    style={styles.selectedImage}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.imageOverlay}>
+                    <Ionicons name="camera" size={24} color={Colors.WHITE} />
+                  </View>
+                </>
+              ) : (
+                <View style={styles.imagePlaceholder}>
+                  <Ionicons name="person-add" size={40} color={Colors.PRIMARY} />
+                  <Text style={styles.imageText}>프로필 선택</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
         <InfoTextInput
           placeholder="닉네임"
           placeholderTextColor={Colors.GRAY}
@@ -206,6 +214,12 @@ const handleSignUp = async () => {
           disabled={buttonDisabled}>
           회원가입하기
         </AppBasicButton>
+        <Text style={{textAlign: 'center', color: Colors.GRAY}}>
+          이미 계정이 있으신가요?{'  '}
+          <Text style={{color: Colors.PRIMARY}} onPress={() => navigation.goBack()}>
+            로그인
+          </Text>
+        </Text>
       </View>
     </View>
   );
@@ -213,25 +227,38 @@ const handleSignUp = async () => {
 
 const styles = StyleSheet.create({
   imageContainer: {
-    backgroundColor: Colors.GRAY,
-    borderRadius: 10,
-    width: 150,
-    height: 150,
-    borderWidth: 0.7,
-    borderColor: Colors.GRAY,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
+    width :120,
+    height: 120,
+    borderRadius : 40,
+    backgroundColor : Colors.LIGHT_GRAY,
+    alignSelf:'center',
+    justifyContent:'center',
     alignItems: 'center',
-    overflow: 'hidden', // 추가
+    marginBottom: 20,
+    overflow: 'hidden',
   },
   selectedImage: {
     width: '100%',
     height: '100%',
     borderRadius: 10,
   },
+  imageOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    paddingVertical : 5,
+    alignItems : 'center',
+  },
+  imagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   imageText: {
-    color: Colors.WHITE,
+    color: Colors.GRAY,
     textAlign: 'center',
     fontSize: 14,
   },
