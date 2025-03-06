@@ -1,4 +1,4 @@
-import {useCallback} from 'react';
+import {useCallback, useRef, useEffect} from 'react';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import {Alert} from 'react-native';
@@ -12,6 +12,14 @@ export const useUserProfile = (
   setCurrentRoom: Dispatch<SetStateAction<Room | null>>,
   setUserProfileImage: (image: string | null) => void,
 ) => {
+  // ref를 사용하여 최신 함수 참조 유지
+  const setUserProfileImageRef = useRef(setUserProfileImage);
+
+  // ref 업데이트
+  useEffect(() => {
+    setUserProfileImageRef.current = setUserProfileImage;
+  }, [setUserProfileImage]);
+
   // FCM 토큰 저장
   const addFcmToken = useCallback(
     async (token: string) => {
@@ -100,6 +108,9 @@ export const useUserProfile = (
         await reference.putFile(imageUrl);
         const downloadURL = await reference.getDownloadURL();
 
+        // ref.current를 통해 최신 함수 호출
+        setUserProfileImageRef.current(downloadURL);
+
         // 3. Firestore 업데이트를 병렬로 처리
         await Promise.all([
           firestore()
@@ -114,7 +125,6 @@ export const useUserProfile = (
         ]);
 
         // 4. 상태 업데이트
-        setUserProfileImage(downloadURL);
         setCurrentRoom(prevRoom => {
           if (!prevRoom || !user.userId) {
             return prevRoom;
@@ -144,7 +154,7 @@ export const useUserProfile = (
         });
       }
     },
-    [user?.userId, currentRoom?.roomId, setCurrentRoom, setUserProfileImage],
+    [user?.userId, currentRoom?.roomId, setCurrentRoom],
   );
 
   // 스케줄 새로고침 함수
@@ -174,7 +184,6 @@ export const useUserProfile = (
             return updatedRoom;
           });
         }
-
       }
     } catch (error) {
       console.error('스케줄 새로고침 중 오류:', error);

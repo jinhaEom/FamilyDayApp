@@ -6,12 +6,9 @@ import {
   Alert,
   ActivityIndicator,
   TextInput,
-  SafeAreaView,
   TouchableOpacity,
-  StatusBar,
   KeyboardAvoidingView,
   Platform,
-  Image,
   Dimensions,
   Animated,
 } from 'react-native';
@@ -28,7 +25,7 @@ type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 };
 
-const {width, height} = Dimensions.get('window');
+const {height} = Dimensions.get('window');
 
 const LoginScreen = ({navigation}: Props) => {
   const [email, setEmail] = useState('');
@@ -84,14 +81,16 @@ const LoginScreen = ({navigation}: Props) => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.WHITE} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}>
         <Animated.View style={[styles.logoContainer, {opacity: fadeAnim}]}>
           <View style={styles.logoCircle}>
-            <Ionicons name="calendar-number-outline" size={48} color={Colors.WHITE} />
+            <Ionicons
+              name="calendar-number-outline"
+              size={48}
+              color={Colors.WHITE}
+            />
           </View>
           <Text style={styles.title}>Family Day</Text>
           <Text style={styles.subtitle}>가족의 소중한 순간을 함께</Text>
@@ -181,7 +180,6 @@ const LoginScreen = ({navigation}: Props) => {
           </AppBasicButton>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
   );
 };
 
@@ -206,14 +204,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.PRIMARY,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: Colors.BLACK,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
     marginBottom: 16,
   },
   title: {
@@ -250,7 +240,8 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    paddingLeft: 40, // 아이콘용 공간
+    paddingLeft: 40,
+    color: Colors.BLACK,
   },
   forgotPassword: {
     alignSelf: 'flex-end',
@@ -268,14 +259,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     height: 50,
     justifyContent: 'center',
-    shadowColor: Colors.BLACK,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   buttonText: {
     fontSize: 16,
