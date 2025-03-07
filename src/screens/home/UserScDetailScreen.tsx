@@ -1,5 +1,5 @@
-import React from 'react';
-import {View, Text, StyleSheet, ScrollView, StatusBar} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {useRoute, RouteProp} from '@react-navigation/native';
 import {RootStackParamList} from '../../navigation/navigations';
 import {Schedule} from '../../types/type';
@@ -7,7 +7,8 @@ import Header from '../../components/header/header';
 import {Colors} from '../../constants/Colors';
 import {formatDate} from '../../components/DateFormat';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import {SelectList} from 'react-native-dropdown-select-list';
+import {useScheduleFilter} from '../../hooks/useScheduleFilter';
 // 일정 카드 컴포넌트
 interface ScheduleCardProps {
   schedule: Schedule;
@@ -87,38 +88,52 @@ const EmptySchedule = () => (
 
 const UserScDetailScreen = () => {
   const {params} = useRoute<RouteProp<RootStackParamList, 'UserScDetail'>>();
-  const schedules = Array.isArray(params.schedules) ? params.schedules : [];
+
+  const { selectedCase, setSelectedCase, filterSchedules, filterOptions } =
+    useScheduleFilter();
+
+  const [filteredSchedules, setFilteredSchedules] = useState<Schedule[]>([]);
+
+  useEffect(() => {
+    const schedules = Array.isArray(params.schedules) ? params.schedules : [];
+    const newFilteredSchedules = filterSchedules(schedules);
+    setFilteredSchedules(newFilteredSchedules);
+  }, [selectedCase, filterSchedules, params.schedules]);
 
   return (
     <>
       <Header title={`${params.userName}님의 일정`} />
-
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.headerSection}>
           <View style={styles.userInfo}>
             <View style={styles.avatarContainer}>
               <Text style={styles.avatarText}>
-                {params.userName
-                  ? params.userName.charAt(0).toUpperCase()
-                  : '?'}
+                {params.userName ? params.userName.charAt(0).toUpperCase() : '?'}
               </Text>
             </View>
             <Text style={styles.titleText}>{params.userName}님의 일정</Text>
           </View>
           <Text style={styles.scheduleCount}>
-            총 {schedules.length}개의 일정
+            총 {filteredSchedules.length}개의 일정
           </Text>
         </View>
 
-        <View style={styles.divider} />
+        <SelectList
+          setSelected={setSelectedCase}
+          data={filterOptions}
+          save="key"
+          defaultOption={filterOptions.find(option => option.key === selectedCase)}
+          search={false}
+        />
 
+        <View style={styles.divider} />
         <Text style={styles.subTitleText}>일정 상세</Text>
 
-        {schedules.length === 0 ? (
+        {filteredSchedules.length === 0 ? (
           <EmptySchedule />
         ) : (
           <View style={styles.scheduleList}>
-            {schedules.map((schedule: Schedule, index: number) => (
+            {filteredSchedules.map((schedule: Schedule, index: number) => (
               <ScheduleCard
                 key={schedule.scheduleId || index}
                 schedule={schedule}

@@ -3,7 +3,7 @@ import React, {useMemo} from 'react';
 import {AuthContext} from './AuthContext';
 import {useAuth} from '../hooks/useAuth';
 import {useUserProfile} from '../hooks/useUserProfile';
-
+import {useScheduleFilter} from '../hooks/useScheduleFilter';
 export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const {
     user,
@@ -28,6 +28,9 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
 
  const {addFcmToken, changeNickname, changeProfileImage, refreshSchedules} =
     useUserProfile(user, currentRoom, setCurrentRoom, setUserProfileImage);
+
+  const {selectedCase, setSelectedCase, filterSchedules, filterOptions} =
+    useScheduleFilter();
 
   // Context 값 메모이제이션
   const value = useMemo(
@@ -54,6 +57,10 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       setNickName,
       setSchedules,
       addFcmToken,
+      selectedCase,
+      setSelectedCase,
+      filterSchedules,
+      filterOptions,
     }),
     [
       initialized,
@@ -78,6 +85,10 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
       setNickName,
       setSchedules,
       addFcmToken,
+      selectedCase,
+      setSelectedCase,
+      filterSchedules,
+      filterOptions,
     ],
   );
 

@@ -354,16 +354,13 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor={Colors.WHITE} barStyle="dark-content" />
 
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}>
-        {/* 헤더 */}
         <Header roomName={currentRoom.roomName} />
 
-        {/* 멤버 아바타 섹션 */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>구성원</Text>
           <ScrollView
@@ -542,7 +539,6 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 20,
-    paddingTop: Platform.OS === 'ios' ? 50 : 20,
     backgroundColor: Colors.WHITE,
   },
   roomName: {
