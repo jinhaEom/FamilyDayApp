@@ -14,13 +14,14 @@ import {
   Animated,
   StyleSheet,
   Dimensions,
-  StatusBar,
-  Platform,
 } from 'react-native';
 import {AuthContext} from '../../auth/AuthContext';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../../navigation/Navigations';
+import {
+  RootStackParamList,
+  UserScDetailParams,
+} from '../../navigation/Navigations';
 import {Colors} from '../../constants/Colors';
 import {Calendar, LocaleConfig, DateData} from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -307,7 +308,7 @@ const HomeScreen = () => {
     if (!currentRoom && user) {
       navigation.replace('ChoiceRoom');
     }
-  }, [currentRoom, navigation, user]);
+  }, [currentRoom, navigation, user, userProfileImage]);
 
   // 일정 추가 핸들러
   const addScheduleHandler = useCallback(() => {
@@ -348,13 +349,33 @@ const HomeScreen = () => {
     setDateDetail(true);
   };
 
+  // 멤버 아바타 클릭 시 처리 함수
+  const handleMemberScheduleView = (memberId: string) => {
+    if (!currentRoom) {return;}
+
+    const member = currentRoom.members[memberId];
+    if (!member) {return;}
+
+    const params: UserScDetailParams = {
+      userId: memberId,
+      userName: member.nickname,
+      profileImage: member.profileImage || '',
+      roomId: currentRoom.roomId,
+      roomName: currentRoom.roomName,
+      schedules: member.schedules || [],
+      startDate: new Date().toISOString(),
+      endDate: new Date().toISOString(),
+    };
+
+    navigation.navigate('UserScDetail', params);
+  };
+
   if (!currentRoom) {
     return null;
   }
 
   return (
     <View style={styles.container}>
-
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -372,21 +393,7 @@ const HomeScreen = () => {
               <MemberAvatar
                 key={userId}
                 member={currentRoom.members[userId]}
-                onPress={() =>
-                  navigation.navigate('UserScDetail', {
-                    userId,
-                    roomId: currentRoom.roomId,
-                    userName: currentRoom.members[userId]?.nickname,
-                    schedules: currentRoom.members[userId]?.schedules || [],
-                    roomName: currentRoom.roomName,
-                    startDate:
-                      currentRoom.members[userId]?.schedules?.[0]
-                        ?.scheduleDate ?? '',
-                    endDate:
-                      currentRoom.members[userId]?.schedules?.[0]
-                        ?.scheduleEndDate ?? '',
-                  })
-                }
+                onPress={() => handleMemberScheduleView(userId)}
               />
             ))}
           </ScrollView>
@@ -449,15 +456,13 @@ const HomeScreen = () => {
             </ScrollView>
           </View>
         )}
-
-       
       </ScrollView>
       <TouchableOpacity
-          style={styles.addButton}
-          onPress={addScheduleHandler}
-          activeOpacity={0.8}>
-          <Ionicons name="add" size={24} color={Colors.WHITE} />
-        </TouchableOpacity>
+        style={styles.addButton}
+        onPress={addScheduleHandler}
+        activeOpacity={0.8}>
+        <Ionicons name="add" size={24} color={Colors.WHITE} />
+      </TouchableOpacity>
       {/* 상세 일정 슬라이드 업 패널 */}
       <Animated.View style={[styles.detailView, detailViewStyle]}>
         <View style={styles.detailHeader}>
@@ -506,12 +511,13 @@ const HomeScreen = () => {
                     onPress={() => {
                       navigation.navigate('UserScDetail', {
                         userId: schedule.createdBy,
-                        roomId: currentRoom.roomId,
                         userName: schedule.userName,
                         schedules: [schedule],
+                        roomId: currentRoom.roomId,
                         roomName: currentRoom.roomName,
                         startDate: schedule.scheduleDate,
                         endDate: schedule.scheduleEndDate,
+                        profileImage: schedule.profileImage || '',
                       });
                     }}
                   />

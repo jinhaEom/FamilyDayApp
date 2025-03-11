@@ -1,5 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 import {useRoute, RouteProp} from '@react-navigation/native';
 import {RootStackParamList} from '../../navigation/navigations';
 import {Schedule} from '../../types/type';
@@ -9,6 +14,8 @@ import {formatDate} from '../../components/DateFormat';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {SelectList} from 'react-native-dropdown-select-list';
 import {useScheduleFilter} from '../../hooks/useScheduleFilter';
+import FastImage from 'react-native-fast-image';
+import ImageView from 'react-native-image-viewing';
 // 일정 카드 컴포넌트
 interface ScheduleCardProps {
   schedule: Schedule;
@@ -89,16 +96,20 @@ const EmptySchedule = () => (
 const UserScDetailScreen = () => {
   const {params} = useRoute<RouteProp<RootStackParamList, 'UserScDetail'>>();
 
-  const { selectedCase, setSelectedCase, filterSchedules, filterOptions } =
+  const {selectedCase, setSelectedCase, filterSchedules, filterOptions} =
     useScheduleFilter();
 
   const [filteredSchedules, setFilteredSchedules] = useState<Schedule[]>([]);
-
+  const [isImageVisible, setIsImageVisible] = useState(false);
   useEffect(() => {
     const schedules = Array.isArray(params.schedules) ? params.schedules : [];
     const newFilteredSchedules = filterSchedules(schedules);
     setFilteredSchedules(newFilteredSchedules);
   }, [selectedCase, filterSchedules, params.schedules]);
+
+  // 디버깅을 위한 로그 추가
+  console.log('UserScDetail params:', params);
+  console.log('Profile Image URL:', params.profileImage);
 
   return (
     <>
@@ -107,10 +118,35 @@ const UserScDetailScreen = () => {
         <View style={styles.headerSection}>
           <View style={styles.userInfo}>
             <View style={styles.avatarContainer}>
-              <Text style={styles.avatarText}>
-                {params.userName ? params.userName.charAt(0).toUpperCase() : '?'}
-              </Text>
+              {params.profileImage ? (
+                <>
+                  <FastImage
+                    source={{
+                      uri: params.profileImage,
+                      priority: FastImage.priority.high,
+                      cache: FastImage.cacheControl.immutable,
+                    }}
+                    style={styles.avatarImage}
+                    resizeMode={FastImage.resizeMode.cover}
+                    onTouchStart={() => setIsImageVisible(true)}
+                  />
+                </>
+              ) : (
+                <View style={styles.avatarWrapper}>
+                  <View style={styles.defaultAvatar}>
+                    <Ionicons name="person" size={24} color={Colors.PRIMARY} />
+                  </View>
+                </View>
+              )}
             </View>
+            <ImageView
+              images={[{uri: params.profileImage || ''}]}
+              imageIndex={0}
+              presentationStyle="overFullScreen"
+              animationType="fade"
+              visible={isImageVisible}
+              onRequestClose={() => setIsImageVisible(false)}
+            />
             <Text style={styles.titleText}>{params.userName}님의 일정</Text>
           </View>
           <Text style={styles.scheduleCount}>
@@ -122,7 +158,9 @@ const UserScDetailScreen = () => {
           setSelected={setSelectedCase}
           data={filterOptions}
           save="key"
-          defaultOption={filterOptions.find(option => option.key === selectedCase)}
+          defaultOption={filterOptions.find(
+            option => option.key === selectedCase,
+          )}
           search={false}
         />
 
@@ -168,6 +206,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
   avatarText: {
     color: Colors.WHITE,
@@ -273,6 +316,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.GRAY,
     marginTop: 4,
+  },
+  avatarWrapper: {
+    padding: 3,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: Colors.PRIMARY_LIGHT,
+  },
+
+  defaultAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: Colors.LIGHT_GRAY,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

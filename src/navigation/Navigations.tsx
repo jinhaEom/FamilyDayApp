@@ -16,6 +16,17 @@ import LoadingScreen from '../Loading/LoadingScreen';
 import {AuthContext} from '../auth/AuthContext';
 import {Schedule} from '../types/type';
 
+export interface UserScDetailParams {
+  userId: string;
+  userName: string;
+  profileImage: string;
+  roomId: string;
+  roomName: string;
+  schedules: Schedule[];
+  startDate: string;
+  endDate: string;
+}
+
 export type RootStackParamList = {
   Loading: undefined;
   Login: undefined;
@@ -31,15 +42,7 @@ export type RootStackParamList = {
     inviteCode: string;
   };
   AddSchedule: undefined;
-  UserScDetail: {
-    userId: string;
-    roomId: string;
-    userName: string;
-    schedules: Schedule[];
-    roomName: string;
-    startDate: string;
-    endDate: string;
-  };
+  UserScDetail: UserScDetailParams;
   Settings: undefined;
   InviteCode: undefined;
   ChangeNickName: undefined;
