@@ -36,6 +36,7 @@ export type RootStackParamList = {
     roomId: string;
     userName: string;
     schedules: Schedule[];
+    profileImage: string;
     roomName: string;
     startDate: string;
     endDate: string;

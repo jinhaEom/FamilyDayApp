@@ -14,8 +14,6 @@ import {
   Animated,
   StyleSheet,
   Dimensions,
-  StatusBar,
-  Platform,
 } from 'react-native';
 import {AuthContext} from '../../auth/AuthContext';
 import {useNavigation} from '@react-navigation/native';
@@ -307,7 +305,7 @@ const HomeScreen = () => {
     if (!currentRoom && user) {
       navigation.replace('ChoiceRoom');
     }
-  }, [currentRoom, navigation, user]);
+  }, [currentRoom, navigation, user, userProfileImage]);
 
   // 일정 추가 핸들러
   const addScheduleHandler = useCallback(() => {
@@ -348,13 +346,27 @@ const HomeScreen = () => {
     setDateDetail(true);
   };
 
+  // 멤버 아바타 클릭 시 처리 함수
+  const handleMemberScheduleView = (userId: string, memberName: string) => {
+    const memberSchedules = currentRoom?.members[userId]?.schedules || [];
+    navigation.navigate('UserScDetail', {
+      schedules: memberSchedules,
+      userName: memberName,
+      userId: userId,
+      profileImage: currentRoom?.members[userId]?.profileImage || '',
+      roomId: currentRoom?.roomId || '',
+      roomName: currentRoom?.roomName || '',
+      startDate: memberSchedules[0]?.scheduleDate || '',
+      endDate: memberSchedules[memberSchedules.length - 1]?.scheduleEndDate || '',
+    });
+  };
+
   if (!currentRoom) {
     return null;
   }
 
   return (
     <View style={styles.container}>
-
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -373,19 +385,10 @@ const HomeScreen = () => {
                 key={userId}
                 member={currentRoom.members[userId]}
                 onPress={() =>
-                  navigation.navigate('UserScDetail', {
+                  handleMemberScheduleView(
                     userId,
-                    roomId: currentRoom.roomId,
-                    userName: currentRoom.members[userId]?.nickname,
-                    schedules: currentRoom.members[userId]?.schedules || [],
-                    roomName: currentRoom.roomName,
-                    startDate:
-                      currentRoom.members[userId]?.schedules?.[0]
-                        ?.scheduleDate ?? '',
-                    endDate:
-                      currentRoom.members[userId]?.schedules?.[0]
-                        ?.scheduleEndDate ?? '',
-                  })
+                    currentRoom.members[userId]?.nickname,
+                  )
                 }
               />
             ))}
@@ -449,15 +452,13 @@ const HomeScreen = () => {
             </ScrollView>
           </View>
         )}
-
-       
       </ScrollView>
       <TouchableOpacity
-          style={styles.addButton}
-          onPress={addScheduleHandler}
-          activeOpacity={0.8}>
-          <Ionicons name="add" size={24} color={Colors.WHITE} />
-        </TouchableOpacity>
+        style={styles.addButton}
+        onPress={addScheduleHandler}
+        activeOpacity={0.8}>
+        <Ionicons name="add" size={24} color={Colors.WHITE} />
+      </TouchableOpacity>
       {/* 상세 일정 슬라이드 업 패널 */}
       <Animated.View style={[styles.detailView, detailViewStyle]}>
         <View style={styles.detailHeader}>
@@ -506,12 +507,13 @@ const HomeScreen = () => {
                     onPress={() => {
                       navigation.navigate('UserScDetail', {
                         userId: schedule.createdBy,
-                        roomId: currentRoom.roomId,
                         userName: schedule.userName,
                         schedules: [schedule],
+                        roomId: currentRoom.roomId,
                         roomName: currentRoom.roomName,
                         startDate: schedule.scheduleDate,
                         endDate: schedule.scheduleEndDate,
+                        profileImage: schedule.profileImage || '',
                       });
                     }}
                   />

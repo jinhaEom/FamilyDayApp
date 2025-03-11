@@ -45,9 +45,11 @@ export interface Schedule {
   scheduleTitle: string;
   scheduleContent: string;
   scheduleDate: string;
+  userId?: string;
   userName: string;
   scheduleEndDate: string;
   createdAt: any;
   createdBy: string;
   isImportant?: boolean;
+  profileImage?: string | null;
 }
