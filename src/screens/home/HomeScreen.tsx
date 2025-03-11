@@ -18,7 +18,10 @@ import {
 import {AuthContext} from '../../auth/AuthContext';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../../navigation/Navigations';
+import {
+  RootStackParamList,
+  UserScDetailParams,
+} from '../../navigation/Navigations';
 import {Colors} from '../../constants/Colors';
 import {Calendar, LocaleConfig, DateData} from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -347,18 +350,24 @@ const HomeScreen = () => {
   };
 
   // 멤버 아바타 클릭 시 처리 함수
-  const handleMemberScheduleView = (userId: string, memberName: string) => {
-    const memberSchedules = currentRoom?.members[userId]?.schedules || [];
-    navigation.navigate('UserScDetail', {
-      schedules: memberSchedules,
-      userName: memberName,
-      userId: userId,
-      profileImage: currentRoom?.members[userId]?.profileImage || '',
-      roomId: currentRoom?.roomId || '',
-      roomName: currentRoom?.roomName || '',
-      startDate: memberSchedules[0]?.scheduleDate || '',
-      endDate: memberSchedules[memberSchedules.length - 1]?.scheduleEndDate || '',
-    });
+  const handleMemberScheduleView = (memberId: string) => {
+    if (!currentRoom) {return;}
+
+    const member = currentRoom.members[memberId];
+    if (!member) {return;}
+
+    const params: UserScDetailParams = {
+      userId: memberId,
+      userName: member.nickname,
+      profileImage: member.profileImage || '',
+      roomId: currentRoom.roomId,
+      roomName: currentRoom.roomName,
+      schedules: member.schedules || [],
+      startDate: new Date().toISOString(),
+      endDate: new Date().toISOString(),
+    };
+
+    navigation.navigate('UserScDetail', params);
   };
 
   if (!currentRoom) {
@@ -384,12 +393,7 @@ const HomeScreen = () => {
               <MemberAvatar
                 key={userId}
                 member={currentRoom.members[userId]}
-                onPress={() =>
-                  handleMemberScheduleView(
-                    userId,
-                    currentRoom.members[userId]?.nickname,
-                  )
-                }
+                onPress={() => handleMemberScheduleView(userId)}
               />
             ))}
           </ScrollView>
