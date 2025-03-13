@@ -115,7 +115,7 @@ const AddScheduleScreen = () => {
         userName: user?.name || '',
         scheduleEndDate: endDate.toISOString(),
         createdAt: firestore.Timestamp.now(),
-        createdBy: userId,
+        userId: userId,
         isImportant: isImportant,
       };
 
@@ -202,7 +202,15 @@ const AddScheduleScreen = () => {
               </View>
               <Text style={styles.importantCheckboxText}>중요 일정</Text>
             </TouchableOpacity>
+            <Text className="font-bold text-lg">매주</Text>
 
+            <View style={styles.weekContainer}>
+              {['월', '화', '수', '목', '금', '토', '일'].map((day, index) => (
+                <Text key={index} style={styles.weekDay}>
+                  {day}
+                </Text>
+              ))}
+            </View>
             <View style={styles.dateContainer}>
               <DatePickerField
                 label="시작 날짜"
@@ -398,6 +406,26 @@ const styles = StyleSheet.create({
   buttonText: {
     fontWeight: '600',
     fontSize: 16,
+  },
+  weekContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  weekDay: {
+    fontSize: 14,
+    color: Colors.WHITE,
+    borderRadius: 20,
+    padding: 6,
+    backgroundColor: Colors.SECONDARY,
+    fontWeight: '500',
+    width: 30,
+    textAlign: 'center',
+  },
+  weekDayTitle: {
+    fontSize: 14,
+    color: Colors.DARK_GRAY,
+    fontWeight: '500',
   },
 });
 

@@ -83,8 +83,8 @@ const LoginScreen = ({navigation}: Props) => {
   return (
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}>
-        <Animated.View style={[styles.logoContainer, {opacity: fadeAnim}]}>
+        className="flex-1 justify-between p-4">
+        <Animated.View className="items-center mt-5" style={{opacity: fadeAnim}}>
           <View style={styles.logoCircle}>
             <Ionicons
               name="calendar-number-outline"

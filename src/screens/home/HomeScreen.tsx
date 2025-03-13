@@ -351,10 +351,14 @@ const HomeScreen = () => {
 
   // 멤버 아바타 클릭 시 처리 함수
   const handleMemberScheduleView = (memberId: string) => {
-    if (!currentRoom) {return;}
+    if (!currentRoom) {
+      return;
+    }
 
     const member = currentRoom.members[memberId];
-    if (!member) {return;}
+    if (!member) {
+      return;
+    }
 
     const params: UserScDetailParams = {
       userId: memberId,
@@ -509,16 +513,7 @@ const HomeScreen = () => {
                     key={schedule.scheduleId}
                     schedule={schedule}
                     onPress={() => {
-                      navigation.navigate('UserScDetail', {
-                        userId: schedule.createdBy,
-                        userName: schedule.userName,
-                        schedules: [schedule],
-                        roomId: currentRoom.roomId,
-                        roomName: currentRoom.roomName,
-                        startDate: schedule.scheduleDate,
-                        endDate: schedule.scheduleEndDate,
-                        profileImage: schedule.profileImage || '',
-                      });
+                      handleMemberScheduleView(schedule.userId || '');
                     }}
                   />
                 ))}

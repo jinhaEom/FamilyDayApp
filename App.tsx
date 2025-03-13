@@ -4,6 +4,8 @@ import {SafeAreaView, StyleSheet} from 'react-native';
 import Navigation from './src/navigation/Navigations';
 import AuthProvider from './src/auth/AuthProvider';
 import usePushNotification from './src/hooks/usePushNotification';
+import './global.css';
+
 const App = () => {
   usePushNotification();
   return (
