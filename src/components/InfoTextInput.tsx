@@ -4,7 +4,6 @@ import {
   TextInputProps,
   View,
   TouchableOpacity,
-  StyleSheet,
 } from 'react-native';
 import {Colors} from '../constants/Colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -18,6 +17,7 @@ interface InfoTextInputProps extends TextInputProps {
   secureTextEntry?: boolean;
   onBlur?: () => void;
   style?: StyleProp<ViewStyle>;
+  className?: string;
 }
 
 const InfoTextInput = forwardRef<TextInput, InfoTextInputProps>(
@@ -29,6 +29,7 @@ const InfoTextInput = forwardRef<TextInput, InfoTextInputProps>(
       placeholderTextColor,
       secureTextEntry,
       onBlur,
+      className,
       ...props
     },
     ref,
@@ -42,6 +43,7 @@ const InfoTextInput = forwardRef<TextInput, InfoTextInputProps>(
 
     return (
       <View
+        className={className}
         style={{
           height: 40,
           borderColor: isFocused ? Colors.PRIMARY : Colors.LIGHT_GRAY,
@@ -55,7 +57,7 @@ const InfoTextInput = forwardRef<TextInput, InfoTextInputProps>(
         }}>
         <TextInput
           ref={ref}
-          style={{color: Colors.BLACK}}
+          className="text-BLACK"
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
@@ -72,7 +74,7 @@ const InfoTextInput = forwardRef<TextInput, InfoTextInputProps>(
           }}
         />
         {deleteIconVisible && (
-          <TouchableOpacity style={styles.iconTouchStyle}>
+          <TouchableOpacity className="absolute right-2 top-2">
             <Ionicons
               name="close-circle"
               size={18}
@@ -88,12 +90,5 @@ const InfoTextInput = forwardRef<TextInput, InfoTextInputProps>(
   },
 );
 
-const styles = StyleSheet.create({
-  iconTouchStyle: {
-    position: 'absolute',
-    right: 10,
-    top: 10,
-  },
-});
 
 export default InfoTextInput;

@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  View,
-  StyleProp,
-  ViewStyle,
-} from 'react-native';
-import {Colors} from '../constants/Colors';
+import {TouchableOpacity, Text, View, StyleProp, ViewStyle} from 'react-native';
 
 interface BasicButtonProps {
   onPress: () => void;
@@ -16,6 +8,7 @@ interface BasicButtonProps {
   disabled?: boolean;
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  className?: string;
 }
 
 const AppBasicButton = ({
@@ -25,38 +18,22 @@ const AppBasicButton = ({
   disabled,
   children,
   style,
+  className,
 }: BasicButtonProps) => {
   return (
     <TouchableOpacity
-      style={[styles.button, {backgroundColor: buttonBackgroundColor}, style]}
+      className={`py-3 px-4 m-4 mb-4 rounded-xl ${className || ''}`}
+      style={[{backgroundColor: buttonBackgroundColor}, style]}
       onPress={disabled ? () => {} : onPress}>
-      <View style={styles.contentContainer}>
-        <Text style={[styles.buttonText, {color: buttonTextColor}]}>
+      <View className="flex-row justify-center items-center">
+        <Text
+          className="text-center font-bold"
+          style={{color: buttonTextColor}}>
           {children}
         </Text>
       </View>
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: Colors.PRIMARY,
-    padding: 12,
-    margin: 15,
-    borderRadius: 12,
-    marginBottom: 15,
-  },
-  contentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: Colors.WHITE,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-});
 
 export default AppBasicButton;

@@ -1,7 +1,6 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
-  StyleSheet,
   Text,
   Alert,
   ActivityIndicator,
@@ -9,7 +8,6 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Dimensions,
   Animated,
 } from 'react-native';
 import {Colors} from '../constants/Colors';
@@ -25,7 +23,6 @@ type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 };
 
-const {height} = Dimensions.get('window');
 
 const LoginScreen = ({navigation}: Props) => {
   const [email, setEmail] = useState('');
@@ -81,212 +78,110 @@ const LoginScreen = ({navigation}: Props) => {
   };
 
   return (
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1 justify-between p-4">
-        <Animated.View className="items-center mt-5" style={{opacity: fadeAnim}}>
-          <View style={styles.logoCircle}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      className="flex-1 justify-between p-4">
+      <Animated.View className="items-center mt-5" style={{opacity: fadeAnim}}>
+        <View className="rounded-full bg-PRIMARY w-20 h-20 items-center justify-center">
+          <Ionicons
+            name="calendar-number-outline"
+            size={48}
+            color={Colors.WHITE}
+          />
+        </View>
+        <Text className="text-[32px] font-bold text-PRIMARY ">Family Day</Text>
+        <Text className="text-[14px] text-GRAY mb-20">
+          가족의 소중한 순간을 함께
+        </Text>
+      </Animated.View>
+
+      <View className="w-full my-20">
+        <View className="flex-row items-center mb-4">
+          <View className="absolute left-2 z-10 mb-4">
+            <Ionicons name="mail-outline" size={20} color={Colors.PRIMARY} />
+          </View>
+          <InfoTextInput
+            placeholder="이메일"
+            value={email}
+            placeholderTextColor={Colors.GRAY}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+            className="flex-1 pl-20 w-full text-BLACK"
+          />
+        </View>
+
+        <View className="flex-row items-center mb-4">
+          <View className="absolute left-2 z-10 mb-4">
             <Ionicons
-              name="calendar-number-outline"
-              size={48}
-              color={Colors.WHITE}
+              name="lock-closed-outline"
+              size={20}
+              color={Colors.PRIMARY}
             />
           </View>
-          <Text style={styles.title}>Family Day</Text>
-          <Text style={styles.subtitle}>가족의 소중한 순간을 함께</Text>
-        </Animated.View>
-
-        <View style={styles.formContainer}>
-          <View style={styles.inputContainer}>
-            <View style={styles.iconContainer}>
-              <Ionicons name="mail-outline" size={20} color={Colors.PRIMARY} />
-            </View>
-            <InfoTextInput
-              placeholder="이메일"
-              value={email}
-              placeholderTextColor={Colors.GRAY}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              returnKeyType="next"
-              onSubmitEditing={() => passwordRef.current?.focus()}
-              style={styles.input}
+          <InfoTextInput
+            placeholder="비밀번호"
+            placeholderTextColor={Colors.GRAY}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            ref={passwordRef}
+            returnKeyType="done"
+            onSubmitEditing={handleLogin}
+            className="flex-1 pl-20 w-full text-BLACK"
+          />
+          <TouchableOpacity
+            className="absolute right-2 z-10 mb-4"
+            onPress={togglePasswordVisibility}>
+            <Ionicons
+              name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+              size={20}
+              color={Colors.GRAY}
             />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <View style={styles.iconContainer}>
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={Colors.PRIMARY}
-              />
-            </View>
-            <InfoTextInput
-              placeholder="비밀번호"
-              placeholderTextColor={Colors.GRAY}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              ref={passwordRef}
-              returnKeyType="done"
-              onSubmitEditing={handleLogin}
-              style={styles.input}
-            />
-            <TouchableOpacity
-              style={styles.eyeIconContainer}
-              onPress={togglePasswordVisibility}>
-              <Ionicons
-                name={showPassword ? 'eye-outline' : 'eye-off-outline'}
-                size={20}
-                color={Colors.GRAY}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>
-              비밀번호를 잊으셨나요?
-            </Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.buttonContainer}>
-          <AppBasicButton
-            onPress={handleLogin}
-            buttonBackgroundColor={Colors.PRIMARY}
-            buttonTextColor={Colors.WHITE}
-            disabled={processingSignIn}
-            style={styles.loginButton}>
-            {processingSignIn ? (
-              <ActivityIndicator size="small" color={Colors.WHITE} />
-            ) : (
-              <Text style={styles.buttonText}>로그인</Text>
-            )}
-          </AppBasicButton>
+        <TouchableOpacity className="self-end mt-2">
+          <Text className="text-PRIMARY text-[14px]">
+            비밀번호를 잊으셨나요?
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-          <View style={styles.dividedContainer}>
-            <View style={styles.divider} />
-            <Text style={styles.orText}>또는</Text>
-            <View style={styles.divider} />
-          </View>
+      <View className="w-full mb-1">
+        <AppBasicButton
+          className="rounded-full h-12 items-center justify-center"
+          onPress={handleLogin}
+          buttonBackgroundColor={Colors.PRIMARY}
+          buttonTextColor={Colors.WHITE}
+          disabled={processingSignIn}>
+          {processingSignIn ? (
+            <ActivityIndicator size="small" color={Colors.WHITE} />
+          ) : (
+            <Text className="text-[16px] font-bold">로그인</Text>
+          )}
+        </AppBasicButton>
 
-          <AppBasicButton
-            onPress={handleSignUp}
-            buttonBackgroundColor={Colors.WHITE}
-            buttonTextColor={Colors.PRIMARY}
-            style={styles.signupButton}>
-            <Text style={styles.signupButtonText}>회원가입</Text>
-          </AppBasicButton>
+        <View className="flex-row items-center my-4">
+          <View className="flex-1 h-0.5 bg-LIGHT_GRAY" />
+          <Text className="mx-2 text-GRAY text-[14px]">또는</Text>
+          <View className="flex-1 h-0.5 bg-LIGHT_GRAY" />
         </View>
-      </KeyboardAvoidingView>
+
+        <AppBasicButton
+          className="rounded-xl border border-PRIMARY h-12"
+          onPress={handleSignUp}
+          buttonBackgroundColor={Colors.WHITE}
+          buttonTextColor={Colors.PRIMARY}>
+          <Text className="text-PRIMARY text-[16px] text-bo">회원가입</Text>
+        </AppBasicButton>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'space-between',
-    padding: 20,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginTop: height * 0.05,
-  },
-  logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: Colors.PRIMARY,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: Colors.PRIMARY,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: Colors.GRAY,
-    marginBottom: 20,
-  },
-  formContainer: {
-    width: '100%',
-    marginVertical: 20,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  iconContainer: {
-    position: 'absolute',
-    left: 12,
-    zIndex: 1,
-    top: 10,
-  },
-  eyeIconContainer: {
-    position: 'absolute',
-    right: 36,
-    zIndex: 1,
-    top: 10,
-  },
-  input: {
-    flex: 1,
-    paddingLeft: 40,
-    color: Colors.BLACK,
-  },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginTop: 8,
-  },
-  forgotPasswordText: {
-    color: Colors.PRIMARY,
-    fontSize: 14,
-  },
-  buttonContainer: {
-    width: '100%',
-    marginBottom: height * 0.05,
-  },
-  loginButton: {
-    borderRadius: 12,
-    height: 50,
-    justifyContent: 'center',
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  dividedContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  divider: {
-    flex: 1,
-    height: 1,
-    backgroundColor: Colors.LIGHT_GRAY,
-  },
-  orText: {
-    marginHorizontal: 10,
-    color: Colors.GRAY,
-    fontSize: 14,
-  },
-  signupButton: {
-    borderRadius: 12,
-    height: 50,
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: Colors.PRIMARY,
-  },
-  signupButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.PRIMARY,
-  },
-});
+
 
 export default LoginScreen;

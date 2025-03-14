@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, TouchableOpacity} from 'react-native';
 import Header from '../components/header/header';
 import {Colors} from '../constants/Colors';
 import {AuthContext} from '../auth/AuthContext';
@@ -107,30 +107,28 @@ const SignUpScreen = ({navigation}: Props) => {
   ]);
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1">
       <Header title="계정생성" showRightIcon={false} onBack={handleBack} />
-      <View style={styles.inputContainer}>
-      <TouchableOpacity
-              style={styles.imageContainer}
-              onPress={handleImagePress}>
-              {userProfileImage ? (
-                <>
-                  <Image
-                    source={{uri: userProfileImage}}
-                    style={styles.selectedImage}
-                    resizeMode="cover"
-                  />
-                  <View style={styles.imageOverlay}>
-                    <Ionicons name="camera" size={24} color={Colors.WHITE} />
-                  </View>
-                </>
-              ) : (
-                <View style={styles.imagePlaceholder}>
-                  <Ionicons name="person-add" size={40} color={Colors.PRIMARY} />
-                  <Text style={styles.imageText}>프로필 선택</Text>
-                </View>
-              )}
-            </TouchableOpacity>
+      <View className="p-4">
+        <TouchableOpacity onPress={handleImagePress}>
+          {userProfileImage ? (
+            <>
+              <Image
+                source={{uri: userProfileImage}}
+                className="w-[180px] h-[180px] rounded-xl items-center self-center mb-4"
+                resizeMode="cover"
+              />
+              <View className="absolute bottom-0 self-center items-center justify-center mb-4">
+                <Ionicons name="camera" size={24} color={Colors.WHITE} />
+              </View>
+            </>
+          ) : (
+            <View className="w-[180px] h-[180px] rounded-xl items-center self-center bg-LIGHT_GRAY justify-center mb-4">
+              <Ionicons name="person-add" size={40} color={Colors.PRIMARY} />
+              <Text className="text-GRAY text-[14px]">프로필 선택</Text>
+            </View>
+          )}
+        </TouchableOpacity>
 
         <InfoTextInput
           placeholder="닉네임"
@@ -155,7 +153,7 @@ const SignUpScreen = ({navigation}: Props) => {
             }
           }}
         />
-        <View style={{position: 'relative'}}>
+        <View className="relative">
           <InfoTextInput
             placeholder="Password"
             ref={passwordRef}
@@ -167,11 +165,7 @@ const SignUpScreen = ({navigation}: Props) => {
           />
           {password !== '' && (
             <Ionicons
-              style={{
-                position: 'absolute',
-                right: 35,
-                top: 10,
-              }}
+              className="absolute self-end right-2 justify-center items-center top-3"
               name={isPasswordVisible ? 'eye-off' : 'eye'}
               size={18}
               color={Colors.GRAY}
@@ -179,7 +173,7 @@ const SignUpScreen = ({navigation}: Props) => {
             />
           )}
         </View>
-        <View style={{position: 'relative'}}>
+        <View className="relative">
           <InfoTextInput
             placeholder="Password Confirm"
             placeholderTextColor={Colors.GRAY}
@@ -191,7 +185,7 @@ const SignUpScreen = ({navigation}: Props) => {
           />
           {passwordConfirm !== '' && (
             <Ionicons
-              style={{position: 'absolute', right: 35, top: 10}}
+              className="absolute self-end right-2 justify-center items-center top-3"
               name={isPasswordConfirmVisible ? 'eye-off' : 'eye'}
               size={18}
               color={Colors.GRAY}
@@ -206,8 +200,9 @@ const SignUpScreen = ({navigation}: Props) => {
       {processingSignUp && (
         <ActivityIndicator size="large" color={Colors.PRIMARY} />
       )}
-      <View style={styles.bottomContainer}>
+      <View className="flex-1 justify-end mb-4">
         <AppBasicButton
+          className="h-12 items-center justify-center"
           onPress={handleSignUp}
           buttonBackgroundColor={buttonDisabled ? Colors.GRAY : Colors.PRIMARY}
           buttonTextColor={Colors.WHITE}
@@ -216,7 +211,9 @@ const SignUpScreen = ({navigation}: Props) => {
         </AppBasicButton>
         <Text style={{textAlign: 'center', color: Colors.GRAY}}>
           이미 계정이 있으신가요?{'  '}
-          <Text style={{color: Colors.PRIMARY}} onPress={() => navigation.goBack()}>
+          <Text
+            style={{color: Colors.PRIMARY}}
+            onPress={() => navigation.goBack()}>
             로그인
           </Text>
         </Text>
@@ -224,67 +221,5 @@ const SignUpScreen = ({navigation}: Props) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  imageContainer: {
-    width :120,
-    height: 120,
-    borderRadius : 40,
-    backgroundColor : Colors.LIGHT_GRAY,
-    alignSelf:'center',
-    justifyContent:'center',
-    alignItems: 'center',
-    marginBottom: 20,
-    overflow: 'hidden',
-  },
-  selectedImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 10,
-  },
-  imageOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    paddingVertical : 5,
-    alignItems : 'center',
-  },
-  imagePlaceholder: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imageText: {
-    color: Colors.GRAY,
-    textAlign: 'center',
-    fontSize: 14,
-  },
-  container: {
-    flex: 1,
-  },
-  inputContainer: {
-    padding: 20,
-  },
-  bottomContainer: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'flex-end',
-    paddingBottom: 20,
-  },
-  button: {
-    backgroundColor: Colors.PRIMARY,
-    padding: 12,
-    margin: 15,
-    borderRadius: 12,
-  },
-  buttonText: {
-    color: Colors.WHITE,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-});
 
 export default SignUpScreen;
