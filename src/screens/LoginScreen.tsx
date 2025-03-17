@@ -133,7 +133,7 @@ const LoginScreen = ({navigation}: Props) => {
             className="flex-1 pl-20 w-full text-BLACK"
           />
           <TouchableOpacity
-            className="absolute right-2 z-10 mb-4"
+            className="absolute right-10 z-10 mb-4"
             onPress={togglePasswordVisibility}>
             <Ionicons
               name={showPassword ? 'eye-outline' : 'eye-off-outline'}
@@ -143,7 +143,9 @@ const LoginScreen = ({navigation}: Props) => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity className="self-end mt-2">
+        <TouchableOpacity
+          className="self-end mt-2"
+          onPress={() => navigation.navigate('ForgotPassword')}>
           <Text className="text-PRIMARY text-[14px]">
             비밀번호를 잊으셨나요?
           </Text>
