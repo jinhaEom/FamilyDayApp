@@ -15,7 +15,7 @@ import InviteCodeScreen from '../setting/settingMenu/InviteCodeScreen';
 import LoadingScreen from '../Loading/LoadingScreen';
 import {AuthContext} from '../auth/AuthContext';
 import {Schedule} from '../types/type';
-
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 export interface UserScDetailParams {
   userId: string;
   userName: string;
@@ -29,6 +29,7 @@ export interface UserScDetailParams {
 
 export type RootStackParamList = {
   Loading: undefined;
+  ForgotPassword: undefined;
   Login: undefined;
   SignUp: undefined;
   ChoiceRoom: undefined;
@@ -67,6 +68,7 @@ const Navigation = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="ChoiceRoom" component={ChoiceRoom} />
         <Stack.Screen name="MakeRoom" component={MakeRoom} />

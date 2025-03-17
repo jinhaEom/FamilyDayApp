@@ -1,10 +1,5 @@
 import React, {useState, useEffect, forwardRef} from 'react';
-import {
-  TextInput,
-  TextInputProps,
-  View,
-  TouchableOpacity,
-} from 'react-native';
+import {TextInput, TextInputProps, View, TouchableOpacity} from 'react-native';
 import {Colors} from '../constants/Colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {StyleProp, ViewStyle} from 'react-native';
@@ -74,7 +69,7 @@ const InfoTextInput = forwardRef<TextInput, InfoTextInputProps>(
           }}
         />
         {deleteIconVisible && (
-          <TouchableOpacity className="absolute right-2 top-2">
+          <TouchableOpacity className="absolute right-2">
             <Ionicons
               name="close-circle"
               size={18}
@@ -89,6 +84,5 @@ const InfoTextInput = forwardRef<TextInput, InfoTextInputProps>(
     );
   },
 );
-
 
 export default InfoTextInput;
