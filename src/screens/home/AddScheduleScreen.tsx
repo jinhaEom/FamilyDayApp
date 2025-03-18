@@ -31,12 +31,13 @@ interface HeaderProps {
 
 const Header = ({title, onBack}: HeaderProps) => {
   return (
-    <View style={styles.header}>
-      <TouchableOpacity onPress={onBack} style={styles.backButton}>
+    <View className="flex-row items-center justify-between p-4">
+      <TouchableOpacity onPress={onBack}>
         <Ionicons name="arrow-back" size={24} color={Colors.PRIMARY} />
       </TouchableOpacity>
-      <Text style={styles.headerTitle}>{title}</Text>
-      <View style={{width: 24}} />
+      <View className="flex-1 items-center">
+        <Text className="text-[18px] font-bold text-PRIMARY">{title}</Text>
+      </View>
     </View>
   );
 };
@@ -49,10 +50,10 @@ interface DatePickerFieldProps {
 
 const DatePickerField = ({label, date, onPress}: DatePickerFieldProps) => {
   return (
-    <View style={styles.datePickerContainer}>
-      <Text style={styles.inputLabel}>{label}</Text>
-      <TouchableOpacity onPress={onPress} style={styles.datePickerButton}>
-        <Text style={styles.dateText}>
+    <View className="mb-4">
+      <Text className="text-sm font-bold text-DARK_GRAY mb-2">{label}</Text>
+      <TouchableOpacity onPress={onPress} className="flex-row items-center justify-between bg-LIGHT_GRAY rounded-lg p-2 border border-GRAY">
+        <Text className="text-sm text-DARK_GRAY">
           {format(date, 'yyyy년 MM월 dd일 (eee)', {locale: ko})}
         </Text>
         <Ionicons name="calendar" size={20} color={Colors.PRIMARY} />
@@ -74,6 +75,7 @@ const AddScheduleScreen = () => {
   const {user, currentRoom, refreshSchedules} = useContext(AuthContext);
   const [isImportant, setIsImportant] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [selectedDays, setSelectedDays] = useState<number[]>([]); // 0: 월요일, 1: 화요일, ...
 
   const handleConfirm = (date: Date) => {
     setDatePickerVisibility(false);
@@ -86,6 +88,16 @@ const AddScheduleScreen = () => {
     } else {
       setEndDate(date);
     }
+  };
+
+  const toggleDay = (index: number) => {
+    setSelectedDays(prev => {
+      if (prev.includes(index)) {
+        return prev.filter(day => day !== index);
+      } else {
+        return [...prev, index];
+      }
+    });
   };
 
   const handleScheduleAdd = async (roomId: string, userId: string) => {
@@ -107,20 +119,34 @@ const AddScheduleScreen = () => {
     setIsSubmitting(true);
 
     try {
-      const scheduleData: Schedule = {
-        scheduleId: new Date().getTime().toString(),
-        scheduleTitle: scheduleName.trim(),
-        scheduleContent: scheduleContent.trim(),
-        scheduleDate: startDate.toISOString(),
-        userName: user?.name || '',
-        scheduleEndDate: endDate.toISOString(),
-        createdAt: firestore.Timestamp.now(),
-        userId: userId,
-        isImportant: isImportant,
-      };
+      const schedules: Schedule[] = [];
+      let currentDate = new Date(startDate);
+
+      // 시작일부터 종료일까지 반복
+      while (currentDate <= endDate) {
+        // 선택된 요일이 있는 경우, 해당 요일에만 일정 추가
+        if (
+          selectedDays.length === 0 ||
+          selectedDays.includes(currentDate.getDay())
+        ) {
+          const scheduleData: Schedule = {
+            scheduleId: `${new Date().getTime()}_${currentDate.getTime()}`,
+            scheduleTitle: scheduleName.trim(),
+            scheduleContent: scheduleContent.trim(),
+            scheduleDate: currentDate.toISOString(),
+            userName: user?.name || '',
+            scheduleEndDate: currentDate.toISOString(), // 반복 일정의 경우 종료일도 같은 날짜로 설정
+            createdAt: firestore.Timestamp.now(),
+            userId: userId,
+            isImportant: isImportant,
+          };
+          schedules.push(scheduleData);
+        }
+        // 다음 날짜로 이동
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
 
       const roomRef = firestore().collection('rooms').doc(roomId);
-
       const roomDoc = await roomRef.get();
       const roomData = roomDoc.data();
 
@@ -129,8 +155,7 @@ const AddScheduleScreen = () => {
       }
 
       const currentSchedules = roomData.members[userId].schedules || [];
-      const updatedSchedules = [...currentSchedules, scheduleData];
-
+      const updatedSchedules = [...currentSchedules, ...schedules];
 
       // Firestore에 업데이트
       await roomRef.update({
@@ -164,11 +189,11 @@ const AddScheduleScreen = () => {
     <>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}>
+        className="flex-1">
         <Header title="일정 등록하기" onBack={() => navigation.goBack()} />
 
         <ScrollView
-          style={styles.scrollView}
+          className="flex-1"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollViewContent}>
           <View style={styles.formContainer}>
@@ -202,16 +227,29 @@ const AddScheduleScreen = () => {
               </View>
               <Text style={styles.importantCheckboxText}>중요 일정</Text>
             </TouchableOpacity>
-            <Text className="font-bold text-lg">매주</Text>
+            <Text className="text-lg mb-2">[매주]</Text>
 
             <View style={styles.weekContainer}>
               {['월', '화', '수', '목', '금', '토', '일'].map((day, index) => (
-                <Text key={index} style={styles.weekDay}>
-                  {day}
-                </Text>
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => toggleDay(index)}
+                  style={[
+                    styles.weekDayButton,
+                    selectedDays.includes(index) && styles.weekDaySelected,
+                  ]}>
+                  <Text
+                    style={[
+                      styles.weekDayText,
+                      selectedDays.includes(index) &&
+                        styles.weekDayTextSelected,
+                    ]}>
+                    {day}
+                  </Text>
+                </TouchableOpacity>
               ))}
             </View>
-            <View style={styles.dateContainer}>
+            <View className="mb-4">
               <DatePickerField
                 label="시작 날짜"
                 date={startDate}
@@ -233,18 +271,18 @@ const AddScheduleScreen = () => {
           </View>
         </ScrollView>
 
-        <View style={styles.buttonContainer}>
+        <View className="flex-row justify-between p-4">
           <AppBasicButton
-            style={styles.cancelButton}
+            className="flex-1"
             onPress={() => navigation.goBack()}
             buttonBackgroundColor={Colors.LIGHT_GRAY}
             buttonTextColor={Colors.DARK_GRAY}
             disabled={isSubmitting}>
-            <Text style={styles.buttonText}>취소</Text>
+            <Text className="text-sm font-bold text-DARK_GRAY">취소</Text>
           </AppBasicButton>
 
           <AppBasicButton
-            style={styles.submitButton}
+            className="flex-1"
             onPress={() => {
               if (!currentRoom?.roomId || !user?.userId) {
                 Alert.alert('오류', '사용자 또는 방 정보를 찾을 수 없습니다.');
@@ -255,7 +293,7 @@ const AddScheduleScreen = () => {
             buttonBackgroundColor={Colors.PRIMARY}
             buttonTextColor={Colors.WHITE}
             disabled={isSubmitting}>
-            <Text style={styles.buttonText}>
+            <Text className="text-sm font-bold text-WHITE">
               {isSubmitting ? '등록 중...' : '일정 등록하기'}
             </Text>
           </AppBasicButton>
@@ -271,35 +309,12 @@ const AddScheduleScreen = () => {
         confirmTextIOS="확인"
         cancelTextIOS="취소"
       />
-      </>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
- 
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    height: 56,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.LIGHT_GRAY,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.PRIMARY,
-  },
-  backButton: {
-    padding: 8,
-  },
-  scrollView: {
-    flex: 1,
-  },
+
   scrollViewContent: {
     padding: 16,
   },
@@ -317,30 +332,11 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
   },
-  inputContainer: {
-    marginBottom: 16,
-  },
   inputLabel: {
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 8,
     color: Colors.DARK_GRAY,
-  },
-  input: {
-    backgroundColor: '#F9F9F9',
-    borderRadius: 8,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: Colors.LIGHT_GRAY,
-  },
-  multilineInput: {
-    backgroundColor: '#F9F9F9',
-    borderRadius: 8,
-    padding: 12,
-    minHeight: 120,
-    textAlignVertical: 'top',
-    borderWidth: 1,
-    borderColor: Colors.LIGHT_GRAY,
   },
   importantCheckboxContainer: {
     flexDirection: 'row',
@@ -356,7 +352,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-   scheduleContentInput: {
+  scheduleContentInput: {
     height: 300,
     paddingTop: 10,
     paddingRight: 20,
@@ -367,12 +363,7 @@ const styles = StyleSheet.create({
     color: Colors.DARK_GRAY,
     fontWeight: '500',
   },
-  dateContainer: {
-    marginBottom: 20,
-  },
-  datePickerContainer: {
-    marginBottom: 16,
-  },
+
   datePickerButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -383,10 +374,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.LIGHT_GRAY,
   },
-  dateText: {
-    color: Colors.DARK_GRAY,
-    fontSize: 16,
-  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -395,37 +382,31 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.LIGHT_GRAY,
     backgroundColor: Colors.WHITE,
   },
-  cancelButton: {
-    flex: 1,
-    marginRight: 8,
-  },
-  submitButton: {
-    flex: 2,
-    marginLeft: 8,
-  },
-  buttonText: {
-    fontWeight: '600',
-    fontSize: 16,
-  },
+
+
   weekContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 16,
   },
-  weekDay: {
-    fontSize: 14,
-    color: Colors.WHITE,
+  weekDayButton: {
+    width: 40,
+    height: 40,
     borderRadius: 20,
-    padding: 6,
-    backgroundColor: Colors.SECONDARY,
-    fontWeight: '500',
-    width: 30,
-    textAlign: 'center',
+    backgroundColor: Colors.LIGHT_GRAY,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  weekDayTitle: {
+  weekDaySelected: {
+    backgroundColor: Colors.PRIMARY,
+  },
+  weekDayText: {
     fontSize: 14,
     color: Colors.DARK_GRAY,
     fontWeight: '500',
+  },
+  weekDayTextSelected: {
+    color: Colors.WHITE,
   },
 });
 

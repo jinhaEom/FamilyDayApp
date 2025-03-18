@@ -23,7 +23,7 @@ import {
   UserScDetailParams,
 } from '../../navigation/Navigations';
 import {Colors} from '../../constants/Colors';
-import {Calendar, LocaleConfig, DateData} from 'react-native-calendars';
+import {Calendar, DateData} from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Schedule} from '../../types/type';
 import FastImage from 'react-native-fast-image';
@@ -33,47 +33,6 @@ import {useRoomSync} from '../../hooks/useRoomSync';
 const {width} = Dimensions.get('window');
 
 // 날짜 관련 설정
-LocaleConfig.locales['ko'] = {
-  monthNames: [
-    '1월',
-    '2월',
-    '3월',
-    '4월',
-    '5월',
-    '6월',
-    '7월',
-    '8월',
-    '9월',
-    '10월',
-    '11월',
-    '12월',
-  ],
-  monthNamesShort: [
-    '1월',
-    '2월',
-    '3월',
-    '4월',
-    '5월',
-    '6월',
-    '7월',
-    '8월',
-    '9월',
-    '10월',
-    '11월',
-    '12월',
-  ],
-  dayNames: [
-    '일요일',
-    '월요일',
-    '화요일',
-    '수요일',
-    '목요일',
-    '금요일',
-    '토요일',
-  ],
-  dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
-};
-LocaleConfig.defaultLocale = 'ko';
 
 // 날짜 유틸리티 훅
 const useDateUtils = () => {
@@ -665,7 +624,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '70%',
-    backgroundColor: Colors.WHITE,
+    margin: 4,
+    borderWidth: 1,
+    borderColor: Colors.GRAY,
+    backgroundColor: Colors.LIGHT_GRAY_2,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: 20,

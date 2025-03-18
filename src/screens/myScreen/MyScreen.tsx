@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: 'bold',
     color: Colors.PRIMARY,
-    marginBottom: 5,
+    marginBottom: 7,
   },
   headerSubtitle: {
     fontSize: 14,

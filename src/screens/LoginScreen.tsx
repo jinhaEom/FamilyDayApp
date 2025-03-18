@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  Image,
 } from 'react-native';
 import {Colors} from '../constants/Colors';
 import {AuthContext} from '../auth/AuthContext';
@@ -83,13 +84,9 @@ const LoginScreen = ({navigation}: Props) => {
       className="flex-1 justify-between p-4">
       <Animated.View className="items-center mt-5" style={{opacity: fadeAnim}}>
         <View className="rounded-full bg-PRIMARY w-20 h-20 items-center justify-center">
-          <Ionicons
-            name="calendar-number-outline"
-            size={48}
-            color={Colors.WHITE}
-          />
+          <Image source={require('../assets/appLogo.png')} className="w-24 h-24" />
         </View>
-        <Text className="text-[32px] font-bold text-PRIMARY ">Family Day</Text>
+        <Text className="mt-4 text-[32px] font-bold text-PRIMARY ">Family Day</Text>
         <Text className="text-[14px] text-GRAY mb-20">
           가족의 소중한 순간을 함께
         </Text>

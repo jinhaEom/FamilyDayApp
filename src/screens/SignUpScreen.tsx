@@ -165,7 +165,7 @@ const SignUpScreen = ({navigation}: Props) => {
           />
           {password !== '' && (
             <Ionicons
-              className="absolute self-end right-2 justify-center items-center top-3"
+              className="absolute self-end right-8 justify-center items-center top-3"
               name={isPasswordVisible ? 'eye-off' : 'eye'}
               size={18}
               color={Colors.GRAY}
@@ -185,7 +185,7 @@ const SignUpScreen = ({navigation}: Props) => {
           />
           {passwordConfirm !== '' && (
             <Ionicons
-              className="absolute self-end right-2 justify-center items-center top-3"
+              className="absolute self-end right-8 justify-center items-center top-3"
               name={isPasswordConfirmVisible ? 'eye-off' : 'eye'}
               size={18}
               color={Colors.GRAY}
