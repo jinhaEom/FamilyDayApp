@@ -19,6 +19,7 @@ import {RootStackParamList} from '../navigation/navigations';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
 import { ToastMessage } from '../components/ToastMessage';
+import { version } from '../../package.json';
 const NOTIFICATION_ENABLED_KEY = 'notification_enabled';
 
 const SettingScreen = () => {
@@ -139,6 +140,9 @@ const SettingScreen = () => {
         <Ionicons name="log-out-outline" size={24} color={Colors.PRIMARY} />
         <Text style={styles.textStyle}>로그아웃</Text>
       </TouchableOpacity>
+      <View style={styles.container}>
+      <Text style={{flex: 1, textAlign: 'right'}}>버전 {version}</Text>
+      </View>
     </View>
   );
 };

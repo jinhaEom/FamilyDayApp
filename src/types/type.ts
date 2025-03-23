@@ -52,3 +52,11 @@ export interface Schedule {
   isImportant?: boolean;
   profileImage?: string | null;
 }
+export interface ScheduleComment {
+  id: string;
+  scheduleId: string;
+  userId: string;
+  userName: string;
+  text: string;
+  createdAt: any;
+}
