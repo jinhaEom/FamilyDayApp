@@ -56,7 +56,6 @@ Family Day는 가족 또는 연인들이 일정을 쉽게 공유하고 관리할
 - **React Native Calendars** → 캘린더 UI 제공  
 - **Context API** → 전역 상태 관리
 
-📢 **현재 개발 진행 중이며, 새로운 기능이 지속적으로 추가될 예정입니다.**
 
 
 
